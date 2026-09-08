@@ -138,4 +138,8 @@ Setiap entry menggunakan format ini:
 - `Predis\Client not found` pada backend → solved dengan mengubah `REDIS_CLIENT=phpredis` di `.env` dan `docker-compose.yml`.
 - `DB_HOST=127.0.0.1` pada backend container menolak koneksi Postgres → solved dengan mengubah `DB_HOST=db` dan `DB_PASSWORD=secret_password`.
 
+**Referensi:**
+- Branch: `feature/mobile/auth-foundation`
+- Commit: `bf50d41`
+- PR URL: https://github.com/AruYQ/UniDemic/pull/new/feature/mobile/auth-foundation
 

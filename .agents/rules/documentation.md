@@ -30,6 +30,14 @@ Sebelum membuat atau memodifikasi screen/komponen apapun:
 Saat menambah atau mengubah dokumentasi:
 → Baca dan ikuti skill: `.agents/skills/unidemic-devlog/SKILL.md`
 
+## Wajib Diaktifkan untuk Verifikasi Fitur & Quality Gate
+
+Sebelum menyatakan phase selesai dan sebelum melangkah ke phase berikutnya:
+→ Baca dan ikuti aturan: `.agents/rules/verification.md`
+→ Uji seluruh fitur baru dan fitur terdampak (regression)
+→ Sediakan skenario uji coba untuk user & minta konfirmasi lolos
+→ DILARANG melangkah ke phase berikutnya tanpa konfirmasi user
+
 ## Branch Naming
 
 - Backend: `feature/backend/[nama-fitur]`

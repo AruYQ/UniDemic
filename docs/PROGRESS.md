@@ -41,15 +41,15 @@
 
 | Task | Status | Catatan |
 |------|--------|---------|
-| Setup Laravel project | `[ ]` | |
-| Docker Compose (api, db, redis, minio) | `[ ]` | |
-| Database migrations (users) | `[ ]` | |
-| Laravel Sanctum auth | `[ ]` | |
-| `POST /auth/register` | `[ ]` | |
-| `POST /auth/login` | `[ ]` | |
-| `POST /auth/logout` | `[ ]` | |
-| `GET/PUT /profile` | `[ ]` | |
-| GitHub Actions CI | `[ ]` | |
+| Setup Laravel project | `[x]` | Struktur apps/api, Laravel 11/12, PHP 8.3/8.5 |
+| Docker Compose (api, db, redis, minio) | `[x]` | infrastructure/docker-compose.yml & prod config |
+| Database migrations (users) | `[x]` | Users (academic fields), tokens, sessions, cache |
+| Laravel Sanctum auth | `[x]` | HasApiTokens, auth:sanctum middleware, rate limiting |
+| `POST /auth/register` | `[x]` | RegisterRequest validation, issue token (201) |
+| `POST /auth/login` | `[x]` | LoginRequest, credential check, issue token (200) |
+| `POST /auth/logout` | `[x]` | Revoke currentAccessToken, revoke specific tokens |
+| `GET/PUT /profile` | `[x]` | UserResource, update profile & password |
+| GitHub Actions CI | `[x]` | .github/workflows/backend-ci.yml matrix test |
 
 ### Dev B (Frontend / AruYQ)
 
@@ -68,13 +68,13 @@
 
 | Item | Status | Verified by | Tanggal |
 |------|--------|-------------|---------|
-| API register/login/logout bekerja | `[ ]` | | |
+| API register/login/logout bekerja | `[x]` | Dev A (AI Agent) | 2026-09-08 |
 | Token tersimpan di mobile | `[ ]` | | |
 | Login screen tampil benar | `[ ]` | | |
 | Register screen tampil benar | `[ ]` | | |
 | Navigasi auth bekerja | `[ ]` | | |
-| Docker compose jalan lokal | `[ ]` | | |
-| CI pipeline hijau | `[ ]` | | |
+| Docker compose jalan lokal | `[x]` | Dev A (AI Agent) | 2026-09-08 |
+| CI pipeline hijau | `[x]` | Dev A (AI Agent) | 2026-09-08 |
 
 ---
 

@@ -71,6 +71,7 @@ Proyek ini menggunakan AI agent untuk membantu development dengan skill yang ter
 
 - **`unidemic-ui-ux`** — Design system & Vibe Coding standards untuk semua UI
 - **`unidemic-devlog`** — Panduan dokumentasi wajib per task
+- **`security.md`** — (Rule Global) Aturan Cybersecurity & Privasi Data (OWASP, JWT, Secret Management)
 
 ---
 

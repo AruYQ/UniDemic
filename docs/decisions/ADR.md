@@ -154,5 +154,35 @@ unidemic/
 
 ---
 
+## ADR-0006 — Cybersecurity & Data Privacy Standards
+
+**Tanggal**: 2026-09-08
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+UniDemic menyimpan data akademik, tugas, nilai, dan file personal mahasiswa yang bersifat sensitif. Keamanan siber (cybersecurity) dan privasi data harus diterapkan secara default (secure-by-design) di semua layer: Frontend, Backend, dan AI.
+
+### Keputusan
+1. **Data in Transit**: Wajib menggunakan HTTPS (TLS 1.2+) di semua endpoint komunikasi API.
+2. **Data at Rest**:
+   - Password di-hash menggunakan **Bcrypt/Argon2** (default Laravel).
+   - Token auth dan data sensitif di mobile WAJIB disimpan di **expo-secure-store** (menggunakan Keychain di iOS & Keystore di Android), dilarang menggunakan `AsyncStorage`.
+3. **API Security**:
+   - Rate limiting wajib aktif di semua endpoint publik, terutama `/auth` untuk mencegah Brute Force.
+   - Wajib validasi request masuk (Input Validation) untuk mencegah SQL Injection & XSS menggunakan **Zod** (Frontend) dan **FormRequests** (Laravel).
+4. **AI Privacy**:
+   - Prompt ke AI Model (Gemini) *tidak boleh* menyertakan PII (Personally Identifiable Information) yang tidak relevan dengan konteks.
+5. **Secret Management**:
+   - API Keys, DB credentials, dan secret lainnya HANYA boleh ada di `.env`. Dilarang keras menaruh (hardcode) secret key di dalam source code.
+
+### Konsekuensi
+- ✅ Data pengguna dan kredensial aman dari akses tidak sah.
+- ✅ Meminimalisir celah keamanan umum (OWASP Top 10).
+- ⚠️ Developer harus ekstra disiplin (misal: tidak boleh `console.log` data token).
+- ⚠️ Sedikit overhead performa karena enkripsi/dekripsi token di sisi mobile.
+
+---
+
 > ⬇️ ADR berikutnya ditambahkan di bawah saat ada keputusan arsitektur baru
 

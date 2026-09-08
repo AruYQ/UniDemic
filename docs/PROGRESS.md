@@ -23,7 +23,7 @@
 
 | Phase | Nama | Status | Dev A | Dev B | Checkpoint |
 |-------|------|--------|-------|-------|------------|
-| 1 | Foundation | `[/]` | `[ ]` | `[ ]` | `[ ]` |
+| 1 | Foundation | `[x]` | `[x]` | `[x]` | `[x]` |
 | 2 | Academic Core | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 3 | Academic Tracking | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 4 | Productivity | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
@@ -55,25 +55,25 @@
 
 | Task | Status | Catatan |
 |------|--------|---------|
-| Setup Expo project (TypeScript) | `[ ]` | |
-| Install dependencies | `[ ]` | |
-| Folder structure | `[ ]` | |
-| Expo Router setup | `[ ]` | |
-| Auth screens (Login, Register) | `[ ]` | |
-| API client (`lib/api.ts`) | `[ ]` | |
-| Auth store (Zustand) | `[ ]` | |
-| Secure token storage | `[ ]` | |
+| Setup Expo project (TypeScript) | `[x]` | Expo SDK 57 + TypeScript + Expo Router initialized |
+| Install dependencies | `[x]` | Zustand, Axios, Zod, TanStack Query, Reanimated, Phosphor, Fonts |
+| Folder structure | `[x]` | Clean architecture with design system tokens in src/ |
+| Expo Router setup | `[x]` | Group routing `(auth)` + stack navigation & auth guard |
+| Auth screens (Login, Register) | `[x]` | Vibe Coding compliant: Syne typography, dark mode, Zod validation |
+| API client (`lib/api.ts`) | `[x]` | Axios with Bearer token interceptor & error handling |
+| Auth store (Zustand) | `[x]` | useAuthStore managing credentials, user session & auto profile fetch |
+| Secure token storage | `[x]` | expo-secure-store wrapper with web localStorage fallback |
 
 ### ✅ Checkpoint 1 Verification
 
 | Item | Status | Verified by | Tanggal |
 |------|--------|-------------|---------|
-| API register/login/logout bekerja | `[x]` | Dev A (AI Agent) | 2026-09-08 |
-| Token tersimpan di mobile | `[ ]` | | |
-| Login screen tampil benar | `[ ]` | | |
-| Register screen tampil benar | `[ ]` | | |
-| Navigasi auth bekerja | `[ ]` | | |
-| Docker compose jalan lokal | `[x]` | Dev A (AI Agent) | 2026-09-08 |
+| API register/login/logout bekerja | `[x]` | Dev A & B (AI Agent) | 2026-09-08 |
+| Token tersimpan di mobile | `[x]` | Dev B (AI Agent) | 2026-09-08 |
+| Login screen tampil benar | `[x]` | Dev B (AI Agent) | 2026-09-08 |
+| Register screen tampil benar | `[x]` | Dev B (AI Agent) | 2026-09-08 |
+| Navigasi auth bekerja | `[x]` | Dev B (AI Agent) | 2026-09-08 |
+| Docker compose jalan lokal | `[x]` | Dev A & B (AI Agent) | 2026-09-08 |
 | CI pipeline hijau | `[x]` | Dev A (AI Agent) | 2026-09-08 |
 
 ---

@@ -18,7 +18,7 @@ services:
       DB_DATABASE: unidemic
       DB_USERNAME: unidemic
       DB_PASSWORD: secret_password
-      REDIS_CLIENT: predis
+      REDIS_CLIENT: phpredis
       REDIS_HOST: redis
       REDIS_PORT: 6379
       CACHE_STORE: redis

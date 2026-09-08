@@ -1,0 +1,125 @@
+services:
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    container_name: unidemic-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: UniDemic
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: unidemic
+      DB_USERNAME: unidemic
+      DB_PASSWORD: secret_password
+      REDIS_CLIENT: predis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+      FILESYSTEM_DISK: s3
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_BUCKET: unidemic-storage
+      AWS_ENDPOINT: http://minio:9000
+      AWS_USE_PATH_STYLE_ENDPOINT: "true"
+    volumes:
+      - ../apps/api:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - unidemic-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: unidemic-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: unidemic
+      POSTGRES_USER: unidemic
+      POSTGRES_PASSWORD: secret_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - unidemic_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U unidemic -d unidemic"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - unidemic-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: unidemic-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - unidemic_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - unidemic-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: unidemic-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - unidemic_miniodata:/data
+    networks:
+      - unidemic-network
+
+  createbuckets:
+    image: minio/mc:latest
+    container_name: unidemic-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 2;
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb myminio/unidemic-storage --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/unidemic-storage;
+      exit 0;
+      "
+    networks:
+      - unidemic-network
+
+networks:
+  unidemic-network:
+    driver: bridge
+
+volumes:
+  unidemic_pgdata:
+    driver: local
+  unidemic_redisdata:
+    driver: local
+  unidemic_miniodata:
+    driver: local

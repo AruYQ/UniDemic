@@ -104,6 +104,7 @@ Setiap entry menggunakan format ini:
 
 **Masalah yang ditemukan:**
 - Download paralel composer di Windows mengalami kendala permission/file lock pada file temporer zip → Diatasi dengan membatasi proses, membersihkan cache, dan menjalankan instalasi dengan `--no-dev` terlebih dahulu sebelum memasang dev tools.
+- CI pipeline PHP 8.3 gagal karena dependensi Symfony 8.1 / Laravel 13 membutuhkan PHP >= 8.4.1 → Diatasi dengan menyelaraskan versi PHP ke 8.4 pada `composer.json`, `Dockerfile`, dan GitHub Actions CI matrix (`backend-ci.yml`), CI kini 100% hijau.
 
 **Referensi:**
 - [ADR-0001 — Tech Stack Selection](../decisions/ADR.md#adr-0001--tech-stack-selection)

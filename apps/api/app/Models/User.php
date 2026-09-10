@@ -55,4 +55,20 @@ class User extends Authenticatable
             'preferences' => 'array',
         ];
     }
+
+    /**
+     * Get all semesters belonging to the user.
+     */
+    public function semesters(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Semester::class);
+    }
+
+    /**
+     * Get the user's currently active semester.
+     */
+    public function activeSemester(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Semester::class)->where('is_active', true);
+    }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,36 +6,56 @@ import {
   ScrollView,
   SafeAreaView,
   Pressable,
+  RefreshControl,
 } from 'react-native';
 import Animated, { FadeInDown, Easing } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
 import {
   SignOut,
   GraduationCap,
   CalendarCheck,
   Clock,
   BookBookmark,
-  Sparkle,
-  TrendUp,
+  CheckSquareOffset,
+  ArrowRight,
 } from 'phosphor-react-native';
 import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
 import { UniBadge } from '@/components/ui/UniBadge';
-import { UniButton } from '@/components/ui/UniButton';
+import { BottomNav } from '@/components/ui/BottomNav';
+import { DashboardSkeleton } from '@/components/ui/UniSkeleton';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useAcademicStore } from '@/store/useAcademicStore';
+import { DayOfWeek } from '@/types/academic';
 
 /*
 <vibe_check>
 Screen/Component : DashboardScreen (app/index.tsx)
-Tujuan           : Menampilkan beranda akademik terintegrasi bagi mahasiswa setelah login, dengan status kehadiran, ringkasan jadwal, dan profil terautentikasi
-Layout strategy  : Bento-style asimetris (Hero card jadwal kelas teratas + 2-col bento stats di bawahnya), thumb-friendly navigation
-Color tokens     : bg.base (#0F1117), bg.surface (#171B26), brand.primary (#6B7FD7), brand.secondary (#4ECDC4), semantic.success (#4ECDC4)
-Animation plan   : FadeInDown staggered enter pada kartu-kartu bento
-Typography       : Syne_700Bold display, SpaceGrotesk untuk headers & body, JetBrainsMono untuk kode mata kuliah & angka metrik
-Anti-slop check  : Rule #6 (Bento asimetris), Rule #10 (Syne + Space Grotesk + Mono), Rule #12 (real user initials), Rule #20 (indigo-slate palette)
+Tujuan           : Menampilkan beranda dengan data akademik nyata, skeleton shimmer loading ala big apps, dan on-demand caching
+Layout strategy  : Top header -> Hero card kelas hari ini -> Bento stats -> Urgency stack tugas -> BottomNav
+Color tokens     : bg.base (#0F1117), bg.surface (#171B26), brand.primary (#6B7FD7), brand.secondary (#4ECDC4)
+Animation plan   : FadeInDown staggered dengan liquid spring feel
+Typography       : Syne_700Bold hero numbers, SpaceGrotesk untuk headers, JetBrainsMono untuk jam & SKS
+Anti-slop check  : Rule #21 (Skeleton loading), Rule #6 (Bento grid), Rule #10 (typography stack)
 </vibe_check>
 */
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const { user, logout } = useAuthStore();
+  const {
+    activeSemester,
+    courses,
+    schedules,
+    assignments,
+    isDashboardLoading,
+    isRefreshing,
+    fetchDashboard,
+  } = useAcademicStore();
+
+  useEffect(() => {
+    // On-demand fetch khusus beranda
+    fetchDashboard();
+  }, []);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -52,15 +72,51 @@ export default function DashboardScreen() {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   };
 
+  const getTodayDayOfWeek = (): DayOfWeek => {
+    const days: DayOfWeek[] = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
+    return days[new Date().getDay()];
+  };
+
+  const todayDay = getTodayDayOfWeek();
+  const todaySchedules = schedules.filter((s) => s.day === todayDay);
+  const nextClass = todaySchedules.length > 0 ? todaySchedules[0] : null;
+
+  const totalSks = courses.reduce((acc, c) => acc + (c.credits || 0), 0);
+
+  const pendingAssignments = assignments
+    .filter((a) => !a.is_completed && a.progress < 100)
+    .slice(0, 2);
+
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return '--:--';
+    const parts = timeStr.split(':');
+    return `${parts[0]}:${parts[1]}`;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => fetchDashboard(true)}
+            tintColor={colors.brand.primary}
+          />
+        }
       >
         {/* Top App Bar */}
         <Animated.View
-          entering={FadeInDown.duration(300).easing(Easing.out(Easing.cubic))}
+          entering={FadeInDown.duration(280).easing(Easing.out(Easing.cubic))}
           style={styles.topBar}
         >
           <View style={styles.userInfo}>
@@ -78,81 +134,158 @@ export default function DashboardScreen() {
           </Pressable>
         </Animated.View>
 
-        {/* Hero Card: Upcoming Class */}
-        <Animated.View
-          entering={FadeInDown.delay(80).duration(300).easing(Easing.out(Easing.cubic))}
-          style={styles.heroCard}
-        >
-          <View style={styles.heroHeader}>
-            <UniBadge label="KELAS BERIKUTNYA" variant="primary" size="sm" />
-            <View style={styles.timeBadge}>
-              <Clock size={14} color={colors.brand.secondary} weight="duotone" />
-              <Text style={styles.timeText}>08:00 - 09:40 WIB</Text>
-            </View>
-          </View>
+        {/* Loading Shimmer State ala Instagram/Linear */}
+        {isDashboardLoading && !activeSemester ? (
+          <DashboardSkeleton />
+        ) : (
+          <>
+            {/* Hero Card: Today's Class */}
+            <Animated.View
+              entering={FadeInDown.delay(70)
+                .duration(300)
+                .easing(Easing.out(Easing.cubic))}
+              style={styles.heroCard}
+            >
+              <View style={styles.heroHeader}>
+                <UniBadge
+                  label={nextClass ? 'KELAS HARI INI' : 'JADWAL HARI INI'}
+                  variant="primary"
+                  size="sm"
+                />
+                {nextClass && (
+                  <View style={styles.timeBadge}>
+                    <Clock size={14} color={colors.brand.secondary} weight="duotone" />
+                    <Text style={styles.timeText}>
+                      {formatTime(nextClass.start_time)} - {formatTime(nextClass.end_time)} WIB
+                    </Text>
+                  </View>
+                )}
+              </View>
 
-          <Text style={styles.courseCode}>IF3110 · RUANG 7602</Text>
-          <Text style={styles.courseTitle}>Pengembangan Aplikasi Berbasis Web & Mobile</Text>
-          <Text style={styles.courseLecturer}>Dr. Eng. Ir. Dosen Pengampu, M.T.</Text>
+              {nextClass ? (
+                <>
+                  <Text style={styles.courseCode}>
+                    {nextClass.course?.code || 'KULIAH'} · RUANG{' '}
+                    {nextClass.room || nextClass.course?.classroom || 'TBA'}
+                  </Text>
+                  <Text style={styles.courseTitle}>
+                    {nextClass.course?.name || 'Mata Kuliah'}
+                  </Text>
+                  <Text style={styles.courseLecturer}>
+                    {nextClass.course?.lecturer || 'Dosen Pengampu'}
+                  </Text>
+                </>
+              ) : (
+                <View style={styles.noClassBox}>
+                  <CalendarCheck size={28} color={colors.brand.secondary} weight="duotone" />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.noClassTitle}>Tidak ada jadwal kuliah hari ini</Text>
+                    <Text style={styles.noClassSubtitle}>
+                      Manfaatkan waktu luang untuk menyelesaikan tugas atau belajar mandiri.
+                    </Text>
+                  </View>
+                </View>
+              )}
 
-          <View style={styles.attendanceBar}>
-            <View style={styles.attendanceInfo}>
-              <Text style={styles.attendanceLabel}>Kehadiran Semester</Text>
-              <Text style={styles.attendanceValue}>100% (Aman)</Text>
-            </View>
-            <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: '100%' }]} />
-            </View>
-          </View>
-        </Animated.View>
+              <Pressable
+                onPress={() => router.replace('/schedule' as any)}
+                style={styles.heroFooterAction}
+              >
+                <Text style={styles.heroFooterActionText}>Lihat Kalender Mingguan</Text>
+                <ArrowRight size={14} color={colors.brand.primary} weight="bold" />
+              </Pressable>
+            </Animated.View>
 
-        {/* Bento Grid: Academic Stats */}
-        <View style={styles.bentoGrid}>
-          {/* Card 1: IPK */}
-          <Animated.View
-            entering={FadeInDown.delay(160).duration(300).easing(Easing.out(Easing.cubic))}
-            style={[styles.bentoCard, styles.bentoCardSpan1]}
-          >
-            <View style={styles.bentoHeader}>
-              <TrendUp size={20} color={colors.brand.primary} weight="duotone" />
-              <UniBadge label="SEMESTER 6" variant="neutral" size="sm" />
-            </View>
-            <Text style={styles.gpaHeroNumber}>3.85</Text>
-            <Text style={styles.bentoLabel}>Indeks Prestasi Kumulatif</Text>
-          </Animated.View>
+            {/* Bento Grid: Academic Stats */}
+            <View style={styles.bentoGrid}>
+              {/* Card 1: Active Semester */}
+              <Animated.View
+                entering={FadeInDown.delay(140)
+                  .duration(300)
+                  .easing(Easing.out(Easing.cubic))}
+                style={[styles.bentoCard, styles.bentoCardSpan1]}
+              >
+                <View style={styles.bentoHeader}>
+                  <GraduationCap size={20} color={colors.brand.primary} weight="duotone" />
+                  <UniBadge
+                    label={activeSemester ? 'AKTIF' : 'BELUM AKTIF'}
+                    variant={activeSemester ? 'success' : 'neutral'}
+                    size="sm"
+                  />
+                </View>
+                <Text style={styles.semesterName} numberOfLines={2}>
+                  {activeSemester?.name || 'Semester'}
+                </Text>
+                <Text style={styles.bentoLabel}>
+                  {courses.length} Mata Kuliah Terdaftar
+                </Text>
+              </Animated.View>
 
-          {/* Card 2: SKS & Status */}
-          <Animated.View
-            entering={FadeInDown.delay(240).duration(300).easing(Easing.out(Easing.cubic))}
-            style={[styles.bentoCard, styles.bentoCardSpan1]}
-          >
-            <View style={styles.bentoHeader}>
-              <BookBookmark size={20} color={colors.brand.secondary} weight="duotone" />
-              <UniBadge label="AKTIF" variant="success" size="sm" />
+              {/* Card 2: Total SKS */}
+              <Animated.View
+                entering={FadeInDown.delay(210)
+                  .duration(300)
+                  .easing(Easing.out(Easing.cubic))}
+                style={[styles.bentoCard, styles.bentoCardSpan1]}
+              >
+                <View style={styles.bentoHeader}>
+                  <BookBookmark size={20} color={colors.brand.secondary} weight="duotone" />
+                  <UniBadge label="SEMESTER INI" variant="neutral" size="sm" />
+                </View>
+                <Text style={styles.sksNumber}>{totalSks}</Text>
+                <Text style={styles.bentoLabel}>Total Beban SKS Kuliah</Text>
+              </Animated.View>
             </View>
-            <Text style={styles.sksNumber}>108</Text>
-            <Text style={styles.bentoLabel}>Total SKS Diselesaikan</Text>
-          </Animated.View>
-        </View>
 
-        {/* Action Tile / AI Companion teaser */}
-        <Animated.View
-          entering={FadeInDown.delay(320).duration(300).easing(Easing.out(Easing.cubic))}
-          style={styles.aiTeaserCard}
-        >
-          <View style={styles.aiHeader}>
-            <View style={styles.aiIconBadge}>
-              <Sparkle size={20} color={colors.brand.primary} weight="duotone" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.aiTitle}>UniDemic Intelligence Engine</Text>
-              <Text style={styles.aiDescription}>
-                Backend terhubung secara aman ke REST API Laravel dengan Sanctum Auth.
-              </Text>
-            </View>
-          </View>
-        </Animated.View>
+            {/* Urgency Stack: Pending Assignments */}
+            <Animated.View
+              entering={FadeInDown.delay(280)
+                .duration(300)
+                .easing(Easing.out(Easing.cubic))}
+              style={styles.sectionContainer}
+            >
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionTitleRow}>
+                  <CheckSquareOffset size={18} color={colors.brand.primary} weight="duotone" />
+                  <Text style={styles.sectionTitle}>Tugas Mendatang</Text>
+                </View>
+                <Pressable onPress={() => router.replace('/tasks' as any)}>
+                  <Text style={styles.seeAllText}>Lihat Semua</Text>
+                </Pressable>
+              </View>
+
+              {pendingAssignments.length > 0 ? (
+                pendingAssignments.map((assignment) => (
+                  <View key={assignment.id} style={styles.taskMiniCard}>
+                    <View style={styles.taskMiniLeft}>
+                      <Text style={styles.taskCourseName}>
+                        {assignment.course?.name || 'Mata Kuliah'}
+                      </Text>
+                      <Text style={styles.taskTitle}>{assignment.title}</Text>
+                    </View>
+                    <View style={styles.taskMiniRight}>
+                      <UniBadge
+                        label={`${assignment.progress}%`}
+                        variant={assignment.priority === 'high' ? 'danger' : 'warning'}
+                        size="sm"
+                      />
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.emptyMiniCard}>
+                  <Text style={styles.emptyMiniText}>
+                    Semua tugas semester ini telah terselesaikan dengan baik! 🚀
+                  </Text>
+                </View>
+              )}
+            </Animated.View>
+          </>
+        )}
       </ScrollView>
+
+      {/* Floating Bottom Navigation */}
+      <BottomNav />
     </SafeAreaView>
   );
 }
@@ -165,7 +298,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xxxl,
+    paddingBottom: 110,
     gap: spacing.lg,
   },
   topBar: {
@@ -258,40 +391,39 @@ const styles = StyleSheet.create({
     fontFamily: typography.bodySmall.fontFamily,
     fontSize: 13,
     color: colors.text.secondary,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
-  attendanceBar: {
-    gap: spacing.xs,
-    paddingTop: spacing.sm,
+  noClassBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  noClassTitle: {
+    fontFamily: typography.h3.fontFamily,
+    fontSize: 15,
+    color: colors.text.primary,
+    marginBottom: 2,
+  },
+  noClassSubtitle: {
+    fontFamily: typography.bodySmall.fontFamily,
+    fontSize: 12,
+    color: colors.text.secondary,
+    lineHeight: 16,
+  },
+  heroFooterAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
   },
-  attendanceInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  attendanceLabel: {
+  heroFooterActionText: {
     fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-    textTransform: 'uppercase',
-  },
-  attendanceValue: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.semantic.success,
-  },
-  progressTrack: {
-    height: 6,
-    borderRadius: radius.full,
-    backgroundColor: colors.bg.overlay,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.brand.secondary,
-    borderRadius: radius.full,
+    fontSize: 12,
+    color: colors.brand.primary,
+    fontWeight: '600',
   },
   bentoGrid: {
     flexDirection: 'row',
@@ -308,18 +440,18 @@ const styles = StyleSheet.create({
   },
   bentoCardSpan1: {
     justifyContent: 'space-between',
-    minHeight: 130,
+    minHeight: 135,
   },
   bentoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  gpaHeroNumber: {
-    fontFamily: typography.display.fontFamily,
-    fontSize: 34,
+  semesterName: {
+    fontFamily: typography.h3.fontFamily,
+    fontSize: 16,
     color: colors.brand.primary,
-    letterSpacing: -1,
+    lineHeight: 20,
     marginTop: spacing.xs,
   },
   sksNumber: {
@@ -334,39 +466,72 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.text.secondary,
   },
-  aiTeaserCard: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    padding: spacing.lg,
+  sectionContainer: {
+    gap: spacing.sm,
   },
-  aiHeader: {
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: 6,
   },
-  aiIconBadge: {
-    width: 42,
-    height: 42,
-    borderRadius: radius.md,
-    backgroundColor: 'rgba(107, 127, 215, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(107, 127, 215, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  aiTitle: {
+  sectionTitle: {
     fontFamily: typography.h3.fontFamily,
     fontSize: 15,
     color: colors.text.primary,
     fontWeight: '600',
+  },
+  seeAllText: {
+    fontFamily: typography.label.fontFamily,
+    fontSize: 12,
+    color: colors.brand.primary,
+  },
+  taskMiniCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.bg.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
+    padding: spacing.md,
+  },
+  taskMiniLeft: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  taskCourseName: {
+    fontFamily: typography.mono.fontFamily,
+    fontSize: 11,
+    color: colors.brand.secondary,
     marginBottom: 2,
   },
-  aiDescription: {
+  taskTitle: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 14,
+    color: colors.text.primary,
+    fontWeight: '500',
+  },
+  taskMiniRight: {
+    alignItems: 'flex-end',
+  },
+  emptyMiniCard: {
+    backgroundColor: colors.bg.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.subtle,
+    padding: spacing.lg,
+    alignItems: 'center',
+  },
+  emptyMiniText: {
     fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.text.secondary,
-    lineHeight: 16,
+    textAlign: 'center',
   },
 });

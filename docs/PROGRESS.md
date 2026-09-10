@@ -10,7 +10,7 @@
 | Info | Detail |
 |------|--------|
 | **Repo** | [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic) |
-| **Phase aktif** | Phase 1 — Foundation |
+| **Phase aktif** | Phase 2 — Academic Core (Completed) |
 | **Dev A (Backend)** | rekis-0103 |
 | **Dev B (Frontend)** | AruYQ |
 | **Mulai** | 2026-09-08 |
@@ -24,7 +24,7 @@
 | Phase | Nama | Status | Dev A | Dev B | Checkpoint |
 |-------|------|--------|-------|-------|------------|
 | 1 | Foundation | `[x]` | `[x]` | `[x]` | `[x]` |
-| 2 | Academic Core | `[/]` | `[x]` | `[ ]` | `[ ]` |
+| 2 | Academic Core | `[x]` | `[x]` | `[x]` | `[x]` |
 | 3 | Academic Tracking | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 4 | Productivity | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 5 | Learning | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
@@ -99,13 +99,22 @@
 
 | Task | Status | Catatan |
 |------|--------|---------|
-| Academic navigation & screens | `[ ]` | Semester, Course, Schedule, Assignment, Exam screens |
-| Zustand stores & hooks | `[ ]` | Academic state management & TanStack query |
-| Forms & interactive components | `[ ]` | Schedule calendar/timeline, assignment cards |
+| Academic navigation & screens | `[x]` | 5 screens (Beranda, Jadwal, Kuliah, Detail Kuliah, Tugas/Ujian) + BottomNav |
+| Zustand stores & hooks | `[x]` | On-demand fetching, 3-min TTL cache, optimistic updates |
+| Forms & interactive components | `[x]` | UniDatePicker, UniTimePicker, UniSkeleton, AcademicModal, Cards |
 
----
+### ✅ Checkpoint 2 Verification
 
-## Phase 3 — Academic Tracking
+| Item | Status | Verified by | Tanggal |
+|------|--------|-------------|---------|
+| API Semester CRUD & Activate | `[x]` | Dev A & B (Automated & Store) | 2026-09-10 |
+| API Courses & Schedules CRUD | `[x]` | Dev A & B (Automated & Store) | 2026-09-10 |
+| API Assignments & Exams CRUD | `[x]` | Dev A & B (Automated & Store) | 2026-09-10 |
+| Bottom navigation bar & Liquid spring physics | `[x]` | Dev B (React Native Reanimated) | 2026-09-10 |
+| Visual Tap Date/Time Pickers (No manual text) | `[x]` | Dev B (UniDatePicker & UniTimePicker) | 2026-09-10 |
+| Shimmer Skeleton loading (Anti-slop #21) | `[x]` | Dev B (UniSkeleton suite) | 2026-09-10 |
+| On-Demand Fetching & 3-Min TTL In-Memory Cache | `[x]` | Dev B (useAcademicStore) | 2026-09-10 |
+| Strict TypeScript Typecheck (`tsc --noEmit`) | `[x]` | Dev B (0 errors) | 2026-09-10 |
 
 > Akan diisi setelah Checkpoint 2 selesai.
 

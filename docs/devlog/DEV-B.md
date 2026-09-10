@@ -143,3 +143,47 @@ Setiap entry menggunakan format ini:
 - Commit: `bf50d41`
 - PR URL: https://github.com/AruYQ/UniDemic/pull/new/feature/mobile/auth-foundation
 
+---
+
+### [2026-09-10] — Phase 2: Academic Core Mobile Frontend Implementation & UX Polish
+
+**Branch**: `feature/mobile/academic-core`
+**Status**: Selesai & Terverifikasi (Lolos strict TypeScript typecheck)
+
+**Yang dikerjakan:**
+- Re-export & integrasi TypeScript types akademik: `apps/mobile/src/types/academic.ts` (`Semester`, `Course`, `CourseSchedule`, `Assignment`, `Exam`).
+- Implementasi API service layer: `apps/mobile/src/services/academicService.ts` menghubungkan ke seluruh endpoint Laravel backend Dev A (Semesters, Courses, Schedules, Assignments, Exams).
+- Implementasi state management Zustand: `apps/mobile/src/store/useAcademicStore.ts` dengan:
+  - **Smart In-Memory Caching dengan TTL 3 Menit (180.000 ms)**: Data yang telah diambil disimpan di memori dan tidak mengulang request ke backend kecuali cache kadaluarsa, ditarik user (pull-to-refresh), atau terjadi mutasi (create/update/delete).
+  - **On-Demand (Lazy) Fetching**: Setiap tab/layar (`fetchDashboard`, `fetchSchedules`, `fetchCoursesAndSemesters`, `fetchTasksAndExams`, `fetchCourseDetail`) hanya mengambil datanya sendiri ketika layar dibuka, mencegah *data storm* ke server dan menghemat kuota user.
+  - **Optimistic UI updates** untuk perubahan progress tugas (0% -> 50% -> 100%) dengan auto-sync ke server.
+- **Komponen Input Visual Baru (No Manual Typing)**:
+  - `apps/mobile/src/components/ui/UniDatePicker.tsx` — Pemilih tanggal kalender mini visual dengan quick presets (*Hari Ini*, *Besok*, *+3 Hari*, *Minggu Depan*) dan navigasi bulan, tanpa input keyboard YYYY-MM-DD.
+  - `apps/mobile/src/components/ui/UniTimePicker.tsx` — Pemilih waktu visual dengan preset jam perkuliahan kampus (*07:00*, *08:00*, *09:40*, *10:30*, *13:00*, *15:30*) dan grid jam-menit berbasis tap.
+- **Instagram-style Skeleton Shimmer UI (Rule #21 Anti-Slop)**:
+  - `apps/mobile/src/components/ui/UniSkeleton.tsx` — Shimmer wireframe terakselerasi GPU Reanimated yang meniru persis kontur kartu: `DashboardSkeleton`, `ScheduleCardSkeleton`, `CourseCardSkeleton`, `AssignmentCardSkeleton`, dan `CourseDetailSkeleton`. Meniadakan `ActivityIndicator` biasa pada konten utama.
+- **Liquid Spring Physics (Opsi B)**:
+  - Konfigurasi pegas Reanimated: `mass: 0.6`, `damping: 18`, `stiffness: 180` pada kartu, tombol, modal sheet, dan nav bar untuk sensasi taktil elastis, stabil, dan bebas *framedrop* (tetap 60 FPS di perangkat low/mid-range).
+- **Smooth Navigation & Tab Transitions**:
+  - `apps/mobile/src/app/_layout.tsx`: Transisi tumpukan layar menggunakan `animation: 'fade'` lembut (180ms) dan `freezeOnBlur: true`.
+  - `apps/mobile/src/components/ui/BottomNav.tsx`: Menggunakan `router.replace` untuk perpindahan antar root tab, mengeliminasi efek geser ke samping yang acak dan tidak teratur.
+- Integrasi ke seluruh layar:
+  - `apps/mobile/src/app/index.tsx` (Dashboard dengan `DashboardSkeleton` & dynamic active semester)
+  - `apps/mobile/src/app/schedule.tsx` (Jadwal mingguan dengan `ScheduleCardSkeleton` & `UniTimePicker`)
+  - `apps/mobile/src/app/courses.tsx` (Manajemen matkul dengan `CourseCardSkeleton`)
+  - `apps/mobile/src/app/tasks.tsx` (Tugas & ujian dengan `AssignmentCardSkeleton`, `UniDatePicker`, `UniTimePicker`)
+  - `apps/mobile/src/app/course/[id].tsx` (Detail matkul dengan `CourseDetailSkeleton`, cached loader, `UniDatePicker`, `UniTimePicker`)
+
+**Masalah & Solusi:**
+- *Problem*: User merasa ribet mengetik tanggal `YYYY-MM-DD` dan jam `HH:mm` secara manual via keyboard.
+  *Solusi*: Membangun `UniDatePicker` & `UniTimePicker` berbasis tap dengan preset cerdas akademik.
+- *Problem*: Navigasi antar tab bawah terasa kaku dengan efek slide kiri-kanan yang tidak berurutan karena `router.push`.
+  *Solusi*: Mengganti navigasi tab ke `router.replace` dan mengatur stack transition `animation: 'fade'` (180ms).
+- *Problem*: Aplikasi memanggil semua endpoint data akademik sekaligus saat pertama dibuka, membebani server dan baterai.
+  *Solusi*: Arsitektur on-demand fetching per layar dipadu in-memory TTL cache 3 menit.
+
+**Verifikasi:**
+- `npx tsc --noEmit` di `apps/mobile`: Lolos 100% tanpa ada error type.
+
+
+

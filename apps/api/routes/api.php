@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\SemesterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +45,14 @@ $registerApiRoutes = function () {
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::put('/profile', [ProfileController::class, 'update']);
         Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+
+        // Academic Core: Semesters
+        Route::get('/semesters/active', [SemesterController::class, 'active']);
+        Route::post('/semesters/{id}/activate', [SemesterController::class, 'activate']);
+        Route::apiResource('semesters', SemesterController::class);
+
+        // Academic Core: Courses
+        Route::apiResource('courses', CourseController::class);
 
         // Backward compatibility
         Route::get('/user', function (Request $request) {

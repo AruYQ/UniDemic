@@ -59,10 +59,24 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.bg.base },
+          animation: 'fade',
+          animationDuration: 180,
+          freezeOnBlur: true,
         }}
       >
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="schedule" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="courses" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen
+          name="course/[id]"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 240,
+          }}
+        />
+        <Stack.Screen name="tasks" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>
     </View>

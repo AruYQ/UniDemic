@@ -10,7 +10,7 @@
 | Info | Detail |
 |------|--------|
 | **Repo** | [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic) |
-| **Phase aktif** | Phase 1 — Foundation |
+| **Phase aktif** | Phase 2 — Academic Core (Completed) |
 | **Dev A (Backend)** | rekis-0103 |
 | **Dev B (Frontend)** | AruYQ |
 | **Mulai** | 2026-09-08 |
@@ -24,7 +24,7 @@
 | Phase | Nama | Status | Dev A | Dev B | Checkpoint |
 |-------|------|--------|-------|-------|------------|
 | 1 | Foundation | `[x]` | `[x]` | `[x]` | `[x]` |
-| 2 | Academic Core | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
+| 2 | Academic Core | `[x]` | `[x]` | `[x]` | `[x]` |
 | 3 | Academic Tracking | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 4 | Productivity | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 5 | Learning | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
@@ -80,11 +80,41 @@
 
 ## Phase 2 — Academic Core
 
-> Akan diisi setelah Checkpoint 1 selesai.
+### Dev A (Backend / rekis-0103)
 
----
+| Task | Status | Catatan |
+|------|--------|---------|
+| Shared TypeScript types (`packages/types`) | `[x]` | Semester, Course, CourseSchedule, Assignment, Exam |
+| Database migrations | `[x]` | Semesters, courses, course_schedules, assignments, exams |
+| Eloquent Models & Relations | `[x]` | Semester, Course, CourseSchedule, Assignment, Exam, User |
+| API Resources & FormRequests | `[x]` | Data transformation & strict validation rules |
+| Semester endpoints (`/api/semesters`) | `[x]` | CRUD + `/active` + `/{id}/activate` |
+| Course endpoints (`/api/courses`) | `[x]` | CRUD + filter `semester_id` + user isolation |
+| Course Schedule endpoints (`/api/courses/{id}/schedules`) | `[x]` | CRUD schedule per mata kuliah |
+| Assignment endpoints (`/api/assignments`) | `[x]` | CRUD + filter + auto-complete status (progress 100) |
+| Exam endpoints (`/api/exams`) | `[x]` | CRUD + filter + date & time validation |
+| Feature Test Suite (Academic) | `[x]` | 51 tests passed, 168 assertions |
 
-## Phase 3 — Academic Tracking
+### Dev B (Frontend / AruYQ)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Academic navigation & screens | `[x]` | 5 screens (Beranda, Jadwal, Kuliah, Detail Kuliah, Tugas/Ujian) + BottomNav |
+| Zustand stores & hooks | `[x]` | On-demand fetching, 3-min TTL cache, optimistic updates |
+| Forms & interactive components | `[x]` | UniDatePicker, UniTimePicker, UniSkeleton, AcademicModal, Cards |
+
+### ✅ Checkpoint 2 Verification
+
+| Item | Status | Verified by | Tanggal |
+|------|--------|-------------|---------|
+| API Semester CRUD & Activate | `[x]` | Dev A & B (Automated & Store) | 2026-09-10 |
+| API Courses & Schedules CRUD | `[x]` | Dev A & B (Automated & Store) | 2026-09-10 |
+| API Assignments & Exams CRUD | `[x]` | Dev A & B (Automated & Store) | 2026-09-10 |
+| Bottom navigation bar & Liquid spring physics | `[x]` | Dev B (React Native Reanimated) | 2026-09-10 |
+| Visual Tap Date/Time Pickers (No manual text) | `[x]` | Dev B (UniDatePicker & UniTimePicker) | 2026-09-10 |
+| Shimmer Skeleton loading (Anti-slop #21) | `[x]` | Dev B (UniSkeleton suite) | 2026-09-10 |
+| On-Demand Fetching & 3-Min TTL In-Memory Cache | `[x]` | Dev B (useAcademicStore) | 2026-09-10 |
+| Strict TypeScript Typecheck (`tsc --noEmit`) | `[x]` | Dev B (0 errors) | 2026-09-10 |
 
 > Akan diisi setelah Checkpoint 2 selesai.
 

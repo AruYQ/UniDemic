@@ -184,5 +184,36 @@ UniDemic menyimpan data akademik, tugas, nilai, dan file personal mahasiswa yang
 
 ---
 
+## ADR-0007 — Mobile On-Demand Fetching, Smart In-Memory Caching & Visual Input Architecture
+
+**Tanggal**: 2026-09-10
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent (Dev B)
+
+### Konteks
+Pada Phase 2 (Academic Core), aplikasi mengelola banyak entitas relasional: Semester, Mata Kuliah, Jadwal Mingguan, Tugas (Assignments), dan Ujian (Exams). Jika seluruh data diambil sekaligus saat aplikasi dibuka, timbul *request storm* ke backend server, pemborosan baterai, serta penggunaan kuota data yang tidak perlu pada perangkat user. Selain itu, input manual format string tanggal (`YYYY-MM-DD`) dan waktu (`HH:mm`) rawan kesalahan pengguna (*fat-finger error*) dan menurunkan kepuasan UX.
+
+### Keputusan
+1. **On-Demand (Lazy) Data Fetching**:
+   - Setiap modul layar (Dashboard, Jadwal, Kuliah, Tugas/Ujian, Detail Kuliah) hanya meminta data miliknya sendiri saat pertama kali dibuka oleh user.
+2. **Smart In-Memory Caching dengan TTL 3 Menit (180.000 ms)**:
+   - State store Zustand menyimpan timestamp fetch per modul (`lastFetched`).
+   - Navigasi antar tab tidak melakukan hit ulang ke jaringan backend jika rentang waktu masih berada dalam masa TTL.
+   - Cache otomatis diperbarui (invalidated) jika user melakukan pull-to-refresh atau mengeksekusi mutasi (create/update/delete).
+3. **Visual Tap-Based Date & Time Pickers**:
+   - Menggantikan textbox biasa dengan komponen visual `UniDatePicker` (kalender mini + quick preset: *Hari Ini*, *Besok*, *+3 Hari*, *Minggu Depan*) dan `UniTimePicker` (preset jam kuliah kampus + grid interaktif).
+4. **Instagram-style Skeleton Shimmer (Rule #21 Anti-Slop)**:
+   - Menghilangkan `ActivityIndicator` biasa pada konten utama. Menggunakan wireframe `UniSkeleton` terakselerasi GPU Reanimated yang memetakan kontur kartu secara presisi.
+5. **Liquid Spring Physics (Opsi B)**:
+   - Konfigurasi pegas `mass: 0.6`, `damping: 18`, `stiffness: 180` untuk sentuhan taktil elastis, stabil, dan bebas *framedrop* (terkunci 60 FPS).
+
+### Konsekuensi
+- ✅ Mencegah kebanjiran request ke backend Laravel (zero-waste data flow).
+- ✅ Navigasi antar tab terasa instan (*perceived performance* tinggi) karena mengambil dari cache memori.
+- ✅ Pengalaman input data bebas typo format tanggal/waktu.
+- ⚠️ Data di cache memori bersifat sementara dan ter-reset saat aplikasi di-restart sepenuhnya (desain yang diinginkan untuk kesegaran data akademik).
+
+---
+
 > ⬇️ ADR berikutnya ditambahkan di bawah saat ada keputusan arsitektur baru
 

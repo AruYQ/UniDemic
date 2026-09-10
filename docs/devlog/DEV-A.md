@@ -116,4 +116,51 @@ Setiap entry menggunakan format ini:
 
 > ⬇️ Entry selanjutnya ditambahkan di bawah ini oleh Dev A / AI Agent Backend
 
+### [2026-09-10] — Academic Core Backend Implementation
+
+**Branch**: `feature/backend/academic-core`
+**Status**: Selesai (Backend Academic Core)
+
+**Yang dikerjakan:**
+- Shared Types: Menambahkan TypeScript interfaces di `packages/types/src/index.ts` (`Semester`, `Course`, `CourseSchedule`, `Assignment`, `Exam`).
+- Database Migrations:
+  - `create_semesters_table`: kolom `name`, `academic_year`, `start_date`, `end_date`, `is_active`, foreign key ke `users`.
+  - `create_courses_table`: kolom `name`, `code`, `credits`, `color`, `room`, `lecturer_name`, `lecturer_contact`, foreign key ke `semesters`.
+  - `create_course_schedules_table`: kolom `day_of_week` (1-7), `start_time`, `end_time`, `room`, `type` (lecture, lab, tutorial, seminar, other).
+  - `create_assignments_table`: kolom `title`, `description`, `due_date`, `due_time`, `priority` (low, medium, high), `progress` (0-100), `is_completed`.
+  - `create_exams_table`: kolom `title`, `type` (midterm, final, quiz, other), `date`, `start_time`, `end_time`, `room`, `notes`.
+- Eloquent Models & Relationships:
+  - `Semester`: belongsTo `User`, hasMany `Course`, scope `active`.
+  - `Course`: belongsTo `Semester`, hasMany `CourseSchedule`, `Assignment`, `Exam`.
+  - `CourseSchedule`: belongsTo `Course`.
+  - `Assignment`: belongsTo `Course`.
+  - `Exam`: belongsTo `Course`.
+  - `User`: hasMany `Semester`, hasOne `activeSemester`.
+- Form Requests & API Resources:
+  - FormRequest untuk validasi input: `StoreSemesterRequest`, `UpdateSemesterRequest`, `StoreCourseRequest`, `UpdateCourseRequest`, `StoreScheduleRequest`, `UpdateScheduleRequest`, `StoreAssignmentRequest`, `UpdateAssignmentRequest`, `StoreExamRequest`, `UpdateExamRequest`.
+  - API Resources untuk standardisasi response JSON: `SemesterResource`, `CourseResource`, `CourseScheduleResource`, `AssignmentResource`, `ExamResource`.
+- Controllers & API Routes:
+  - `SemesterController`: CRUD semester, get active semester (`GET /api/semesters/active`), toggle aktifkan semester (`POST /api/semesters/{id}/activate`) yang secara otomatis menonaktifkan semester lain milik user yang sama.
+  - `CourseController`: CRUD mata kuliah, filter per semester (`?semester_id=`), isolasi hak akses data user.
+  - `CourseScheduleController`: CRUD jadwal kuliah untuk course tertentu (`/api/courses/{course}/schedules`).
+  - `AssignmentController`: CRUD tugas, filter per course (`?course_id=`), auto update status `is_completed = true` ketika progress mencapai 100%.
+  - `ExamController`: CRUD jadwal ujian, filter per course (`?course_id=`), isolasi hak akses user.
+  - Pendaftaran rute ganda (`/api/...` dan `/api/v1/...`) di bawah middleware `auth:sanctum`.
+- Testing:
+  - Menulis 5 Feature Test classes komprehensif (`SemesterTest`, `CourseTest`, `ScheduleTest`, `AssignmentTest`, `ExamTest`).
+  - Menjalankan test suite: seluruh 51 tests (168 assertions) 100% PASS.
+
+**Keputusan teknis:**
+- Multi-tenancy / Data Isolation: Semua query dilakukan dengan membatasi kepemilikan user (misal `where('user_id', $user->id)` atau `whereHas('semester', fn($q) => $q->where('user_id', $user->id))`) sehingga user tidak dapat mengakses data milik user lain.
+- Active Semester Logic: Menggunakan database transaction saat aktivasi semester agar operasi atomic saat mengeset `is_active = false` pada semester lain sebelum mengeset `is_active = true` pada semester yang dipilih.
+- Auto Completion on Assignment: Controller secara cerdas mengatur flag `is_completed` bila user mengirimkan update `progress: 100`, menjaga konsistensi state.
+
+**Masalah yang ditemukan:**
+- Formatting string tanggal pada SQLite in-memory test (`ExamTest`) menghasilkan format `YYYY-MM-DD 00:00:00` pada kolom date native, menyebabkan mismatch saat `assertDatabaseHas('exams', ['date' => '2026-12-15'])` → Diatasi dengan memverifikasi data date melalui model accessor `format('Y-m-d')` dan memverifikasi field lainnya melalui `assertDatabaseHas`.
+
+**Referensi:**
+- Branch: `feature/backend/academic-core`
+- Implementation Plan: Academic Core Section
+
+
 

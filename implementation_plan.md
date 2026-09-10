@@ -125,11 +125,11 @@ UniDemic adalah **Student Operating System** open-source yang mengintegrasikan:
 
 #### ✅ CHECKPOINT 1 — Verifikasi Foundation
 ```
-[ ] API register/login/logout bekerja (test via Postman/curl)
-[ ] Token tersimpan di mobile dan dikirim ke setiap request
-[ ] User bisa login dan melihat profile screen
-[ ] Docker compose berjalan lokal
-[ ] CI/CD pipeline hijau (build pass)
+[x] API register/login/logout bekerja (test via Postman/curl)
+[x] Token tersimpan di mobile dan dikirim ke setiap request
+[x] User bisa login dan melihat profile screen
+[x] Docker compose berjalan lokal
+[x] CI/CD pipeline hijau (build pass)
 ```
 > **➡️ Konfirmasi sebelum lanjut ke Phase 2**
 

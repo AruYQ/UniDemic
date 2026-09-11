@@ -69,4 +69,29 @@ class Course extends Model
     {
         return $this->hasMany(Exam::class);
     }
+
+    /**
+     * Get all attendance records for this course.
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * Get all grade components configured for this course.
+     */
+    public function gradeComponents(): HasMany
+    {
+        return $this->hasMany(GradeComponent::class);
+    }
+
+    /**
+     * Get all grades recorded for this course.
+     */
+    public function grades(): HasMany
+    {
+        return $this->hasMany(Grade::class);
+    }
 }
+

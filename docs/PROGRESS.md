@@ -25,7 +25,7 @@
 |-------|------|--------|-------|-------|------------|
 | 1 | Foundation | `[x]` | `[x]` | `[x]` | `[x]` |
 | 2 | Academic Core | `[x]` | `[x]` | `[x]` | `[x]` |
-| 3 | Academic Tracking | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
+| 3 | Academic Tracking | `[/]` | `[x]` | `[ ]` | `[ ]` |
 | 4 | Productivity | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 5 | Learning | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 6 | Communication | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
@@ -114,9 +114,41 @@
 | Visual Tap Date/Time Pickers (No manual text) | `[x]` | Dev B (UniDatePicker & UniTimePicker) | 2026-09-10 |
 | Shimmer Skeleton loading (Anti-slop #21) | `[x]` | Dev B (UniSkeleton suite) | 2026-09-10 |
 | On-Demand Fetching & 3-Min TTL In-Memory Cache | `[x]` | Dev B (useAcademicStore) | 2026-09-10 |
-| Strict TypeScript Typecheck (`tsc --noEmit`) | `[x]` | Dev B (0 errors) | 2026-09-10 |
+---
 
-> Akan diisi setelah Checkpoint 2 selesai.
+## Phase 3 — Academic Tracking
+
+### Dev A (Backend / rekis-0103)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Shared TypeScript types (`packages/types`) | `[x]` | Attendance, Grade, GradeComponent, GPA types |
+| Database migrations | `[x]` | attendances, grade_components, grades |
+| Eloquent Models & Relations | `[x]` | Attendance, GradeComponent, Grade models & Course relations |
+| API Resources & FormRequests | `[x]` | Data transformation & strict input validation |
+| Attendance endpoints (`/attendances`) | `[x]` | CRUD + course attendance summary + auto warnings |
+| Grade Component endpoints (`/grade-components`) | `[x]` | Configurable grade components with weight percentage |
+| Grade endpoints (`/grades`) | `[x]` | CRUD grades per component/custom weight |
+| GPA & Simulator endpoints (`/gpa`, `/gpa-simulator`) | `[x]` | Course final score, semester IPS, cumulative IPK, simulation |
+| Feature Test Suite (Tracking) | `[x]` | 19 tests passed, 59 assertions (70 tests total passed) |
+
+### Dev B (Frontend / AruYQ)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Attendance UI & warning alerts | `[ ]` | Attendance log per mata kuliah |
+| Grade input & components UI | `[ ]` | Grade input per komponen |
+| GPA tracker & simulator screens | `[ ]` | GPA per semester + kumulatif + simulator |
+
+### ✅ Checkpoint 3 Verification
+
+| Item | Status | Verified by | Tanggal |
+|------|--------|-------------|---------|
+| Attendance tercatat dan persentase terhitung | `[x]` | Dev A (Automated Feature Tests) | 2026-09-11 |
+| Warning muncul jika absensi mendekati batas | `[x]` | Dev A (Automated Feature Tests) | 2026-09-11 |
+| Nilai per komponen ter-input dan GPA terhitung benar | `[x]` | Dev A (Automated Feature Tests) | 2026-09-11 |
+| GPA simulator berfungsi dengan input nilai hipotetis | `[x]` | Dev A (Automated Feature Tests) | 2026-09-11 |
+| UI & Layar Mobile Tracking Terintegrasi | `[ ]` | Dev B | |
 
 ---
 

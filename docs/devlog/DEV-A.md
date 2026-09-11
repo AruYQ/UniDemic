@@ -162,5 +162,52 @@ Setiap entry menggunakan format ini:
 - Branch: `feature/backend/academic-core`
 - Implementation Plan: Academic Core Section
 
+---
+
+### [2026-09-11] — Academic Tracking Backend Implementation
+
+**Branch**: `feature/backend/academic-tracking`
+**Status**: Selesai (Backend Academic Tracking)
+
+**Yang dikerjakan:**
+- Shared Types: Menambahkan TypeScript interfaces di `packages/types/src/index.ts` (`Attendance`, `AttendanceStatus`, `AttendanceSummary`, `GradeComponent`, `Grade`, `CourseGpa`, `SemesterGpa`, `CumulativeGpa`, `GpaSimulationItem`, `GpaSimulationPayload`, `GpaSimulationResult`).
+- Database Migrations:
+  - `create_attendances_table`: kolom `course_id`, `date`, `status` (present, absent, permission, sick), `notes`, index pada `[course_id, date]` dan `[course_id, status]`.
+  - `create_grade_components_table`: kolom `course_id`, `name`, `weight` (persentase bobot), index pada `course_id`.
+  - `create_grades_table`: kolom `course_id`, `grade_component_id` (nullable), `name`, `score` (0-100), `weight` (nullable custom weight).
+- Eloquent Models & Relationships:
+  - `Attendance`: belongsTo `Course`.
+  - `GradeComponent`: belongsTo `Course`, hasMany `Grade`.
+  - `Grade`: belongsTo `Course`, belongsTo `GradeComponent`.
+  - `Course`: hasMany `attendances`, `gradeComponents`, `grades`.
+- Form Requests & API Resources:
+  - FormRequest: `StoreAttendanceRequest`, `UpdateAttendanceRequest`, `StoreGradeComponentRequest`, `UpdateGradeComponentRequest`, `StoreGradeRequest`, `UpdateGradeRequest`, `SimulateGpaRequest`.
+  - Resources: `AttendanceResource`, `GradeComponentResource`, `GradeResource`.
+- Controllers & API Routes:
+  - `AttendanceController`: CRUD presensi, filter status, summary presensi (`/courses/{id}/attendance-summary`) dengan kalkulasi persentase dan peringatan ambang batas (threshold warning jika kehadiran < 75% atau sisa jatah alpa <= 1).
+  - `GradeController`: CRUD komponen penilaian berbobot per mata kuliah, CRUD nilai per komponen dengan validasi kepemilikan komponen.
+  - `GpaController`:
+    - `courseGpa`: kalkulasi nilai akhir berbobot, konversi huruf mutu (A, A-, B+, B, dst.), dan bobot mutu (4.0 scale).
+    - `semesterGpa`: kalkulasi Indeks Prestasi Semester (IPS) berbobot SKS.
+    - `cumulativeGpa`: kalkulasi Indeks Prestasi Kumulatif (IPK) lintas semester.
+    - `simulate`: simulator proyeksi IPK berdasarkan target nilai hipotetis.
+  - Pendaftaran rute ganda (`/api/...` dan `/api/v1/...`) di bawah middleware `auth:sanctum`.
+- Testing:
+  - Menulis 3 Feature Test classes (`AttendanceTest`, `GradeTest`, `GpaTest`) dengan total 19 tests baru (59 assertions).
+  - Seluruh test suite (70 tests, 227 assertions) 100% PASS tanpa error.
+
+**Keputusan teknis:**
+- Multi-tenancy / Data Isolation: Semua endpoint presensi, nilai, dan IPK memverifikasi kepemilikan user melalui relasi `whereHas('course.semester', fn($q) => $q->where('user_id', $user->id))` sehingga user lain mendapatkan respon 404/403.
+- Grading Scale Standard: Menerapkan skala standar 4.0 (A: 4.0, A-: 3.7, B+: 3.3, B: 3.0, B-: 2.7, C+: 2.3, C: 2.0, D: 1.0, E: 0.0) dengan kalkulasi terbobot SKS yang akurat.
+- GPA Simulator Flexibility: Simulator dapat menerima nilai saat ini dan SKS saat ini secara manual, atau secara cerdas mengambil data riwayat akademik user secara otomatis jika tidak disediakan di payload.
+
+**Masalah yang ditemukan:**
+- Assertions angka desimal pada `assertJsonPath` mendeteksi perbedaan tipe strict antara integer (misal 75 yang di-encode JSON tanpa desimal) dan float (75.0) → Diatasi dengan membandingkan nilai numerik via callback closure `(float) $val == 75.0`.
+
+**Referensi:**
+- Branch: `feature/backend/academic-tracking`
+- Implementation Plan: Phase 3 Academic Tracking
+
+
 
 

@@ -230,3 +230,19 @@ Setiap entry menggunakan format ini:
 - Mobile TypeScript: `npx tsc --noEmit` 0 error.
 
 ---
+
+### [2026-09-12] — Community Standards & Repository Documentation
+
+**Branch**: `develop`
+**Status**: Selesai
+
+**Yang dikerjakan:**
+- Menambahkan lisensi open-source resmi `LICENSE` (MIT License).
+- Menambahkan kebijakan pelaporan kerentanan keamanan `SECURITY.md`.
+- Menambahkan panduan kontributor `CONTRIBUTING.md` (alur branching, conventional commits, instruksi lokal, dan definition of done).
+- Menambahkan kode etik komunitas `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1).
+- Menambahkan GitHub template: `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/bug_report.md`, `.github/ISSUE_TEMPLATE/feature_request.md`.
+- Memperbarui `README.md`: sinkronisasi badge, status roadmap akurat, panduan instalasi lokal cepat (Docker, API, Mobile), dan indeks dokumentasi.
+
+---
+

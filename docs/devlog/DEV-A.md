@@ -208,6 +208,25 @@ Setiap entry menggunakan format ini:
 - Branch: `feature/backend/academic-tracking`
 - Implementation Plan: Phase 3 Academic Tracking
 
+---
 
+### [2026-09-12] — Phase 2 Frontend-Backend Contract Alignment
 
+**Branch**: `develop`
+**Status**: Selesai
 
+**Yang dikerjakan:**
+- Audit & testing integrasi end-to-end Phase 2 antara React Native client (`apps/mobile`) dan Laravel API (`apps/api`).
+- Memperbaiki `CourseScheduleResource`, `AssignmentResource`, dan `ExamResource` untuk menyertakan relasi objek `course` (`'course' => new CourseResource($this->whenLoaded('course'))`).
+- Menjalankan 24 automated contract assertions covering seluruh interaksi user di 5 screen mobile: Beranda, Jadwal, Kuliah, Detail Kuliah, Tugas/Ujian.
+
+**Masalah yang ditemukan:**
+- Komponen frontend (`ScheduleCard`, `AssignmentCard`, `ExamCard`) mengakses nested property `item.course?.name`, `item.course?.code`, `item.course?.lecturer`, `item.course?.classroom`, sedangkan sebelumnya backend resource hanya menyediakan flat fields (`course_name`, `course_code`).
+- Solusi: Menyertakan relasi `course` dengan `CourseResource` ketika loaded (`whenLoaded('course')`), sehingga backward-compatible dan memenuhi ekspektasi kontrak frontend.
+
+**Test results:**
+- 24/24 contract assertions PASS di script verifikasi integrasi.
+- `php artisan test`: 70 passed (227 assertions).
+- Mobile TypeScript: `npx tsc --noEmit` 0 error.
+
+---

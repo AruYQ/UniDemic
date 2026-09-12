@@ -20,6 +20,7 @@ class CourseScheduleResource extends JsonResource
         return [
             'id' => $this->id,
             'course_id' => $this->course_id,
+            'course' => new CourseResource($this->whenLoaded('course')),
             'course_name' => $this->whenLoaded('course', fn () => $this->course->name),
             'course_code' => $this->whenLoaded('course', fn () => $this->course->code),
             'course_color' => $this->whenLoaded('course', fn () => $this->course->color),

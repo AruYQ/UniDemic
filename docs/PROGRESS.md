@@ -10,7 +10,7 @@
 | Info | Detail |
 |------|--------|
 | **Repo** | [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic) |
-| **Phase aktif** | Phase 2 — Academic Core (Completed) |
+| **Phase aktif** | Phase 3 — Academic Tracking (Completed) |
 | **Dev A (Backend)** | rekis-0103 |
 | **Dev B (Frontend)** | AruYQ |
 | **Mulai** | 2026-09-08 |
@@ -25,7 +25,7 @@
 |-------|------|--------|-------|-------|------------|
 | 1 | Foundation | `[x]` | `[x]` | `[x]` | `[x]` |
 | 2 | Academic Core | `[x]` | `[x]` | `[x]` | `[x]` |
-| 3 | Academic Tracking | `[/]` | `[x]` | `[ ]` | `[ ]` |
+| 3 | Academic Tracking | `[x]` | `[x]` | `[x]` | `[x]` |
 | 4 | Productivity | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 5 | Learning | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 6 | Communication | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
@@ -136,19 +136,19 @@
 
 | Task | Status | Catatan |
 |------|--------|---------|
-| Attendance UI & warning alerts | `[ ]` | Attendance log per mata kuliah |
-| Grade input & components UI | `[ ]` | Grade input per komponen |
-| GPA tracker & simulator screens | `[ ]` | GPA per semester + kumulatif + simulator |
+| Attendance UI & warning alerts | `[x]` | Attendance log & summary card per mata kuliah |
+| Grade input & components UI | `[x]` | Komponen bobot & input nilai per mata kuliah |
+| GPA tracker & simulator screens | `[x]` | Layar gpa.tsx dengan simulator proyeksi interaktif |
 
 ### ✅ Checkpoint 3 Verification
 
 | Item | Status | Verified by | Tanggal |
 |------|--------|-------------|---------|
-| Attendance tercatat dan persentase terhitung | `[x]` | Dev A (Automated Feature Tests) | 2026-09-11 |
-| Warning muncul jika absensi mendekati batas | `[x]` | Dev A (Automated Feature Tests) | 2026-09-11 |
-| Nilai per komponen ter-input dan GPA terhitung benar | `[x]` | Dev A (Automated Feature Tests) | 2026-09-11 |
-| GPA simulator berfungsi dengan input nilai hipotetis | `[x]` | Dev A (Automated Feature Tests) | 2026-09-11 |
-| UI & Layar Mobile Tracking Terintegrasi | `[ ]` | Dev B | |
+| Attendance tercatat dan persentase terhitung | `[x]` | Dev A & B (API + UI) | 2026-09-13 |
+| Warning muncul jika absensi mendekati batas | `[x]` | Dev A & B (API + UI) | 2026-09-13 |
+| Nilai per komponen ter-input dan GPA terhitung benar | `[x]` | Dev A & B (API + UI) | 2026-09-13 |
+| GPA simulator berfungsi dengan input nilai hipotetis | `[x]` | Dev A & B (API + UI) | 2026-09-13 |
+| UI & Layar Mobile Tracking Terintegrasi | `[x]` | Dev B (AI Agent) | 2026-09-13 |
 
 ---
 

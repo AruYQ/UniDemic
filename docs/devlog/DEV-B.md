@@ -185,5 +185,73 @@ Setiap entry menggunakan format ini:
 **Verifikasi:**
 - `npx tsc --noEmit` di `apps/mobile`: Lolos 100% tanpa ada error type.
 
+---
+
+### [2026-09-13] — Phase 3: Academic Tracking Mobile Frontend & Interactive GPA Simulator
+
+**Branch**: `feature/mobile/academic-tracking`
+**Status**: Selesai & Terverifikasi (Lolos strict TypeScript typecheck 0 error)
+
+**Yang dikerjakan:**
+- **Types & Service Layer**:
+  - Menambahkan tipe data pelacakan akademik di `apps/mobile/src/types/tracking.ts` (`Attendance`, `AttendanceStatus`, `AttendanceSummary`, `GradeComponent`, `Grade`, `CourseGpa`, `SemesterGpa`, `CumulativeGpa`, `GpaSimulationItem`, `GpaSimulationPayload`, `GpaSimulationResult`).
+  - Membangun API service layer di `apps/mobile/src/services/trackingService.ts` untuk presensi, komponen penilaian berbobot, nilai asesmen, serta kalkulasi dan simulasi IPK.
+- **State Management (Zustand)**:
+  - Membangun `apps/mobile/src/store/useTrackingStore.ts` dengan in-memory cache TTL 3 menit (`CACHE_TTL_MS`), penanganan loading state per course, optimistic updates, dan pengelolaan hasil proyeksi simulasi IPK.
+- **Attendance Tracking UI Suite**:
+  - `AttendanceSummaryCard.tsx`: Kartu statistik kehadiran interaktif dengan bar progress visual, grid 4 pilar presensi (Hadir, Izin, Sakit, Alpa), serta peringatan kritis batas alpa (threshold warning jika kehadiran < 75% atau toleransi aman alpa habis).
+  - `AttendanceItemCard.tsx`: Kartu riwayat pertemuan dengan aksen garis warna status vertikal, tanggal terformat bahasa Indonesia, catatan, dan tombol hapus.
+  - `MarkAttendanceModal.tsx`: Dialog pencatatan presensi visual tap dengan pemilih status geometris berikon, pemilih kalender mini `UniDatePicker` (tanpa input teks manual), dan catatan pertemuan opsional.
+- **Grade & Assessment Management UI Suite**:
+  - `GradeComponentModal.tsx`: Dialog pengelolaan bobot penilaian (UTS, UAS, Tugas, Kuis, Praktikum) dengan bar akumulasi persentase hingga 100% dan validasi kelebihan alokasi bobot.
+  - `GradeItemCard.tsx`: Kartu nilai asesmen dengan tag komponen, persentase bobot teralokasi, skor numerik 0-100, dan color coding semantik.
+  - `AddGradeModal.tsx`: Dialog input nilai baru dengan pemilih chip komponen penilaian atau mode custom bobot mandiri.
+- **Layar Detail Kuliah Terintegrasi (`apps/mobile/src/app/course/[id].tsx`)**:
+  - Memperluas tab navigasi menjadi 5 segmen: **Jadwal**, **Tugas**, **Ujian**, **Presensi**, dan **Nilai** dalam horizontal scrollable tab bar.
+  - Menambahkan Hero Card Nilai Akhir Terhitung dengan huruf mutu (A, B+, dll) dan titik mutu 4.0 pada tab Nilai.
+- **Layar GPA Tracker & Simulator Baru (`apps/mobile/src/app/gpa.tsx`)**:
+  - Hero Card Bento IPK Kumulatif dengan tipografi display `Syne_700Bold`, predikat kelulusan (*Cumlaude*, *Sangat Memuaskan*, dll), total SKS lulus, dan progress bar menuju target 144 SKS.
+  - Rincian IPS per semester dengan daftar kartu riwayat semester.
+  - Interactive GPA Simulator: Tambah matkul simulasi, pilih SKS (1-6) dan target huruf mutu (A s.d. E) secara visual, kalkulasi delta proyeksi IPK real-time dengan badge dinamis (`+0.12` / `-0.05`) terhubung ke endpoint `/api/gpa-simulator`.
+- **Integrasi Beranda (`apps/mobile/src/app/index.tsx`)**:
+  - Menambahkan Bento Card ke-3 pada dashboard beranda sebagai shortcut langsung ke layar `/gpa` yang menampilkan IPK kumulatif terkini.
+  - Mendaftarkan rute `gpa` di `_layout.tsx` dengan transisi tumpukan halus `slide_from_right`.
+
+**Screen/komponen yang dibuat/diubah:**
+- `apps/mobile/src/types/tracking.ts` — Shared types & payload DTOs tracking
+- `apps/mobile/src/services/trackingService.ts` — API client service tracking
+- `apps/mobile/src/store/useTrackingStore.ts` — Zustand store tracking & simulator
+- `apps/mobile/src/components/tracking/AttendanceSummaryCard.tsx` — Visual summary card presensi
+- `apps/mobile/src/components/tracking/AttendanceItemCard.tsx` — Kartu riwayat kehadiran pertemuan
+- `apps/mobile/src/components/tracking/MarkAttendanceModal.tsx` — Modal visual tap catat kehadiran
+- `apps/mobile/src/components/tracking/GradeComponentModal.tsx` — Modal kelola komponen bobot nilai
+- `apps/mobile/src/components/tracking/GradeItemCard.tsx` — Kartu nilai asesmen
+- `apps/mobile/src/components/tracking/AddGradeModal.tsx` — Modal input nilai asesmen
+- `apps/mobile/src/app/course/[id].tsx` — Detail matkul dengan 5 tab interaktif
+- `apps/mobile/src/app/gpa.tsx` — Layar dedicated GPA tracker & simulator
+- `apps/mobile/src/app/index.tsx` — Bento dashboard shortcut ke GPA screen
+- `apps/mobile/src/app/_layout.tsx` — Registrasi screen stack gpa
+
+**Vibe Check hasil:**
+- Layout: Bento cards, segmented multi-tab horizontal bar, thumb-zone friendly touch targets.
+- Animasi: FadeInDown on mount (duration 220-300ms), tactile spring feedback pada tap status & chip.
+- Anti-slop: Tanpa `#000000`/`#FFFFFF` statis, font Syne + Space Grotesk + JetBrains Mono, Phosphor Icons Duotone, tanpa input teks manual tanggal (UniDatePicker).
+
+**API yang diintegrasikan:**
+- `GET/POST /api/courses/{id}/attendances` → Log presensi matkul
+- `GET /api/courses/{id}/attendance-summary` → Ringkasan persentase & status peringatan batas alpa
+- `DELETE /api/attendances/{id}` → Hapus log presensi
+- `GET/POST /api/courses/{id}/grade-components` → Bobot komponen penilaian
+- `DELETE /api/grade-components/{id}` → Hapus komponen penilaian
+- `GET/POST /api/courses/{id}/grades` → Nilai asesmen mahasiswa
+- `DELETE /api/grades/{id}` → Hapus nilai asesmen
+- `GET /api/courses/{id}/gpa` → Nilai akhir matkul & huruf mutu
+- `GET /api/gpa/cumulative` → IPK kumulatif & riwayat semester
+- `POST /api/gpa-simulator` → Proyeksi delta IPK simulasi
+
+**Verifikasi:**
+- `npx tsc --noEmit` di `apps/mobile`: 100% Lolos tanpa error.
+
+
 
 

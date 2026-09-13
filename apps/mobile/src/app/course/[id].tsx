@@ -20,12 +20,26 @@ import {
   MapPin,
   Plus,
   User,
+  ClockCounterClockwise,
+  Medal,
+  SlidersHorizontal,
 } from 'phosphor-react-native';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { Course } from '@/types/academic';
+import {
+  CreateAttendancePayload,
+  CreateGradeComponentPayload,
+  CreateGradePayload,
+} from '@/types/tracking';
 import { ScheduleCard } from '@/components/academic/ScheduleCard';
 import { AssignmentCard } from '@/components/academic/AssignmentCard';
 import { ExamCard } from '@/components/academic/ExamCard';
+import { AttendanceSummaryCard } from '@/components/tracking/AttendanceSummaryCard';
+import { AttendanceItemCard } from '@/components/tracking/AttendanceItemCard';
+import { MarkAttendanceModal } from '@/components/tracking/MarkAttendanceModal';
+import { GradeComponentModal } from '@/components/tracking/GradeComponentModal';
+import { GradeItemCard } from '@/components/tracking/GradeItemCard';
+import { AddGradeModal } from '@/components/tracking/AddGradeModal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { UniBadge } from '@/components/ui/UniBadge';
 import { AcademicModal } from '@/components/academic/AcademicModal';
@@ -35,21 +49,22 @@ import { UniTimePicker } from '@/components/ui/UniTimePicker';
 import { UniButton } from '@/components/ui/UniButton';
 import { CourseDetailSkeleton } from '@/components/ui/UniSkeleton';
 import { useAcademicStore } from '@/store/useAcademicStore';
+import { useTrackingStore } from '@/store/useTrackingStore';
 import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
 Screen/Component : CourseDetailScreen (app/course/[id].tsx)
-Tujuan           : Menampilkan detail komprehensif suatu mata kuliah dengan tab interaktif Jadwal, Tugas, dan Ujian
-Layout strategy  : Back button header -> Hero card identitas matkul -> Segmented tabs (Jadwal/Tugas/Ujian) -> Content list -> Modal add
-Color tokens     : bg.base (#0F1117), bg.surface (#171B26), brand.primary (#6B7FD7), brand.secondary (#4ECDC4)
-Animation plan   : FadeInDown hero card, tab switch transition, liquid spring feel
-Typography       : Syne_700Bold display, SpaceGrotesk untuk headers, JetBrainsMono untuk kode MK & SKS
-Anti-slop check  : Rule #6 (Bento hero), Rule #10 (typography), Rule #21 (Skeleton shimmer), Rule #28 (spring feedback)
+Tujuan           : Menampilkan detail komprehensif suatu mata kuliah dengan 5 tab interaktif: Jadwal, Tugas, Ujian, Presensi, dan Nilai
+Layout strategy  : Header back -> Hero identitas matkul -> Horizontal segmented tabs -> Dynamic tab content -> Modals
+Color tokens     : bg.base, bg.surface, bg.elevated, brand.primary, brand.secondary, status semantic colors
+Animation plan   : FadeInDown hero card, tab transitions, spring interaction
+Typography       : Syne_700Bold display, SpaceGrotesk untuk headers, JetBrainsMono untuk kode MK, SKS, dan nilai
+Anti-slop check  : Rule #1 (tokens), Rule #2 (Phosphor duotone), Rule #4 (dynamic theme), Rule #10 (typography), Rule #21 (Skeleton)
 </vibe_check>
 */
 
-type TabType = 'schedules' | 'assignments' | 'exams';
+type TabType = 'schedules' | 'assignments' | 'exams' | 'attendance' | 'grades';
 
 export default function CourseDetailScreen() {
   const router = useRouter();
@@ -64,10 +79,26 @@ export default function CourseDetailScreen() {
     updateAssignmentProgress,
     deleteAssignment,
     deleteExam,
-    createSchedule,
     createAssignment,
     createExam,
   } = useAcademicStore();
+
+  const {
+    attendances,
+    attendanceSummaries,
+    gradeComponents,
+    grades,
+    courseGpas,
+    fetchCourseAttendance,
+    createAttendance,
+    deleteAttendance,
+    fetchCourseGrades,
+    createGradeComponent,
+    deleteGradeComponent,
+    createGrade,
+    deleteGrade,
+  } = useTrackingStore();
+
   const { colors: themeColors, shadows: themeShadows } = useUniTheme();
   const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
@@ -76,6 +107,9 @@ export default function CourseDetailScreen() {
 
   // Modal states for creating items in this course
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+  const [isComponentModalOpen, setIsComponentModalOpen] = useState(false);
+  const [isAddGradeModalOpen, setIsAddGradeModalOpen] = useState(false);
 
   // Form states for assignment
   const [taskTitle, setTaskTitle] = useState('');
@@ -96,11 +130,26 @@ export default function CourseDetailScreen() {
     if (!courseId) return;
     const res = await fetchCourseDetail(courseId, force);
     if (res) setCourse(res);
+
+    if (activeTab === 'attendance') {
+      fetchCourseAttendance(courseId, force);
+    } else if (activeTab === 'grades') {
+      fetchCourseGrades(courseId, force);
+    }
   };
 
   useEffect(() => {
     loadData();
   }, [courseId]);
+
+  useEffect(() => {
+    if (!courseId) return;
+    if (activeTab === 'attendance') {
+      fetchCourseAttendance(courseId);
+    } else if (activeTab === 'grades') {
+      fetchCourseGrades(courseId);
+    }
+  }, [activeTab, courseId]);
 
   const handleUpdateAssignmentProgress = async (assignId: number, progress: number) => {
     try {
@@ -178,7 +227,6 @@ export default function CourseDetailScreen() {
         });
         setIsModalOpen(false);
         setExamDate('');
-        setExamTime('08:00');
         setExamLocation('');
         setExamTopics('');
         loadData(true);
@@ -190,58 +238,118 @@ export default function CourseDetailScreen() {
     }
   };
 
-  if (isCourseDetailLoading && !course) {
-    return (
-      <SafeAreaView
-        style={styles.container}
-        edges={['top']}
-      >
-        <View style={styles.header}>
-          <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={12}>
-            <CaretLeft size={22} color={themeColors.text.primary} weight="bold" />
-          </Pressable>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            Detail Perkuliahan
-          </Text>
-          <View style={{ width: 40 }} />
-        </View>
-        <CourseDetailSkeleton />
-      </SafeAreaView>
-    );
-  }
+  // Tracking Action Handlers
+  const handleCreateAttendance = async (payload: CreateAttendancePayload) => {
+    try {
+      await createAttendance(courseId, payload);
+    } catch (err: any) {
+      Alert.alert('Gagal', err?.response?.data?.message || 'Gagal mencatat kehadiran.');
+    }
+  };
 
-  if (!course && !isCourseDetailLoading) {
-    return (
-      <SafeAreaView
-        style={styles.container}
-        edges={['top']}
-      >
-        <View style={styles.centerContent}>
-          <Text style={styles.errorText}>Mata kuliah tidak ditemukan.</Text>
-          <UniButton label="Kembali" onPress={() => router.back()} />
-        </View>
-      </SafeAreaView>
+  const handleDeleteAttendance = (attId: number) => {
+    Alert.alert('Hapus Presensi', 'Yakin ingin menghapus catatan presensi ini?', [
+      { text: 'Batal', style: 'cancel' },
+      {
+        text: 'Hapus',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteAttendance(courseId, attId);
+          } catch (err: any) {
+            Alert.alert('Gagal', err?.response?.data?.message || 'Gagal menghapus presensi.');
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleCreateComponent = async (payload: CreateGradeComponentPayload) => {
+    await createGradeComponent(courseId, payload);
+  };
+
+  const handleDeleteComponent = async (compId: number) => {
+    await deleteGradeComponent(courseId, compId);
+    fetchCourseGrades(courseId, true);
+  };
+
+  const handleCreateGrade = async (payload: CreateGradePayload) => {
+    await createGrade(courseId, payload);
+  };
+
+  const handleDeleteGrade = (gradeId: number) => {
+    Alert.alert('Hapus Nilai', 'Yakin ingin menghapus catatan nilai ini?', [
+      { text: 'Batal', style: 'cancel' },
+      {
+        text: 'Hapus',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteGrade(courseId, gradeId);
+          } catch (err: any) {
+            Alert.alert('Gagal', err?.response?.data?.message || 'Gagal menghapus nilai.');
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleDeleteCourse = () => {
+    Alert.alert(
+      'Hapus Mata Kuliah',
+      `Yakin ingin menghapus mata kuliah "${course?.name}"? Semua data jadwal, tugas, ujian, dan presensi akan terhapus.`,
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteCourse(courseId);
+              router.replace('/courses' as any);
+            } catch (err: any) {
+              Alert.alert('Gagal', err?.response?.data?.message || 'Gagal menghapus mata kuliah.');
+            }
+          },
+        },
+      ]
     );
+  };
+
+  if (isCourseDetailLoading && !course) {
+    return <CourseDetailSkeleton />;
   }
 
   const schedulesList = course?.schedules || [];
   const assignmentsList = course?.assignments || [];
   const examsList = course?.exams || [];
+  const courseAttendances = attendances[courseId] || [];
+  const courseSummary = attendanceSummaries[courseId];
+  const courseComponents = gradeComponents[courseId] || [];
+  const courseGradesList = grades[courseId] || [];
+  const courseGpa = courseGpas[courseId];
 
   return (
-    <SafeAreaView
-      style={styles.container}
-      edges={['top']}
-    >
-      {/* Header Bar */}
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={12}>
-          <CaretLeft size={22} color={themeColors.text.primary} weight="bold" />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Top Header */}
+      <View style={styles.topBar}>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backButton}
+          hitSlop={8}
+        >
+          <CaretLeft size={20} color={themeColors.text.primary} weight="bold" />
         </Pressable>
         <Text style={styles.headerTitle} numberOfLines={1}>
-          Detail Perkuliahan
+          Detail Mata Kuliah
         </Text>
-        <View style={{ width: 40 }} />
+        <Pressable
+          onPress={handleDeleteCourse}
+          style={styles.deleteCourseBtn}
+          hitSlop={8}
+        >
+          <Text style={styles.deleteCourseBtnText}>Hapus</Text>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -255,44 +363,43 @@ export default function CourseDetailScreen() {
           />
         }
       >
-        {/* Course Hero Card */}
+        {/* Course Identity Hero Card */}
         <Animated.View
           entering={FadeInDown.duration(280)}
           style={styles.heroCard}
         >
-          <View style={styles.heroHeader}>
-            <View style={styles.codeBadge}>
-              <BookOpen size={16} color={themeColors.brand.primary} weight="duotone" />
-              <Text style={styles.codeText}>{course?.code || 'KULIAH'}</Text>
+          <View style={styles.heroTopRow}>
+            <View style={styles.codePill}>
+              <Text style={styles.codeText}>{course?.code || 'MK'}</Text>
             </View>
             <UniBadge
               label={`${course?.credits || 0} SKS`}
-              variant="neutral"
+              variant="primary"
               size="sm"
             />
           </View>
 
-          <Text style={styles.courseName}>{course?.name}</Text>
+          <Text style={styles.courseName}>{course?.name || 'Mata Kuliah'}</Text>
 
           <View style={styles.metaRow}>
-            {course?.lecturer ? (
-              <View style={styles.metaItem}>
-                <User size={14} color={themeColors.text.secondary} weight="duotone" />
-                <Text style={styles.metaText}>{course.lecturer}</Text>
-              </View>
-            ) : null}
-
-            {course?.classroom ? (
-              <View style={styles.metaItem}>
-                <MapPin size={14} color={themeColors.brand.secondary} weight="duotone" />
-                <Text style={styles.metaText}>{course.classroom}</Text>
-              </View>
-            ) : null}
+            <View style={styles.metaItem}>
+              <User size={15} color={themeColors.text.muted} weight="duotone" />
+              <Text style={styles.metaText}>{course?.lecturer || 'Dosen Belum Diatur'}</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <MapPin size={15} color={themeColors.text.muted} weight="duotone" />
+              <Text style={styles.metaText}>{course?.classroom || 'Ruang TBA'}</Text>
+            </View>
           </View>
         </Animated.View>
 
-        {/* Tab Segmented Switcher */}
-        <View style={styles.tabBar}>
+        {/* Horizontal Segmented Tabs (5 Tabs) */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabBarScroll}
+          style={styles.tabBarContainer}
+        >
           <Pressable
             onPress={() => setActiveTab('schedules')}
             style={[styles.tabItem, activeTab === 'schedules' && styles.tabItemActive]}
@@ -331,19 +438,84 @@ export default function CourseDetailScreen() {
               Ujian ({examsList.length})
             </Text>
           </Pressable>
-        </View>
 
-        {/* Quick Add Action for Assignments and Exams */}
-        {activeTab !== 'schedules' && (
+          <Pressable
+            onPress={() => setActiveTab('attendance')}
+            style={[styles.tabItem, activeTab === 'attendance' && styles.tabItemActive]}
+          >
+            <Text
+              style={[styles.tabText, activeTab === 'attendance' && styles.tabTextActive]}
+            >
+              Presensi ({courseAttendances.length})
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setActiveTab('grades')}
+            style={[styles.tabItem, activeTab === 'grades' && styles.tabItemActive]}
+          >
+            <Text
+              style={[styles.tabText, activeTab === 'grades' && styles.tabTextActive]}
+            >
+              Nilai ({courseGradesList.length})
+            </Text>
+          </Pressable>
+        </ScrollView>
+
+        {/* Action Strips per Tab */}
+        {activeTab === 'assignments' && (
           <View style={styles.addStrip}>
             <Pressable
               onPress={() => setIsModalOpen(true)}
               style={styles.addStripButton}
             >
               <Plus size={16} color={themeColors.brand.primary} weight="bold" />
-              <Text style={styles.addStripButtonText}>
-                {activeTab === 'assignments' ? 'Tambah Tugas' : 'Tambah Ujian'}
+              <Text style={styles.addStripButtonText}>Tambah Tugas</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {activeTab === 'exams' && (
+          <View style={styles.addStrip}>
+            <Pressable
+              onPress={() => setIsModalOpen(true)}
+              style={styles.addStripButton}
+            >
+              <Plus size={16} color={themeColors.brand.primary} weight="bold" />
+              <Text style={styles.addStripButtonText}>Tambah Ujian</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {activeTab === 'attendance' && (
+          <View style={styles.addStrip}>
+            <Pressable
+              onPress={() => setIsAttendanceModalOpen(true)}
+              style={styles.addStripButton}
+            >
+              <Plus size={16} color={themeColors.brand.secondary} weight="bold" />
+              <Text style={[styles.addStripButtonText, { color: themeColors.brand.secondary }]}>
+                Catat Kehadiran
               </Text>
+            </Pressable>
+          </View>
+        )}
+
+        {activeTab === 'grades' && (
+          <View style={styles.gradesActionStrip}>
+            <Pressable
+              onPress={() => setIsComponentModalOpen(true)}
+              style={styles.actionOutlineBtn}
+            >
+              <SlidersHorizontal size={15} color={themeColors.text.secondary} weight="duotone" />
+              <Text style={styles.actionOutlineText}>Kelola Bobot</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setIsAddGradeModalOpen(true)}
+              style={styles.addStripButton}
+            >
+              <Plus size={16} color={themeColors.brand.primary} weight="bold" />
+              <Text style={styles.addStripButtonText}>Tambah Nilai</Text>
             </Pressable>
           </View>
         )}
@@ -418,9 +590,89 @@ export default function CourseDetailScreen() {
             )}
           </View>
         )}
+
+        {activeTab === 'attendance' && (
+          <View>
+            {courseSummary && <AttendanceSummaryCard summary={courseSummary} />}
+
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionHeading}>
+                Riwayat Pertemuan ({courseAttendances.length})
+              </Text>
+            </View>
+
+            {courseAttendances.length > 0 ? (
+              courseAttendances.map((att) => (
+                <AttendanceItemCard
+                  key={att.id}
+                  item={att}
+                  onDelete={handleDeleteAttendance}
+                />
+              ))
+            ) : (
+              <EmptyState
+                icon={<ClockCounterClockwise size={32} color={themeColors.brand.secondary} weight="duotone" />}
+                title="Belum Ada Catatan Presensi"
+                description="Mulai catat kehadiran setiap pertemuan kuliah untuk memantau toleransi alpa."
+                actionLabel="Catat Kehadiran"
+                onAction={() => setIsAttendanceModalOpen(true)}
+              />
+            )}
+          </View>
+        )}
+
+        {activeTab === 'grades' && (
+          <View>
+            {/* Course GPA Hero Card */}
+            {courseGpa ? (
+              <Animated.View entering={FadeInDown.duration(260)} style={styles.gpaHeroCard}>
+                <View style={styles.gpaHeroTop}>
+                  <View>
+                    <Text style={styles.gpaHeroLabel}>Nilai Akhir Terhitung</Text>
+                    <Text style={styles.gpaHeroScore}>
+                      {Math.round(courseGpa.final_score * 10) / 10}
+                    </Text>
+                  </View>
+                  <View style={styles.gpaHeroBadgeCol}>
+                    <View style={styles.letterGradePill}>
+                      <Text style={styles.letterGradeText}>{courseGpa.letter_grade}</Text>
+                    </View>
+                    <Text style={styles.gradePointText}>
+                      Mutu: {Number(courseGpa.grade_point).toFixed(2)}
+                    </Text>
+                  </View>
+                </View>
+              </Animated.View>
+            ) : null}
+
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionHeading}>
+                Daftar Nilai Asesmen ({courseGradesList.length})
+              </Text>
+            </View>
+
+            {courseGradesList.length > 0 ? (
+              courseGradesList.map((g) => (
+                <GradeItemCard
+                  key={g.id}
+                  grade={g}
+                  onDelete={handleDeleteGrade}
+                />
+              ))
+            ) : (
+              <EmptyState
+                icon={<Medal size={32} color={themeColors.brand.primary} weight="duotone" />}
+                title="Belum Ada Nilai"
+                description="Atur komponen penilaian berbobot lalu masukkan nilai untuk kalkulasi IPK otomatis."
+                actionLabel="Tambah Nilai"
+                onAction={() => setIsAddGradeModalOpen(true)}
+              />
+            )}
+          </View>
+        )}
       </ScrollView>
 
-      {/* Add Modal */}
+      {/* Assignment / Exam Modal */}
       <AcademicModal
         visible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -432,7 +684,7 @@ export default function CourseDetailScreen() {
             <>
               <UniInput
                 label="Judul Tugas"
-                placeholder="Contoh: Tugas 1 - Desain ERD"
+                placeholder="Contoh: Makalah Sistem Informasi"
                 value={taskTitle}
                 onChangeText={setTaskTitle}
               />
@@ -498,13 +750,13 @@ export default function CourseDetailScreen() {
               />
               <UniInput
                 label="Ruang / Lokasi (Opsional)"
-                placeholder="Contoh: Gedung A Ruang 302"
+                placeholder="Contoh: Lab Komputer 3"
                 value={examLocation}
                 onChangeText={setExamLocation}
               />
               <UniInput
-                label="Materi / Topik Ujian (Opsional)"
-                placeholder="Contoh: Modul 1 sampai Modul 4"
+                label="Kisi-kisi / Materi (Opsional)"
+                placeholder="Bab 1-4, Teori & Praktek"
                 value={examTopics}
                 onChangeText={setExamTopics}
                 multiline
@@ -514,13 +766,41 @@ export default function CourseDetailScreen() {
 
           <View style={{ marginTop: spacing.md }}>
             <UniButton
-              label="Simpan Data"
+              label={isSubmitting ? 'Menyimpan...' : 'Simpan'}
+              variant="primary"
+              size="lg"
               onPress={handleSaveModal}
+              disabled={isSubmitting}
               loading={isSubmitting}
             />
           </View>
         </View>
       </AcademicModal>
+
+      {/* Tracking Modals */}
+      <MarkAttendanceModal
+        visible={isAttendanceModalOpen}
+        onClose={() => setIsAttendanceModalOpen(false)}
+        onSubmit={handleCreateAttendance}
+        courseName={course?.name}
+      />
+
+      <GradeComponentModal
+        visible={isComponentModalOpen}
+        onClose={() => setIsComponentModalOpen(false)}
+        components={courseComponents}
+        onCreate={handleCreateComponent}
+        onDelete={handleDeleteComponent}
+        courseName={course?.name}
+      />
+
+      <AddGradeModal
+        visible={isAddGradeModalOpen}
+        onClose={() => setIsAddGradeModalOpen(false)}
+        components={courseComponents}
+        onSubmit={handleCreateGrade}
+        courseName={course?.name}
+      />
     </SafeAreaView>
   );
 }
@@ -531,104 +811,106 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       flex: 1,
       backgroundColor: colors.bg.base,
     },
-    centerContent: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: spacing.xl,
-    },
-    errorText: {
-      fontFamily: typography.body.fontFamily,
-      fontSize: 15,
-      color: colors.text.secondary,
-      marginBottom: spacing.md,
-    },
-    header: {
+    topBar: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.subtle,
     },
-    backBtn: {
-      width: 40,
-      height: 40,
-      borderRadius: radius.md,
-      backgroundColor: colors.bg.surface,
-      borderWidth: 1,
-      borderColor: colors.border.subtle,
-      alignItems: 'center',
-      justifyContent: 'center',
+    backButton: {
+      padding: spacing.xs,
     },
     headerTitle: {
-      fontFamily: typography.h2.fontFamily,
-      fontSize: 16,
+      ...typography.h3,
       color: colors.text.primary,
-      fontWeight: '600',
+      flex: 1,
+      textAlign: 'center',
+      marginHorizontal: spacing.sm,
+    },
+    deleteCourseBtn: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+    },
+    deleteCourseBtnText: {
+      ...typography.label,
+      color: colors.semantic.danger,
     },
     scrollContent: {
-      paddingHorizontal: spacing.xl,
-      paddingTop: spacing.md,
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.lg,
       paddingBottom: spacing.xxxl,
       gap: spacing.lg,
     },
     heroCard: {
       backgroundColor: colors.bg.surface,
       borderRadius: radius.xl,
+      padding: spacing.lg,
       borderWidth: 1,
       borderColor: colors.border.subtle,
-      padding: spacing.xl,
       ...shadows.card,
     },
-    heroHeader: {
+    heroTopRow: {
       flexDirection: 'row',
+      alignItems: 'center',
       justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: spacing.xs,
+      marginBottom: spacing.md,
     },
-    codeBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6,
+    codePill: {
+      backgroundColor: colors.bg.elevated,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: radius.sm,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
     },
     codeText: {
       fontFamily: typography.mono.fontFamily,
       fontSize: 13,
+      fontWeight: '700',
       color: colors.brand.primary,
-      fontWeight: '600',
     },
     courseName: {
-      fontFamily: typography.h1.fontFamily,
+      fontFamily: typography.display.fontFamily,
       fontSize: 22,
-      color: colors.text.primary,
       lineHeight: 28,
-      marginVertical: spacing.xs,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
     },
     metaRow: {
-      gap: 6,
-      marginTop: spacing.sm,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: colors.border.subtle,
+      paddingTop: spacing.md,
     },
     metaItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 8,
+      gap: spacing.xs,
     },
     metaText: {
-      fontFamily: typography.bodySmall.fontFamily,
-      fontSize: 13,
+      ...typography.bodySmall,
       color: colors.text.secondary,
     },
-    tabBar: {
+    tabBarContainer: {
+      marginBottom: -4,
+    },
+    tabBarScroll: {
       flexDirection: 'row',
       backgroundColor: colors.bg.surface,
       borderRadius: radius.lg,
       padding: 4,
       borderWidth: 1,
       borderColor: colors.border.subtle,
+      gap: 4,
     },
     tabItem: {
-      flex: 1,
-      paddingVertical: 10,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: radius.md,
@@ -649,6 +931,29 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       alignItems: 'flex-end',
       marginBottom: -8,
     },
+    gradesActionStrip: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: -8,
+    },
+    actionOutlineBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: colors.bg.elevated,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+    },
+    actionOutlineText: {
+      ...typography.label,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
     addStripButton: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -665,6 +970,61 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       fontSize: 12,
       color: colors.brand.primary,
       fontWeight: '600',
+    },
+    sectionHeaderRow: {
+      marginTop: spacing.xs,
+      marginBottom: -4,
+    },
+    sectionHeading: {
+      ...typography.label,
+      color: colors.text.secondary,
+      textTransform: 'uppercase',
+    },
+    gpaHeroCard: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.xl,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      ...shadows.card,
+      marginBottom: spacing.xs,
+    },
+    gpaHeroTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    gpaHeroLabel: {
+      ...typography.label,
+      color: colors.text.secondary,
+      marginBottom: 2,
+    },
+    gpaHeroScore: {
+      fontFamily: 'Syne_700Bold',
+      fontSize: 36,
+      color: colors.text.primary,
+    },
+    gpaHeroBadgeCol: {
+      alignItems: 'flex-end',
+    },
+    letterGradePill: {
+      backgroundColor: 'rgba(78, 205, 196, 0.15)',
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: radius.md,
+      borderWidth: 1.5,
+      borderColor: colors.semantic.success,
+      marginBottom: 4,
+    },
+    letterGradeText: {
+      fontFamily: 'Syne_700Bold',
+      fontSize: 20,
+      color: colors.semantic.success,
+    },
+    gradePointText: {
+      ...typography.mono,
+      fontSize: 12,
+      color: colors.text.muted,
     },
     formContent: {
       gap: spacing.md,

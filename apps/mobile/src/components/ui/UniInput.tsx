@@ -9,14 +9,15 @@ import {
   ViewStyle,
 } from 'react-native';
 import { Eye, EyeSlash } from 'phosphor-react-native';
-import { colors, radius, spacing, typography } from '@/constants/tokens';
+import { radius, spacing, typography } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
 Screen/Component : UniInput
 Tujuan           : Input field yang aman, elegan, dan jelas untuk formulir mahasiswa (email, password, student ID)
 Layout strategy  : Label teratas dengan tracking rapi, input container dengan prefix icon dan action icon (eye toggle)
-Color tokens     : bg.surface (#171B26), border.subtle (#252A3D), brand.primary (#6B7FD7), semantic.danger (#E05B5B)
+Color tokens     : Dinamis sesuai useUniTheme()
 Animation plan   : Animasi border highlight subtle saat fokus
 Typography       : SpaceGrotesk_500Medium untuk label, SpaceGrotesk_400Regular untuk input text
 Anti-slop check  : Rule #3 (no pure white/black), Rule #19 (radius.md: 10), Security rules (password toggle, secureTextEntry)
@@ -44,20 +45,34 @@ export const UniInput: React.FC<UniInputProps> = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { colors } = useUniTheme();
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && (
+        <Text style={[styles.label, { color: colors.text.secondary }]}>
+          {label}
+        </Text>
+      )}
       <View
         style={[
           styles.inputWrapper,
-          isFocused && styles.inputFocused,
-          Boolean(error) && styles.inputError,
+          {
+            backgroundColor: colors.bg.surface,
+            borderColor: colors.border.default,
+          },
+          isFocused && {
+            borderColor: colors.brand.primary,
+            backgroundColor: colors.bg.overlay,
+          },
+          Boolean(error) && {
+            borderColor: colors.semantic.danger,
+          },
         ]}
       >
         {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
         <TextInput
-          style={[styles.input, style]}
+          style={[styles.input, { color: colors.text.primary }, style]}
           placeholderTextColor={colors.text.muted}
           secureTextEntry={isPassword && !showPassword}
           onFocus={(e) => {
@@ -84,7 +99,11 @@ export const UniInput: React.FC<UniInputProps> = ({
           </Pressable>
         )}
       </View>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? (
+        <Text style={[styles.errorText, { color: colors.semantic.danger }]}>
+          {error}
+        </Text>
+      ) : null}
     </View>
   );
 };
@@ -98,26 +117,16 @@ const styles = StyleSheet.create({
     fontFamily: typography.label.fontFamily,
     fontSize: typography.label.fontSize,
     letterSpacing: typography.label.letterSpacing,
-    color: colors.text.secondary,
     marginBottom: spacing.xs,
     textTransform: 'uppercase',
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bg.surface,
     borderWidth: 1,
-    borderColor: colors.border.default,
     borderRadius: radius.md,
     minHeight: 50,
     paddingHorizontal: spacing.md,
-  },
-  inputFocused: {
-    borderColor: colors.brand.primary,
-    backgroundColor: colors.bg.overlay,
-  },
-  inputError: {
-    borderColor: colors.semantic.danger,
   },
   leftIconContainer: {
     marginRight: spacing.sm,
@@ -126,7 +135,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: typography.body.fontFamily,
     fontSize: typography.body.fontSize,
-    color: colors.text.primary,
     paddingVertical: spacing.sm,
   },
   eyeButton: {
@@ -136,7 +144,6 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: typography.bodySmall.fontFamily,
     fontSize: typography.bodySmall.fontSize,
-    color: colors.semantic.danger,
     marginTop: spacing.xs,
   },
 });

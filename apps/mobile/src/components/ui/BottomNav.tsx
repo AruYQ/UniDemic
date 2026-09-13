@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import Animated, {
@@ -13,7 +13,8 @@ import {
   GraduationCap,
   CheckSquareOffset,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
@@ -44,7 +45,9 @@ const TabButton: React.FC<{
   tab: TabItem;
   isActive: boolean;
   onPress: () => void;
-}> = ({ tab, isActive, onPress }) => {
+  colors: ThemeColors;
+  styles: ReturnType<typeof createStyles>;
+}> = ({ tab, isActive, onPress, colors, styles }) => {
   const scale = useSharedValue(1);
 
   const handlePress = () => {
@@ -81,8 +84,7 @@ const TabButton: React.FC<{
       <Text
         style={[
           styles.tabLabel,
-          { color: isActive ? colors.text.primary : colors.text.muted },
-          isActive && styles.tabLabelActive,
+          isActive ? styles.tabLabelActive : styles.tabLabelInactive,
         ]}
       >
         {tab.label}
@@ -94,6 +96,8 @@ const TabButton: React.FC<{
 export const BottomNav: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
   const tabs: TabItem[] = [
     {
@@ -143,6 +147,8 @@ export const BottomNav: React.FC = () => {
               tab={tab}
               isActive={isActive}
               onPress={() => handleNavigate(tab.route)}
+              colors={themeColors}
+              styles={styles}
             />
           );
         })}
@@ -151,49 +157,53 @@ export const BottomNav: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.bg.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.default,
-    paddingBottom: spacing.lg,
-    paddingTop: spacing.xs,
-    ...shadows.elevated,
-  },
-  bar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-  },
-  tabButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 6,
-    flex: 1,
-    minHeight: 48,
-  },
-  iconWrapper: {
-    padding: 6,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconWrapperActive: {
-    backgroundColor: 'rgba(107, 127, 215, 0.15)',
-  },
-  tabLabel: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    marginTop: 2,
-    letterSpacing: 0.2,
-  },
-  tabLabelActive: {
-    fontWeight: '600',
-    color: colors.brand.primary,
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: colors.bg.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.border.default,
+      paddingBottom: spacing.lg,
+      paddingTop: spacing.xs,
+      ...shadows.elevated,
+    },
+    bar: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+    },
+    tabButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 6,
+      flex: 1,
+      minHeight: 48,
+    },
+    iconWrapper: {
+      padding: 6,
+      borderRadius: radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconWrapperActive: {
+      backgroundColor: colors.bg.overlay,
+    },
+    tabLabel: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      marginTop: 2,
+      letterSpacing: 0.2,
+    },
+    tabLabelActive: {
+      fontWeight: '600',
+      color: colors.brand.primary,
+    },
+    tabLabelInactive: {
+      color: colors.text.muted,
+    },
+  });

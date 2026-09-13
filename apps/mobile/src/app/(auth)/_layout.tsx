@@ -1,7 +1,9 @@
 import { Stack } from 'expo-router';
-import { colors } from '@/constants/tokens';
+import { useUniTheme } from '@/hooks/use-theme';
 
 export default function AuthLayout() {
+  const { colors } = useUniTheme();
+
   return (
     <Stack
       screenOptions={{
@@ -17,3 +19,4 @@ export default function AuthLayout() {
     </Stack>
   );
 }
+

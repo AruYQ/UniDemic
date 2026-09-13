@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -21,11 +21,12 @@ import {
   ArrowRight,
   BookOpen,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { UniButton } from '@/components/ui/UniButton';
 import { UniInput } from '@/components/ui/UniInput';
 import { UniBadge } from '@/components/ui/UniBadge';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useUniTheme } from '@/hooks/use-theme';
 
 /*
 <vibe_check>
@@ -61,6 +62,8 @@ const registerSchema = z
 export default function RegisterScreen() {
   const router = useRouter();
   const { register, isLoading, error: authError, clearError } = useAuthStore();
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
   const [form, setForm] = useState({
     name: '',
@@ -154,7 +157,7 @@ export default function RegisterScreen() {
             value={form.name}
             onChangeText={(t) => updateField('name', t)}
             error={errors.name}
-            leftIcon={<User size={20} color={colors.text.secondary} weight="duotone" />}
+            leftIcon={<User size={20} color={themeColors.text.secondary} weight="duotone" />}
           />
 
           <UniInput
@@ -166,7 +169,7 @@ export default function RegisterScreen() {
             autoCapitalize="none"
             error={errors.email}
             leftIcon={
-              <EnvelopeSimple size={20} color={colors.text.secondary} weight="duotone" />
+              <EnvelopeSimple size={20} color={themeColors.text.secondary} weight="duotone" />
             }
           />
 
@@ -180,7 +183,7 @@ export default function RegisterScreen() {
             placeholder="Institut Teknologi Bandung"
             value={form.university}
             onChangeText={(t) => updateField('university', t)}
-            leftIcon={<Buildings size={20} color={colors.text.secondary} weight="duotone" />}
+            leftIcon={<Buildings size={20} color={themeColors.text.secondary} weight="duotone" />}
           />
 
           <View style={styles.splitRow}>
@@ -190,7 +193,7 @@ export default function RegisterScreen() {
                 placeholder="Informatika"
                 value={form.major}
                 onChangeText={(t) => updateField('major', t)}
-                leftIcon={<BookOpen size={20} color={colors.text.secondary} weight="duotone" />}
+                leftIcon={<BookOpen size={20} color={themeColors.text.secondary} weight="duotone" />}
               />
             </View>
             <View style={{ flex: 1 }}>
@@ -202,7 +205,7 @@ export default function RegisterScreen() {
                 leftIcon={
                   <IdentificationBadge
                     size={20}
-                    color={colors.text.secondary}
+                    color={themeColors.text.secondary}
                     weight="duotone"
                   />
                 }
@@ -222,7 +225,7 @@ export default function RegisterScreen() {
             onChangeText={(t) => updateField('password', t)}
             isPassword
             error={errors.password}
-            leftIcon={<LockKey size={20} color={colors.text.secondary} weight="duotone" />}
+            leftIcon={<LockKey size={20} color={themeColors.text.secondary} weight="duotone" />}
           />
 
           <UniInput
@@ -232,14 +235,14 @@ export default function RegisterScreen() {
             onChangeText={(t) => updateField('password_confirmation', t)}
             isPassword
             error={errors.password_confirmation}
-            leftIcon={<LockKey size={20} color={colors.text.secondary} weight="duotone" />}
+            leftIcon={<LockKey size={20} color={themeColors.text.secondary} weight="duotone" />}
           />
 
           <UniButton
             label="Buat Akun Mahasiswa"
             onPress={handleRegister}
             loading={isLoading}
-            rightIcon={<ArrowRight size={18} color={colors.bg.base} weight="bold" />}
+            rightIcon={<ArrowRight size={18} color={themeColors.text.inverse} weight="bold" />}
             style={styles.submitButton}
           />
         </Animated.View>
@@ -267,91 +270,93 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg.base,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xxl,
-  },
-  header: {
-    marginBottom: spacing.xl,
-  },
-  badgeRow: {
-    marginBottom: spacing.sm,
-  },
-  title: {
-    fontFamily: typography.display.fontFamily,
-    fontSize: 28,
-    color: colors.text.primary,
-    letterSpacing: typography.display.letterSpacing,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: typography.body.fontSize,
-    color: colors.text.secondary,
-    lineHeight: 22,
-  },
-  card: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.xl,
-    ...shadows.card,
-  },
-  sectionHeader: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: typography.label.fontSize,
-    letterSpacing: typography.label.letterSpacing,
-    color: colors.brand.primary,
-    textTransform: 'uppercase',
-    marginBottom: spacing.sm,
-    fontWeight: '600',
-  },
-  splitRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  errorBanner: {
-    backgroundColor: 'rgba(224, 91, 91, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(224, 91, 91, 0.3)',
-    borderRadius: radius.sm,
-    padding: spacing.sm + 2,
-    marginBottom: spacing.md,
-  },
-  errorBannerText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: typography.bodySmall.fontSize,
-    color: colors.semantic.danger,
-  },
-  submitButton: {
-    marginTop: spacing.md,
-  },
-  footer: {
-    marginTop: spacing.xl,
-    alignItems: 'center',
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  switchPrompt: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: typography.body.fontSize,
-    color: colors.text.secondary,
-  },
-  switchLink: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: typography.body.fontSize,
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg.base,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.xxl,
+      paddingBottom: spacing.xxl,
+    },
+    header: {
+      marginBottom: spacing.xl,
+    },
+    badgeRow: {
+      marginBottom: spacing.sm,
+    },
+    title: {
+      fontFamily: typography.display.fontFamily,
+      fontSize: 28,
+      color: colors.text.primary,
+      letterSpacing: typography.display.letterSpacing,
+      marginBottom: spacing.xs,
+    },
+    subtitle: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: typography.body.fontSize,
+      color: colors.text.secondary,
+      lineHeight: 22,
+    },
+    card: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.xl,
+      ...shadows.card,
+    },
+    sectionHeader: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: typography.label.fontSize,
+      letterSpacing: typography.label.letterSpacing,
+      color: colors.brand.primary,
+      textTransform: 'uppercase',
+      marginBottom: spacing.sm,
+      fontWeight: '600',
+    },
+    splitRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+    },
+    errorBanner: {
+      backgroundColor: 'rgba(224, 91, 91, 0.12)',
+      borderWidth: 1,
+      borderColor: 'rgba(224, 91, 91, 0.3)',
+      borderRadius: radius.sm,
+      padding: spacing.sm + 2,
+      marginBottom: spacing.md,
+    },
+    errorBannerText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: typography.bodySmall.fontSize,
+      color: colors.semantic.danger,
+    },
+    submitButton: {
+      marginTop: spacing.md,
+    },
+    footer: {
+      marginTop: spacing.xl,
+      alignItems: 'center',
+    },
+    switchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    switchPrompt: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: typography.body.fontSize,
+      color: colors.text.secondary,
+    },
+    switchLink: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: typography.body.fontSize,
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+  });
+

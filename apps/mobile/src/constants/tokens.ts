@@ -1,7 +1,48 @@
-// tokens.ts — UniDemic Elite UI/UX Design System Tokens
-// Derived directly from .agents/skills/unidemic-ui-ux/SKILL.md
+export interface ThemeColors {
+  bg: {
+    base: string;
+    surface: string;
+    elevated: string;
+    overlay: string;
+  };
+  brand: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  text: {
+    primary: string;
+    secondary: string;
+    muted: string;
+    inverse: string;
+  };
+  semantic: {
+    danger: string;
+    warning: string;
+    success: string;
+    info: string;
+  };
+  border: {
+    subtle: string;
+    default: string;
+    strong: string;
+  };
+}
 
-export const colors = {
+export interface ShadowStyle {
+  shadowColor: string;
+  shadowOffset: { width: number; height: number };
+  shadowOpacity: number;
+  shadowRadius: number;
+  elevation: number;
+}
+
+export interface ThemeShadows {
+  card: ShadowStyle;
+  elevated: ShadowStyle;
+}
+
+export const darkColors: ThemeColors = {
   // Backgrounds — BUKAN pure black atau white (#000000 atau #ffffff dilarang)
   bg: {
     base: '#0F1117',        // deep navy-slate
@@ -39,7 +80,50 @@ export const colors = {
     default: '#2E3450',
     strong: '#3D4566',
   },
-} as const;
+};
+
+export const lightColors: ThemeColors = {
+  // Backgrounds — Soft muted alabaster/slate, BUKAN pure blinding white
+  bg: {
+    base: '#F4F5F9',        // soft warm slate
+    surface: '#FFFFFF',     // clean card surface
+    elevated: '#FFFFFF',    // modals, elevated elements
+    overlay: '#E8ECF5',     // hover / selected tab
+  },
+
+  // Brand — slightly deepened indigo/teal for rich WCAG AA contrast on light
+  brand: {
+    primary: '#5063BF',     // vibrant indigo CTA
+    secondary: '#00A896',   // clean teal
+    accent: '#D9822B',      // warm amber
+  },
+
+  // Text hierarchy
+  text: {
+    primary: '#111625',     // deep navy-slate headings & titles
+    secondary: '#555E75',   // medium slate labels & subtitles
+    muted: '#8A94A6',       // disabled, subtle placeholders
+    inverse: '#FFFFFF',     // text on primary buttons
+  },
+
+  // Semantic
+  semantic: {
+    danger: '#D63031',      // danger alert
+    warning: '#E17055',     // deadline warning
+    success: '#00B894',     // submitted / present
+    info: '#5063BF',        // neutral info
+  },
+
+  // Borders — soft and refined
+  border: {
+    subtle: '#E4E8F1',
+    default: '#D0D6E4',
+    strong: '#B4BCCF',
+  },
+};
+
+// Default colors (Dark mode first fallback)
+export const colors: ThemeColors = darkColors;
 
 export const typography = {
   // Display / Hero text (nama semester, angka GPA)
@@ -79,7 +163,7 @@ export const radius = {
   full: 999, // pills, avatars
 } as const;
 
-export const shadows = {
+export const darkShadows: ThemeShadows = {
   card: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -94,4 +178,23 @@ export const shadows = {
     shadowRadius: 16,
     elevation: 12,
   },
-} as const;
+};
+
+export const lightShadows: ThemeShadows = {
+  card: {
+    shadowColor: '#111625',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  elevated: {
+    shadowColor: '#111625',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+};
+
+export const shadows: ThemeShadows = darkShadows;

@@ -8,14 +8,15 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { colors, radius, spacing, shadows } from '@/constants/tokens';
+import { radius, spacing } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
 Screen/Component : UniSkeleton (components/ui/UniSkeleton.tsx)
 Tujuan           : Memberikan feedback loading ala Instagram/Linear dengan shimmer wireframe yang meniru persis bentuk kartu
 Layout strategy  : ShimmerBox fleksibel + Pre-built Skeletons (Schedule, Course, Assignment, Hero)
-Color tokens     : bg.surface (#171B26), bg.elevated (#1E2333), bg.overlay (#252A3D)
+Color tokens     : Dinamis sesuai useUniTheme() (bg.surface, bg.elevated, bg.overlay)
 Animation plan   : Hardware-accelerated GPU opacity pulse (0.35 -> 0.75 -> 0.35) tanpa membebani JS thread
 Typography       : N/A
 Anti-slop check  : Rule #21 (Skeleton selalu untuk konten, tanpa ActivityIndicator), Rule #3 (No pure white)
@@ -35,6 +36,7 @@ export const ShimmerBox: React.FC<ShimmerBoxProps> = ({
   borderRadius = radius.md,
   style,
 }) => {
+  const { colors } = useUniTheme();
   const opacity = useSharedValue(0.35);
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export const ShimmerBox: React.FC<ShimmerBoxProps> = ({
     <Animated.View
       style={[
         styles.shimmerBase,
+        { backgroundColor: colors.bg.overlay },
         { width, height, borderRadius },
         animatedStyle,
         style,
@@ -65,9 +68,20 @@ export const ShimmerBox: React.FC<ShimmerBoxProps> = ({
 };
 
 export const ScheduleCardSkeleton: React.FC = () => {
+  const { colors, shadows } = useUniTheme();
+
   return (
-    <View style={styles.cardSkeleton}>
-      <View style={styles.timeColumnSkeleton}>
+    <View
+      style={[
+        styles.cardSkeleton,
+        {
+          backgroundColor: colors.bg.surface,
+          borderColor: colors.border.subtle,
+          ...shadows.card,
+        },
+      ]}
+    >
+      <View style={[styles.timeColumnSkeleton, { borderRightColor: colors.border.subtle }]}>
         <ShimmerBox width={50} height={14} borderRadius={radius.sm} />
         <ShimmerBox width={2} height={12} style={{ marginVertical: 6 }} />
         <ShimmerBox width={45} height={12} borderRadius={radius.sm} />
@@ -85,8 +99,19 @@ export const ScheduleCardSkeleton: React.FC = () => {
 };
 
 export const CourseCardSkeleton: React.FC = () => {
+  const { colors, shadows } = useUniTheme();
+
   return (
-    <View style={styles.courseCardSkeleton}>
+    <View
+      style={[
+        styles.courseCardSkeleton,
+        {
+          backgroundColor: colors.bg.surface,
+          borderColor: colors.border.subtle,
+          ...shadows.card,
+        },
+      ]}
+    >
       <View style={styles.headerRowSkeleton}>
         <ShimmerBox width={60} height={14} borderRadius={radius.sm} />
         <ShimmerBox width={50} height={18} borderRadius={radius.sm} />
@@ -102,8 +127,19 @@ export const CourseCardSkeleton: React.FC = () => {
 };
 
 export const AssignmentCardSkeleton: React.FC = () => {
+  const { colors, shadows } = useUniTheme();
+
   return (
-    <View style={styles.cardSkeleton}>
+    <View
+      style={[
+        styles.cardSkeleton,
+        {
+          backgroundColor: colors.bg.surface,
+          borderColor: colors.border.subtle,
+          ...shadows.card,
+        },
+      ]}
+    >
       <View style={{ flex: 1 }}>
         <View style={styles.headerRowSkeleton}>
           <ShimmerBox width={80} height={12} borderRadius={radius.sm} />
@@ -122,10 +158,21 @@ export const AssignmentCardSkeleton: React.FC = () => {
 };
 
 export const DashboardSkeleton: React.FC = () => {
+  const { colors, shadows } = useUniTheme();
+
   return (
     <View style={{ gap: spacing.lg }}>
       {/* Hero Skeleton */}
-      <View style={styles.heroSkeleton}>
+      <View
+        style={[
+          styles.heroSkeleton,
+          {
+            backgroundColor: colors.bg.surface,
+            borderColor: colors.border.subtle,
+            ...shadows.card,
+          },
+        ]}
+      >
         <View style={styles.headerRowSkeleton}>
           <ShimmerBox width={120} height={20} borderRadius={radius.sm} />
           <ShimmerBox width={80} height={16} borderRadius={radius.sm} />
@@ -138,21 +185,49 @@ export const DashboardSkeleton: React.FC = () => {
 
       {/* Bento Grid Skeleton */}
       <View style={{ flexDirection: 'row', gap: spacing.md }}>
-        <View style={[styles.bentoSkeleton, { flex: 1 }]}>
-          <ShimmerBox width={32} height={20} borderRadius={radius.sm} />
-          <ShimmerBox width={60} height={32} style={{ marginVertical: 8 }} />
-          <ShimmerBox width={80} height={12} />
+        <View
+          style={[
+            styles.bentoSkeleton,
+            {
+              backgroundColor: colors.bg.surface,
+              borderColor: colors.border.subtle,
+              ...shadows.card,
+            },
+          ]}
+        >
+          <View style={styles.headerRowSkeleton}>
+            <ShimmerBox width={24} height={24} borderRadius={radius.sm} />
+            <ShimmerBox width={50} height={16} borderRadius={radius.sm} />
+          </View>
+          <ShimmerBox width="70%" height={18} />
+          <ShimmerBox width="50%" height={12} />
         </View>
-        <View style={[styles.bentoSkeleton, { flex: 1 }]}>
-          <ShimmerBox width={32} height={20} borderRadius={radius.sm} />
-          <ShimmerBox width={60} height={32} style={{ marginVertical: 8 }} />
-          <ShimmerBox width={80} height={12} />
+
+        <View
+          style={[
+            styles.bentoSkeleton,
+            {
+              backgroundColor: colors.bg.surface,
+              borderColor: colors.border.subtle,
+              ...shadows.card,
+            },
+          ]}
+        >
+          <View style={styles.headerRowSkeleton}>
+            <ShimmerBox width={24} height={24} borderRadius={radius.sm} />
+            <ShimmerBox width={65} height={16} borderRadius={radius.sm} />
+          </View>
+          <ShimmerBox width={45} height={32} />
+          <ShimmerBox width="60%" height={12} />
         </View>
       </View>
 
-      {/* Assignment List Skeleton */}
+      {/* Task Stack Skeleton */}
       <View style={{ gap: spacing.sm }}>
-        <ShimmerBox width={130} height={18} borderRadius={radius.sm} />
+        <View style={styles.headerRowSkeleton}>
+          <ShimmerBox width={130} height={18} />
+          <ShimmerBox width={60} height={14} />
+        </View>
         <AssignmentCardSkeleton />
         <AssignmentCardSkeleton />
       </View>
@@ -161,23 +236,42 @@ export const DashboardSkeleton: React.FC = () => {
 };
 
 export const CourseDetailSkeleton: React.FC = () => {
+  const { colors, shadows } = useUniTheme();
+
   return (
     <View style={{ gap: spacing.lg, paddingHorizontal: spacing.xl, paddingTop: spacing.md }}>
-      {/* Hero Card Skeleton */}
-      <View style={styles.heroSkeleton}>
+      {/* Course Hero Card Skeleton */}
+      <View
+        style={[
+          styles.heroSkeleton,
+          {
+            backgroundColor: colors.bg.surface,
+            borderColor: colors.border.subtle,
+            ...shadows.card,
+          },
+        ]}
+      >
         <View style={styles.headerRowSkeleton}>
-          <ShimmerBox width={90} height={16} borderRadius={radius.sm} />
-          <ShimmerBox width={55} height={18} borderRadius={radius.sm} />
+          <ShimmerBox width={80} height={18} borderRadius={radius.sm} />
+          <ShimmerBox width={50} height={18} borderRadius={radius.sm} />
         </View>
         <ShimmerBox width="85%" height={26} style={{ marginVertical: 12 }} />
         <View style={{ gap: 8 }}>
-          <ShimmerBox width="50%" height={14} borderRadius={radius.sm} />
-          <ShimmerBox width="40%" height={14} borderRadius={radius.sm} />
+          <ShimmerBox width="60%" height={14} />
+          <ShimmerBox width="45%" height={14} />
         </View>
       </View>
 
-      {/* Segmented Tab Bar Skeleton */}
-      <View style={{ flexDirection: 'row', backgroundColor: colors.bg.surface, borderRadius: radius.lg, padding: 4, gap: 6 }}>
+      {/* Tab bar skeleton */}
+      <View
+        style={{
+          flexDirection: 'row',
+          backgroundColor: colors.bg.surface,
+          borderRadius: radius.lg,
+          padding: 4,
+          gap: 6,
+        }}
+      >
         <ShimmerBox width="31%" height={36} borderRadius={radius.md} />
         <ShimmerBox width="31%" height={36} borderRadius={radius.md} />
         <ShimmerBox width="31%" height={36} borderRadius={radius.md} />
@@ -193,25 +287,19 @@ export const CourseDetailSkeleton: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  shimmerBase: {
-    backgroundColor: colors.bg.overlay,
-  },
+  shimmerBase: {},
   cardSkeleton: {
-    backgroundColor: colors.bg.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border.subtle,
     padding: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: spacing.md,
-    ...shadows.card,
   },
   timeColumnSkeleton: {
     alignItems: 'center',
     paddingRight: spacing.md,
     borderRightWidth: 1,
-    borderRightColor: colors.border.subtle,
     minWidth: 70,
   },
   contentColumnSkeleton: {
@@ -219,13 +307,10 @@ const styles = StyleSheet.create({
     paddingLeft: spacing.md,
   },
   courseCardSkeleton: {
-    backgroundColor: colors.bg.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.border.subtle,
     padding: spacing.lg,
     marginBottom: spacing.md,
-    ...shadows.card,
   },
   headerRowSkeleton: {
     flexDirection: 'row',
@@ -233,21 +318,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   heroSkeleton: {
-    backgroundColor: colors.bg.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.border.subtle,
     padding: spacing.xl,
-    ...shadows.card,
   },
   bentoSkeleton: {
-    backgroundColor: colors.bg.surface,
+    flex: 1,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border.subtle,
     padding: spacing.lg,
     minHeight: 120,
     justifyContent: 'space-between',
-    ...shadows.card,
   },
 });

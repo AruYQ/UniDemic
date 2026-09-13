@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Pressable,
   Alert,
   RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
@@ -21,7 +21,7 @@ import {
   Plus,
   User,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { Course } from '@/types/academic';
 import { ScheduleCard } from '@/components/academic/ScheduleCard';
 import { AssignmentCard } from '@/components/academic/AssignmentCard';
@@ -35,6 +35,7 @@ import { UniTimePicker } from '@/components/ui/UniTimePicker';
 import { UniButton } from '@/components/ui/UniButton';
 import { CourseDetailSkeleton } from '@/components/ui/UniSkeleton';
 import { useAcademicStore } from '@/store/useAcademicStore';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
@@ -58,13 +59,17 @@ export default function CourseDetailScreen() {
   const {
     fetchCourseDetail,
     isCourseDetailLoading,
+    deleteCourse,
+    deleteSchedule,
     updateAssignmentProgress,
     deleteAssignment,
-    deleteSchedule,
     deleteExam,
+    createSchedule,
     createAssignment,
     createExam,
   } = useAcademicStore();
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
   const [course, setCourse] = useState<Course | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('schedules');
@@ -187,10 +192,13 @@ export default function CourseDetailScreen() {
 
   if (isCourseDetailLoading && !course) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.container}
+        edges={['top']}
+      >
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={12}>
-            <CaretLeft size={22} color={colors.text.primary} weight="bold" />
+            <CaretLeft size={22} color={themeColors.text.primary} weight="bold" />
           </Pressable>
           <Text style={styles.headerTitle} numberOfLines={1}>
             Detail Perkuliahan
@@ -204,7 +212,10 @@ export default function CourseDetailScreen() {
 
   if (!course && !isCourseDetailLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.container}
+        edges={['top']}
+      >
         <View style={styles.centerContent}>
           <Text style={styles.errorText}>Mata kuliah tidak ditemukan.</Text>
           <UniButton label="Kembali" onPress={() => router.back()} />
@@ -218,11 +229,14 @@ export default function CourseDetailScreen() {
   const examsList = course?.exams || [];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={styles.container}
+      edges={['top']}
+    >
       {/* Header Bar */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={12}>
-          <CaretLeft size={22} color={colors.text.primary} weight="bold" />
+          <CaretLeft size={22} color={themeColors.text.primary} weight="bold" />
         </Pressable>
         <Text style={styles.headerTitle} numberOfLines={1}>
           Detail Perkuliahan
@@ -237,7 +251,7 @@ export default function CourseDetailScreen() {
           <RefreshControl
             refreshing={isCourseDetailLoading}
             onRefresh={() => loadData(true)}
-            tintColor={colors.brand.primary}
+            tintColor={themeColors.brand.primary}
           />
         }
       >
@@ -248,7 +262,7 @@ export default function CourseDetailScreen() {
         >
           <View style={styles.heroHeader}>
             <View style={styles.codeBadge}>
-              <BookOpen size={16} color={colors.brand.primary} weight="duotone" />
+              <BookOpen size={16} color={themeColors.brand.primary} weight="duotone" />
               <Text style={styles.codeText}>{course?.code || 'KULIAH'}</Text>
             </View>
             <UniBadge
@@ -263,14 +277,14 @@ export default function CourseDetailScreen() {
           <View style={styles.metaRow}>
             {course?.lecturer ? (
               <View style={styles.metaItem}>
-                <User size={14} color={colors.text.secondary} weight="duotone" />
+                <User size={14} color={themeColors.text.secondary} weight="duotone" />
                 <Text style={styles.metaText}>{course.lecturer}</Text>
               </View>
             ) : null}
 
             {course?.classroom ? (
               <View style={styles.metaItem}>
-                <MapPin size={14} color={colors.brand.secondary} weight="duotone" />
+                <MapPin size={14} color={themeColors.brand.secondary} weight="duotone" />
                 <Text style={styles.metaText}>{course.classroom}</Text>
               </View>
             ) : null}
@@ -326,7 +340,7 @@ export default function CourseDetailScreen() {
               onPress={() => setIsModalOpen(true)}
               style={styles.addStripButton}
             >
-              <Plus size={16} color={colors.brand.primary} weight="bold" />
+              <Plus size={16} color={themeColors.brand.primary} weight="bold" />
               <Text style={styles.addStripButtonText}>
                 {activeTab === 'assignments' ? 'Tambah Tugas' : 'Tambah Ujian'}
               </Text>
@@ -348,7 +362,7 @@ export default function CourseDetailScreen() {
               ))
             ) : (
               <EmptyState
-                icon={<CalendarCheck size={32} color={colors.brand.primary} weight="duotone" />}
+                icon={<CalendarCheck size={32} color={themeColors.brand.primary} weight="duotone" />}
                 title="Belum Ada Jadwal"
                 description="Tambahkan slot jadwal mingguan untuk kelas ini melalui menu Jadwal."
                 actionLabel="Ke Menu Jadwal"
@@ -372,7 +386,7 @@ export default function CourseDetailScreen() {
               ))
             ) : (
               <EmptyState
-                icon={<CheckSquareOffset size={32} color={colors.brand.primary} weight="duotone" />}
+                icon={<CheckSquareOffset size={32} color={themeColors.brand.primary} weight="duotone" />}
                 title="Tidak Ada Tugas"
                 description="Belum ada tugas kuliah yang dicatat untuk mata kuliah ini."
                 actionLabel="Tambah Tugas"
@@ -395,7 +409,7 @@ export default function CourseDetailScreen() {
               ))
             ) : (
               <EmptyState
-                icon={<GraduationCap size={32} color={colors.brand.accent} weight="duotone" />}
+                icon={<GraduationCap size={32} color={themeColors.brand.accent} weight="duotone" />}
                 title="Belum Ada Ujian"
                 description="Catat jadwal UTS, UAS, atau kuis mendatang agar Anda dapat bersiap lebih awal."
                 actionLabel="Tambah Ujian"
@@ -511,180 +525,181 @@ export default function CourseDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg.base,
-  },
-  centerContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  errorText: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: 15,
-    color: colors.text.secondary,
-    marginBottom: spacing.md,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    backgroundColor: colors.bg.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 16,
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.xxxl,
-    gap: spacing.lg,
-  },
-  heroCard: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.xl,
-    ...shadows.card,
-  },
-  heroHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  codeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  codeText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 13,
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-  courseName: {
-    fontFamily: typography.h1.fontFamily,
-    fontSize: 22,
-    color: colors.text.primary,
-    lineHeight: 28,
-    marginVertical: spacing.xs,
-  },
-  metaRow: {
-    gap: 6,
-    marginTop: spacing.sm,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  metaText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.text.secondary,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  tabItem: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-  },
-  tabItemActive: {
-    backgroundColor: colors.brand.primary,
-  },
-  tabText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.muted,
-  },
-  tabTextActive: {
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  addStrip: {
-    alignItems: 'flex-end',
-    marginBottom: -8,
-  },
-  addStripButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(107, 127, 215, 0.15)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: 'rgba(107, 127, 215, 0.3)',
-  },
-  addStripButtonText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-  formContent: {
-    gap: spacing.md,
-  },
-  labelSelect: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-    marginBottom: -4,
-  },
-  priorityRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  priorityChip: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-    backgroundColor: colors.bg.overlay,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  priorityChipSelected: {
-    backgroundColor: 'rgba(107, 127, 215, 0.25)',
-    borderColor: colors.brand.primary,
-  },
-  priorityChipText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-  priorityChipTextSelected: {
-    color: colors.brand.primary,
-    fontWeight: '700',
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg.base,
+    },
+    centerContent: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+    },
+    errorText: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: 15,
+      color: colors.text.secondary,
+      marginBottom: spacing.md,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+    },
+    backBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.md,
+      backgroundColor: colors.bg.surface,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitle: {
+      fontFamily: typography.h2.fontFamily,
+      fontSize: 16,
+      color: colors.text.primary,
+      fontWeight: '600',
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.xxxl,
+      gap: spacing.lg,
+    },
+    heroCard: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.xl,
+      ...shadows.card,
+    },
+    heroHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    codeBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    codeText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 13,
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+    courseName: {
+      fontFamily: typography.h1.fontFamily,
+      fontSize: 22,
+      color: colors.text.primary,
+      lineHeight: 28,
+      marginVertical: spacing.xs,
+    },
+    metaRow: {
+      gap: 6,
+      marginTop: spacing.sm,
+    },
+    metaItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    metaText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.text.secondary,
+    },
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      padding: 4,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    tabItem: {
+      flex: 1,
+      paddingVertical: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.md,
+    },
+    tabItemActive: {
+      backgroundColor: colors.brand.primary,
+    },
+    tabText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.muted,
+    },
+    tabTextActive: {
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    addStrip: {
+      alignItems: 'flex-end',
+      marginBottom: -8,
+    },
+    addStripButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: 'rgba(107, 127, 215, 0.15)',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: 'rgba(107, 127, 215, 0.3)',
+    },
+    addStripButtonText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+    formContent: {
+      gap: spacing.md,
+    },
+    labelSelect: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+      marginBottom: -4,
+    },
+    priorityRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    priorityChip: {
+      flex: 1,
+      paddingVertical: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.md,
+      backgroundColor: colors.bg.overlay,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+    },
+    priorityChipSelected: {
+      backgroundColor: 'rgba(107, 127, 215, 0.25)',
+      borderColor: colors.brand.primary,
+    },
+    priorityChipText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    priorityChipTextSelected: {
+      color: colors.brand.primary,
+      fontWeight: '700',
+    },
+  });

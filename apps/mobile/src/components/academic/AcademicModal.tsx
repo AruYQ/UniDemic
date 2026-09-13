@@ -11,14 +11,15 @@ import {
 } from 'react-native';
 import Animated, { FadeIn, FadeInDown, Easing } from 'react-native-reanimated';
 import { X } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
 Screen/Component : AcademicModal (components/academic/AcademicModal.tsx)
 Tujuan           : Dialog modal yang rapi dan elegan untuk menambahkan entitas akademik (Semester, Matkul, Jadwal, Tugas, Ujian)
 Layout strategy  : Overlay semi-transparan dengan card elevated terpusat, scrollable form, tombol dismiss X di kanan atas
-Color tokens     : bg.elevated (#1E2333), border.default (#2E3450), text.primary (#F0F2F8), brand.primary (#6B7FD7)
+Color tokens     : Dinamis sesuai useUniTheme() (bg.elevated, border.default, text.primary, text.secondary)
 Animation plan   : FadeIn backdrop + FadeInDown modal container
 Typography       : SpaceGrotesk_600SemiBold untuk judul modal, SpaceGrotesk_400Regular untuk subtitle
 Anti-slop check  : Rule #3 (no pure white/black), Rule #5 (Offset shadow elevated), Rule #19 (varied radius)
@@ -40,6 +41,8 @@ export const AcademicModal: React.FC<AcademicModalProps> = ({
   subtitle,
   children,
 }) => {
+  const { colors, shadows } = useUniTheme();
+
   if (!visible) return null;
 
   return (
@@ -62,16 +65,31 @@ export const AcademicModal: React.FC<AcademicModalProps> = ({
 
         <Animated.View
           entering={FadeInDown.duration(250).easing(Easing.out(Easing.cubic))}
-          style={styles.modalCard}
+          style={[
+            styles.modalCard,
+            {
+              backgroundColor: colors.bg.elevated,
+              borderColor: colors.border.default,
+              ...shadows.elevated,
+            },
+          ]}
         >
           {/* Header */}
-          <View style={styles.header}>
+          <View style={[styles.header, { borderBottomColor: colors.border.subtle }]}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.title}>{title}</Text>
-              {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+              <Text style={[styles.title, { color: colors.text.primary }]}>{title}</Text>
+              {subtitle ? (
+                <Text style={[styles.subtitle, { color: colors.text.muted }]}>
+                  {subtitle}
+                </Text>
+              ) : null}
             </View>
 
-            <Pressable onPress={onClose} hitSlop={12} style={styles.closeBtn}>
+            <Pressable
+              onPress={onClose}
+              hitSlop={12}
+              style={[styles.closeBtn, { backgroundColor: colors.bg.overlay }]}
+            >
               <X size={20} color={colors.text.secondary} weight="bold" />
             </Pressable>
           </View>
@@ -102,18 +120,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(15, 17, 23, 0.85)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
   },
   modalCard: {
     width: '100%',
     maxWidth: 480,
     maxHeight: '88%',
-    backgroundColor: colors.bg.elevated,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.border.default,
     padding: spacing.xl,
-    ...shadows.elevated,
   },
   header: {
     flexDirection: 'row',
@@ -122,24 +137,20 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border.subtle,
   },
   title: {
     fontFamily: typography.h2.fontFamily,
     fontSize: 18,
-    color: colors.text.primary,
     fontWeight: '600',
   },
   subtitle: {
     fontFamily: typography.bodySmall.fontFamily,
     fontSize: 12,
-    color: colors.text.muted,
     marginTop: 2,
   },
   closeBtn: {
     padding: 4,
     borderRadius: radius.sm,
-    backgroundColor: colors.bg.overlay,
   },
   scrollContent: {
     paddingBottom: spacing.md,

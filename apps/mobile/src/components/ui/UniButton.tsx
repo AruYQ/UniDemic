@@ -12,14 +12,15 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { colors, radius, spacing, typography } from '@/constants/tokens';
+import { radius, spacing, typography } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
 Screen/Component : UniButton
 Tujuan           : Touch-target primer dan sekunder untuk interaksi mahasiswa yang responsif dan mantap di thumb-zone
 Layout strategy  : Flex container dengan padding proporsional, border radius variatif (radius.md: 10)
-Color tokens     : brand.primary (#6B7FD7), bg.surface (#171B26), text.primary (#F0F2F8)
+Color tokens     : Dinamis sesuai useUniTheme()
 Animation plan   : withSpring(0.97) saat ditekan untuk tactile press-down feedback (bukan scale 1.05)
 Typography       : SpaceGrotesk_600SemiBold
 Anti-slop check  : Rule #28 (No generic scale 1.05), Rule #19 (variasi radius), Rule #3 (no pure white)
@@ -53,6 +54,7 @@ export const UniButton: React.FC<UniButtonProps> = ({
   style,
   textStyle,
 }) => {
+  const { colors } = useUniTheme();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -83,10 +85,18 @@ export const UniButton: React.FC<UniButtonProps> = ({
       style={[
         styles.base,
         size === 'lg' ? styles.sizeLg : styles.sizeMd,
-        isPrimary && styles.primary,
-        isSecondary && styles.secondary,
-        isOutline && styles.outline,
-        isGhost && styles.ghost,
+        isPrimary && { backgroundColor: colors.brand.primary },
+        isSecondary && {
+          backgroundColor: colors.bg.surface,
+          borderWidth: 1,
+          borderColor: colors.border.default,
+        },
+        isOutline && {
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderColor: colors.border.strong,
+        },
+        isGhost && { backgroundColor: 'transparent' },
         (disabled || loading) && styles.disabled,
         animatedStyle,
         style,
@@ -95,7 +105,7 @@ export const UniButton: React.FC<UniButtonProps> = ({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={isPrimary ? colors.bg.base : colors.brand.primary}
+          color={isPrimary ? colors.text.inverse : colors.brand.primary}
         />
       ) : (
         <>
@@ -103,8 +113,8 @@ export const UniButton: React.FC<UniButtonProps> = ({
           <Text
             style={[
               styles.text,
-              isPrimary && styles.textPrimary,
-              (isSecondary || isOutline || isGhost) && styles.textSecondaryVariant,
+              isPrimary && { color: colors.text.inverse },
+              (isSecondary || isOutline || isGhost) && { color: colors.text.primary },
               textStyle,
             ]}
           >
@@ -133,22 +143,6 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: spacing.xl,
   },
-  primary: {
-    backgroundColor: colors.brand.primary,
-  },
-  secondary: {
-    backgroundColor: colors.bg.surface,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: colors.border.strong,
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-  },
   disabled: {
     opacity: 0.5,
   },
@@ -156,13 +150,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.h3.fontFamily,
     fontSize: typography.body.fontSize,
     letterSpacing: 0.2,
-  },
-  textPrimary: {
-    color: colors.bg.base,
-    fontWeight: '600',
-  },
-  textSecondaryVariant: {
-    color: colors.text.primary,
     fontWeight: '600',
   },
 });

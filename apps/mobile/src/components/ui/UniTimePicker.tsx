@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { Clock, X } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 import { UniButton } from './UniButton';
 
 /*
@@ -45,6 +46,8 @@ export const UniTimePicker: React.FC<UniTimePickerProps> = ({
   onChange,
   placeholder = 'Pilih Jam',
 }) => {
+  const { colors, shadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(colors, shadows), [colors, shadows]);
   const [isOpen, setIsOpen] = useState(false);
 
   // Parse initial hour & minute
@@ -224,185 +227,186 @@ export const UniTimePicker: React.FC<UniTimePickerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.xs,
-  },
-  label: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  triggerBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 14,
-    minHeight: 50,
-  },
-  triggerText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 14,
-    color: colors.text.primary,
-  },
-  triggerPlaceholder: {
-    color: colors.text.muted,
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 17, 23, 0.85)',
-  },
-  modalContent: {
-    width: '100%',
-    maxWidth: 380,
-    maxHeight: '88%',
-    backgroundColor: colors.bg.elevated,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    padding: spacing.xl,
-    ...shadows.elevated,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  modalTitle: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 16,
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  modalSubtitle: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-  closeBtn: {
-    padding: 6,
-    borderRadius: radius.sm,
-    backgroundColor: colors.bg.overlay,
-  },
-  displayBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.bg.overlay,
-    paddingVertical: spacing.md,
-    borderRadius: radius.lg,
-    marginVertical: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  displayTime: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 28,
-    color: colors.brand.primary,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  displayTz: {
-    fontSize: 14,
-    color: colors.brand.secondary,
-    fontWeight: '400',
-  },
-  sectionHeading: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-    textTransform: 'uppercase',
-    marginTop: spacing.xs,
-    marginBottom: 6,
-  },
-  slotsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: spacing.md,
-  },
-  slotChip: {
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: radius.sm,
-    backgroundColor: colors.bg.overlay,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  slotChipSelected: {
-    backgroundColor: 'rgba(78, 205, 196, 0.18)',
-    borderColor: colors.brand.secondary,
-  },
-  slotChipText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.text.secondary,
-  },
-  slotChipTextSelected: {
-    color: colors.brand.secondary,
-    fontWeight: '700',
-  },
-  pickerRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  pickerColHeader: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  scrollCol: {
-    maxHeight: 120,
-    backgroundColor: colors.bg.overlay,
-    borderRadius: radius.md,
-    padding: 6,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  chipGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-    justifyContent: 'center',
-  },
-  numChip: {
-    width: 38,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.sm,
-  },
-  numChipSelected: {
-    backgroundColor: colors.brand.primary,
-  },
-  numText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 13,
-    color: colors.text.secondary,
-  },
-  numTextSelected: {
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  footer: {
-    marginTop: spacing.xs,
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      gap: spacing.xs,
+    },
+    label: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    triggerBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: 14,
+      minHeight: 50,
+    },
+    triggerText: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: 14,
+      color: colors.text.primary,
+    },
+    triggerPlaceholder: {
+      color: colors.text.muted,
+    },
+    overlay: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+    },
+    backdrop: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    },
+    modalContent: {
+      width: '100%',
+      maxWidth: 380,
+      maxHeight: '88%',
+      backgroundColor: colors.bg.elevated,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      padding: spacing.xl,
+      ...shadows.elevated,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    modalTitle: {
+      fontFamily: typography.h2.fontFamily,
+      fontSize: 16,
+      color: colors.text.primary,
+      fontWeight: '600',
+    },
+    modalSubtitle: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    closeBtn: {
+      padding: 6,
+      borderRadius: radius.sm,
+      backgroundColor: colors.bg.overlay,
+    },
+    displayBox: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.bg.overlay,
+      paddingVertical: spacing.md,
+      borderRadius: radius.lg,
+      marginVertical: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    displayTime: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 28,
+      color: colors.brand.primary,
+      fontWeight: '700',
+      letterSpacing: 1,
+    },
+    displayTz: {
+      fontSize: 14,
+      color: colors.brand.secondary,
+      fontWeight: '400',
+    },
+    sectionHeading: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+      textTransform: 'uppercase',
+      marginTop: spacing.xs,
+      marginBottom: 6,
+    },
+    slotsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+      marginBottom: spacing.md,
+    },
+    slotChip: {
+      paddingHorizontal: 9,
+      paddingVertical: 5,
+      borderRadius: radius.sm,
+      backgroundColor: colors.bg.overlay,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    slotChipSelected: {
+      backgroundColor: 'rgba(78, 205, 196, 0.18)',
+      borderColor: colors.brand.secondary,
+    },
+    slotChipText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 11,
+      color: colors.text.secondary,
+    },
+    slotChipTextSelected: {
+      color: colors.brand.secondary,
+      fontWeight: '700',
+    },
+    pickerRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      marginBottom: spacing.md,
+    },
+    pickerColHeader: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+      marginBottom: 4,
+      textAlign: 'center',
+    },
+    scrollCol: {
+      maxHeight: 120,
+      backgroundColor: colors.bg.overlay,
+      borderRadius: radius.md,
+      padding: 6,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    chipGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 4,
+      justifyContent: 'center',
+    },
+    numChip: {
+      width: 38,
+      height: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.sm,
+    },
+    numChipSelected: {
+      backgroundColor: colors.brand.primary,
+    },
+    numText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 13,
+      color: colors.text.secondary,
+    },
+    numTextSelected: {
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    footer: {
+      marginTop: spacing.xs,
+    },
+  });

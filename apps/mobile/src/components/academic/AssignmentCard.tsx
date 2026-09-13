@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { FadeInRight, Easing } from 'react-native-reanimated';
 import {
@@ -7,7 +7,8 @@ import {
   ClockCountdown,
   Trash,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 import { Assignment } from '@/types/academic';
 import { UniBadge } from '../ui/UniBadge';
 
@@ -36,6 +37,8 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
   onUpdateProgress,
   onDelete,
 }) => {
+  const { colors: themeColors, shadows: themeShadows, isDark } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows, isDark), [themeColors, themeShadows, isDark]);
   const isComplete = assignment.is_completed || assignment.progress >= 100;
 
   const getPriorityVariant = (priority: string) => {
@@ -101,7 +104,7 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
                 hitSlop={8}
                 style={styles.deleteBtn}
               >
-                <Trash size={15} color={colors.text.muted} weight="duotone" />
+                <Trash size={15} color={themeColors.text.muted} weight="duotone" />
               </Pressable>
             )}
           </View>
@@ -134,8 +137,8 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
                 {
                   width: `${Math.min(assignment.progress, 100)}%`,
                   backgroundColor: isComplete
-                    ? colors.semantic.success
-                    : colors.brand.primary,
+                    ? themeColors.semantic.success
+                    : themeColors.brand.primary,
                 },
               ]}
             />
@@ -145,7 +148,7 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
         {/* Footer: Deadline & Quick Toggle */}
         <View style={styles.footer}>
           <View style={styles.deadlineContainer}>
-            <CalendarBlank size={14} color={colors.text.muted} weight="duotone" />
+            <CalendarBlank size={14} color={themeColors.text.muted} weight="duotone" />
             <Text style={styles.deadlineText}>
               {formatDeadline(assignment.deadline)}
             </Text>
@@ -162,13 +165,13 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
             >
               <CheckCircle
                 size={14}
-                color={isComplete ? colors.semantic.success : colors.brand.primary}
+                color={isComplete ? themeColors.semantic.success : themeColors.brand.primary}
                 weight="duotone"
               />
               <Text
                 style={[
                   styles.toggleBtnText,
-                  isComplete && { color: colors.semantic.success },
+                  isComplete && { color: themeColors.semantic.success },
                 ]}
               >
                 {isComplete ? 'Selesai (100%)' : 'Update Progress'}
@@ -181,127 +184,128 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: spacing.md,
-  },
-  card: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.lg,
-    ...shadows.card,
-  },
-  cardCompleted: {
-    borderColor: 'rgba(78, 205, 196, 0.3)',
-    backgroundColor: 'rgba(23, 27, 38, 0.7)',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  courseName: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 12,
-    color: colors.brand.secondary,
-    flex: 1,
-    marginRight: spacing.sm,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  deleteBtn: {
-    padding: 2,
-  },
-  title: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: 16,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-    lineHeight: 22,
-  },
-  titleCompleted: {
-    color: colors.text.secondary,
-    textDecorationLine: 'line-through',
-  },
-  description: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.text.muted,
-    lineHeight: 18,
-    marginBottom: spacing.md,
-  },
-  progressContainer: {
-    marginVertical: spacing.sm,
-  },
-  progressLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  progressLabel: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-  progressPercent: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.text.secondary,
-  },
-  progressTrack: {
-    height: 6,
-    backgroundColor: colors.bg.overlay,
-    borderRadius: radius.full,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: radius.full,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing.md,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.subtle,
-  },
-  deadlineContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  deadlineText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 12,
-    color: colors.text.muted,
-  },
-  toggleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.bg.overlay,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  toggleBtnComplete: {
-    borderColor: 'rgba(78, 205, 196, 0.4)',
-    backgroundColor: 'rgba(78, 205, 196, 0.1)',
-  },
-  toggleBtnText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows, isDark: boolean) =>
+  StyleSheet.create({
+    container: {
+      marginBottom: spacing.md,
+    },
+    card: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.lg,
+      ...shadows.card,
+    },
+    cardCompleted: {
+      borderColor: isDark ? 'rgba(78, 205, 196, 0.3)' : 'rgba(0, 168, 150, 0.25)',
+      backgroundColor: isDark ? 'rgba(23, 27, 38, 0.7)' : 'rgba(232, 236, 245, 0.5)',
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    courseName: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 12,
+      color: colors.brand.secondary,
+      flex: 1,
+      marginRight: spacing.sm,
+    },
+    badgeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    deleteBtn: {
+      padding: 2,
+    },
+    title: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 16,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+      lineHeight: 22,
+    },
+    titleCompleted: {
+      color: colors.text.muted,
+      textDecorationLine: 'line-through',
+    },
+    description: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.text.muted,
+      lineHeight: 18,
+      marginBottom: spacing.md,
+    },
+    progressContainer: {
+      marginVertical: spacing.sm,
+    },
+    progressLabelRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 4,
+    },
+    progressLabel: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    progressPercent: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 11,
+      color: colors.text.secondary,
+    },
+    progressTrack: {
+      height: 6,
+      backgroundColor: colors.bg.overlay,
+      borderRadius: radius.full,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      borderRadius: radius.full,
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: spacing.md,
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border.subtle,
+    },
+    deadlineContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    deadlineText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 12,
+      color: colors.text.muted,
+    },
+    toggleBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.bg.overlay,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+    },
+    toggleBtnComplete: {
+      borderColor: isDark ? 'rgba(78, 205, 196, 0.4)' : 'rgba(0, 168, 150, 0.3)',
+      backgroundColor: isDark ? 'rgba(78, 205, 196, 0.1)' : 'rgba(0, 168, 150, 0.08)',
+    },
+    toggleBtnText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+  });

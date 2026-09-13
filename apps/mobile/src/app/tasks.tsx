@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Pressable,
   Alert,
   RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import {
   Plus,
   CheckSquareOffset,
   GraduationCap,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { AssignmentCard } from '@/components/academic/AssignmentCard';
 import { ExamCard } from '@/components/academic/ExamCard';
@@ -27,6 +27,7 @@ import { UniDatePicker } from '@/components/ui/UniDatePicker';
 import { UniTimePicker } from '@/components/ui/UniTimePicker';
 import { UniButton } from '@/components/ui/UniButton';
 import { useAcademicStore } from '@/store/useAcademicStore';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
@@ -57,6 +58,8 @@ export default function TasksScreen() {
     createExam,
     deleteExam,
   } = useAcademicStore();
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
   const [activeTab, setActiveTab] = useState<MainTab>('assignments');
   const [filter, setFilter] = useState<AssignmentFilter>('all');
@@ -174,7 +177,10 @@ export default function TasksScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={styles.container}
+      edges={['top']}
+    >
       {/* Top Header */}
       <View style={styles.header}>
         <Animated.View entering={FadeInDown.duration(280)}>
@@ -187,7 +193,7 @@ export default function TasksScreen() {
           style={styles.addButton}
           hitSlop={8}
         >
-          <Plus size={18} color={colors.text.inverse} weight="bold" />
+          <Plus size={18} color={themeColors.text.inverse} weight="bold" />
           <Text style={styles.addButtonText}>Tambah</Text>
         </Pressable>
       </View>
@@ -201,7 +207,7 @@ export default function TasksScreen() {
           >
             <CheckSquareOffset
               size={18}
-              color={activeTab === 'assignments' ? colors.text.inverse : colors.text.muted}
+              color={activeTab === 'assignments' ? themeColors.text.inverse : themeColors.text.muted}
               weight="duotone"
             />
             <Text
@@ -220,7 +226,7 @@ export default function TasksScreen() {
           >
             <GraduationCap
               size={18}
-              color={activeTab === 'exams' ? colors.text.inverse : colors.text.muted}
+              color={activeTab === 'exams' ? themeColors.text.inverse : themeColors.text.muted}
               weight="duotone"
             />
             <Text style={[styles.tabText, activeTab === 'exams' && styles.tabTextActive]}>
@@ -267,7 +273,7 @@ export default function TasksScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={() => fetchTasksAndExams(true)}
-            tintColor={colors.brand.primary}
+            tintColor={themeColors.brand.primary}
           />
         }
       >
@@ -290,7 +296,7 @@ export default function TasksScreen() {
             ))
           ) : (
             <EmptyState
-              icon={<CheckSquareOffset size={32} color={colors.brand.primary} weight="duotone" />}
+              icon={<CheckSquareOffset size={32} color={themeColors.brand.primary} weight="duotone" />}
               title="Tidak Ada Tugas"
               description={
                 filter === 'completed'
@@ -313,7 +319,7 @@ export default function TasksScreen() {
             ))
           ) : (
             <EmptyState
-              icon={<GraduationCap size={32} color={colors.brand.accent} weight="duotone" />}
+              icon={<GraduationCap size={32} color={themeColors.brand.accent} weight="duotone" />}
               title="Belum Ada Ujian"
               description="Belum ada jadwal UTS, UAS, atau kuis yang dicatat."
               actionLabel="Tambah Ujian"
@@ -468,169 +474,170 @@ export default function TasksScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg.base,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  title: {
-    fontFamily: typography.display.fontFamily,
-    fontSize: 24,
-    color: colors.text.primary,
-  },
-  subtitle: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.text.secondary,
-    marginTop: 2,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.brand.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 8,
-    borderRadius: radius.md,
-  },
-  addButtonText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  mainTabContainer: {
-    paddingHorizontal: spacing.xl,
-    marginVertical: spacing.sm,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  tabItem: {
-    flex: 1,
-    flexDirection: 'row',
-    gap: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-  },
-  tabItemActive: {
-    backgroundColor: colors.brand.primary,
-  },
-  tabText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.muted,
-  },
-  tabTextActive: {
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  subFilterRow: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.xl,
-    gap: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  subFilterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.full,
-    backgroundColor: colors.bg.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  subFilterChipActive: {
-    backgroundColor: colors.bg.overlay,
-    borderColor: colors.brand.secondary,
-  },
-  subFilterText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-  subFilterTextActive: {
-    color: colors.brand.secondary,
-    fontWeight: '600',
-  },
-  listContent: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.sm,
-    paddingBottom: 120,
-  },
-  modalForm: {
-    gap: spacing.md,
-  },
-  labelField: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-    marginBottom: -4,
-  },
-  courseScroll: {
-    gap: spacing.sm,
-    paddingVertical: 4,
-  },
-  courseChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: radius.md,
-    backgroundColor: colors.bg.overlay,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  courseChipActive: {
-    backgroundColor: 'rgba(107, 127, 215, 0.2)',
-    borderColor: colors.brand.primary,
-  },
-  courseChipText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  courseChipTextActive: {
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-  priorityRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  priorityChip: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-    backgroundColor: colors.bg.overlay,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  priorityChipActive: {
-    backgroundColor: 'rgba(107, 127, 215, 0.25)',
-    borderColor: colors.brand.primary,
-  },
-  priorityChipText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-  priorityChipTextActive: {
-    color: colors.brand.primary,
-    fontWeight: '700',
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg.base,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.sm,
+    },
+    title: {
+      fontFamily: typography.display.fontFamily,
+      fontSize: 24,
+      color: colors.text.primary,
+    },
+    subtitle: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.text.secondary,
+      marginTop: 2,
+    },
+    addButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.brand.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
+      borderRadius: radius.md,
+    },
+    addButtonText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    mainTabContainer: {
+      paddingHorizontal: spacing.xl,
+      marginVertical: spacing.sm,
+    },
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      padding: 4,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    tabItem: {
+      flex: 1,
+      flexDirection: 'row',
+      gap: 8,
+      paddingVertical: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.md,
+    },
+    tabItemActive: {
+      backgroundColor: colors.brand.primary,
+    },
+    tabText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.muted,
+    },
+    tabTextActive: {
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    subFilterRow: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing.xl,
+      gap: spacing.sm,
+      marginBottom: spacing.xs,
+    },
+    subFilterChip: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: radius.full,
+      backgroundColor: colors.bg.surface,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    subFilterChipActive: {
+      backgroundColor: colors.bg.overlay,
+      borderColor: colors.brand.secondary,
+    },
+    subFilterText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    subFilterTextActive: {
+      color: colors.brand.secondary,
+      fontWeight: '600',
+    },
+    listContent: {
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.sm,
+      paddingBottom: 120,
+    },
+    modalForm: {
+      gap: spacing.md,
+    },
+    labelField: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+      marginBottom: -4,
+    },
+    courseScroll: {
+      gap: spacing.sm,
+      paddingVertical: 4,
+    },
+    courseChip: {
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: radius.md,
+      backgroundColor: colors.bg.overlay,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+    },
+    courseChipActive: {
+      backgroundColor: 'rgba(107, 127, 215, 0.2)',
+      borderColor: colors.brand.primary,
+    },
+    courseChipText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    courseChipTextActive: {
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+    priorityRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    priorityChip: {
+      flex: 1,
+      paddingVertical: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.md,
+      backgroundColor: colors.bg.overlay,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+    },
+    priorityChipActive: {
+      backgroundColor: 'rgba(107, 127, 215, 0.25)',
+      borderColor: colors.brand.primary,
+    },
+    priorityChipText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    priorityChipTextActive: {
+      color: colors.brand.primary,
+      fontWeight: '700',
+    },
+  });

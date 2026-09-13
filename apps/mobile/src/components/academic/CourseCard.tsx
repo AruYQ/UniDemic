@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { FadeInRight, Easing } from 'react-native-reanimated';
 import {
@@ -10,7 +10,8 @@ import {
   Trash,
   User,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 import { Course } from '@/types/academic';
 import { UniBadge } from '../ui/UniBadge';
 
@@ -39,6 +40,9 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   onPress,
   onDelete,
 }) => {
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
+
   return (
     <Animated.View
       entering={FadeInRight.delay(index * 50)
@@ -56,7 +60,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
         {/* Header: Code & Credits */}
         <View style={styles.header}>
           <View style={styles.codeRow}>
-            <BookOpen size={16} color={colors.brand.primary} weight="duotone" />
+            <BookOpen size={16} color={themeColors.brand.primary} weight="duotone" />
             <Text style={styles.courseCode}>{course.code || 'MK'}</Text>
           </View>
           <View style={styles.badgeRow}>
@@ -71,7 +75,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
                 hitSlop={8}
                 style={styles.deleteBtn}
               >
-                <Trash size={15} color={colors.text.muted} weight="duotone" />
+                <Trash size={15} color={themeColors.text.muted} weight="duotone" />
               </Pressable>
             )}
           </View>
@@ -86,7 +90,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
         <View style={styles.metaContainer}>
           {course.lecturer ? (
             <View style={styles.metaItem}>
-              <User size={13} color={colors.text.muted} weight="duotone" />
+              <User size={13} color={themeColors.text.muted} weight="duotone" />
               <Text style={styles.metaText} numberOfLines={1}>
                 {course.lecturer}
               </Text>
@@ -95,7 +99,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
 
           {course.classroom ? (
             <View style={styles.metaItem}>
-              <MapPin size={13} color={colors.brand.secondary} weight="duotone" />
+              <MapPin size={13} color={themeColors.brand.secondary} weight="duotone" />
               <Text style={styles.metaText}>{course.classroom}</Text>
             </View>
           ) : null}
@@ -104,14 +108,13 @@ export const CourseCard: React.FC<CourseCardProps> = ({
         {/* Footer: Schedules & Assignments counts */}
         <View style={styles.footer}>
           <View style={styles.statItem}>
-            <CalendarCheck size={13} color={colors.brand.primary} weight="duotone" />
+            <CalendarCheck size={13} color={themeColors.brand.primary} weight="duotone" />
             <Text style={styles.statText}>
               {course.schedules_count ?? (course.schedules?.length || 0)} Jadwal
             </Text>
           </View>
-
           <View style={styles.statItem}>
-            <CheckSquareOffset size={13} color={colors.brand.secondary} weight="duotone" />
+            <CheckSquareOffset size={13} color={themeColors.semantic.warning} weight="duotone" />
             <Text style={styles.statText}>
               {course.assignments_count ?? (course.assignments?.length || 0)} Tugas
             </Text>
@@ -122,80 +125,81 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: spacing.md,
-  },
-  card: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.lg,
-    ...shadows.card,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  codeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  courseCode: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 12,
-    color: colors.brand.primary,
-    letterSpacing: 0.5,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  deleteBtn: {
-    padding: 2,
-  },
-  courseName: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 17,
-    color: colors.text.primary,
-    lineHeight: 23,
-    marginBottom: spacing.sm,
-  },
-  metaContainer: {
-    gap: 4,
-    marginBottom: spacing.md,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  metaText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.subtle,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  statText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      marginBottom: spacing.md,
+    },
+    card: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.lg,
+      ...shadows.card,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    codeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    courseCode: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 12,
+      color: colors.brand.primary,
+      letterSpacing: 0.5,
+    },
+    badgeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    deleteBtn: {
+      padding: 2,
+    },
+    courseName: {
+      fontFamily: typography.h2.fontFamily,
+      fontSize: 17,
+      color: colors.text.primary,
+      lineHeight: 23,
+      marginBottom: spacing.sm,
+    },
+    metaContainer: {
+      gap: 4,
+      marginBottom: spacing.md,
+    },
+    metaItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    metaText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.lg,
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border.subtle,
+    },
+    statItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    statText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+  });

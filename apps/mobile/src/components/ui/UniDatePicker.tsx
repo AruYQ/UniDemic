@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,8 @@ import {
   Check,
   X,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 import { UniButton } from './UniButton';
 
 /*
@@ -49,6 +50,8 @@ export const UniDatePicker: React.FC<UniDatePickerProps> = ({
   onChange,
   placeholder = 'Pilih Tanggal',
 }) => {
+  const { colors, shadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(colors, shadows), [colors, shadows]);
   const [isOpen, setIsOpen] = useState(false);
 
   // Current calendar view year & month
@@ -252,160 +255,161 @@ export const UniDatePicker: React.FC<UniDatePickerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.xs,
-  },
-  label: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  triggerBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 14,
-    minHeight: 50,
-  },
-  triggerText: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: 14,
-    color: colors.text.primary,
-  },
-  triggerPlaceholder: {
-    color: colors.text.muted,
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 17, 23, 0.85)',
-  },
-  modalContent: {
-    width: '100%',
-    maxWidth: 380,
-    backgroundColor: colors.bg.elevated,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    padding: spacing.xl,
-    ...shadows.elevated,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  modalTitle: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 16,
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  modalSubtitle: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-  closeBtn: {
-    padding: 6,
-    borderRadius: radius.sm,
-    backgroundColor: colors.bg.overlay,
-  },
-  presetsRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginBottom: spacing.md,
-    flexWrap: 'wrap',
-  },
-  presetChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: radius.full,
-    backgroundColor: colors.bg.overlay,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  presetChipText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.brand.secondary,
-  },
-  monthNavRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.bg.overlay,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 8,
-    marginBottom: spacing.sm,
-  },
-  navArrow: {
-    padding: 4,
-  },
-  monthTitle: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: 14,
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  dayNamesRow: {
-    flexDirection: 'row',
-    marginBottom: 4,
-  },
-  dayNameCell: {
-    flex: 1,
-    textAlign: 'center',
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-    paddingVertical: 2,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: spacing.md,
-  },
-  dayCellEmpty: {
-    width: '14.28%',
-    height: 36,
-  },
-  dayCell: {
-    width: '14.28%',
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.sm,
-  },
-  dayCellSelected: {
-    backgroundColor: colors.brand.primary,
-  },
-  dayCellText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  dayCellTextSelected: {
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  footer: {
-    marginTop: spacing.xs,
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      gap: spacing.xs,
+    },
+    label: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    triggerBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: 14,
+      minHeight: 50,
+    },
+    triggerText: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: 14,
+      color: colors.text.primary,
+    },
+    triggerPlaceholder: {
+      color: colors.text.muted,
+    },
+    overlay: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+    },
+    backdrop: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    },
+    modalContent: {
+      width: '100%',
+      maxWidth: 380,
+      backgroundColor: colors.bg.elevated,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      padding: spacing.xl,
+      ...shadows.elevated,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    modalTitle: {
+      fontFamily: typography.h2.fontFamily,
+      fontSize: 16,
+      color: colors.text.primary,
+      fontWeight: '600',
+    },
+    modalSubtitle: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    closeBtn: {
+      padding: 6,
+      borderRadius: radius.sm,
+      backgroundColor: colors.bg.overlay,
+    },
+    presetsRow: {
+      flexDirection: 'row',
+      gap: 6,
+      marginBottom: spacing.md,
+      flexWrap: 'wrap',
+    },
+    presetChip: {
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: radius.full,
+      backgroundColor: colors.bg.overlay,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    presetChipText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.brand.secondary,
+    },
+    monthNavRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.bg.overlay,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
+      marginBottom: spacing.sm,
+    },
+    navArrow: {
+      padding: 4,
+    },
+    monthTitle: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 14,
+      color: colors.text.primary,
+      fontWeight: '600',
+    },
+    dayNamesRow: {
+      flexDirection: 'row',
+      marginBottom: 4,
+    },
+    dayNameCell: {
+      flex: 1,
+      textAlign: 'center',
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+      paddingVertical: 2,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginBottom: spacing.md,
+    },
+    dayCellEmpty: {
+      width: '14.28%',
+      height: 36,
+    },
+    dayCell: {
+      width: '14.28%',
+      height: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: radius.sm,
+    },
+    dayCellSelected: {
+      backgroundColor: colors.brand.primary,
+    },
+    dayCellText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    dayCellTextSelected: {
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    footer: {
+      marginTop: spacing.xs,
+    },
+  });

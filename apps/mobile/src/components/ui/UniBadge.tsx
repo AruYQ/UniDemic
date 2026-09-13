@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { colors, radius, spacing, typography } from '@/constants/tokens';
+import { radius, spacing, typography } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
@@ -31,19 +32,41 @@ export const UniBadge: React.FC<UniBadgeProps> = ({
   style,
   textStyle,
 }) => {
+  const { colors: themeColors, isDark } = useUniTheme();
+
   const getColors = () => {
     switch (variant) {
       case 'primary':
-        return { bg: 'rgba(107, 127, 215, 0.15)', text: colors.brand.primary, border: 'rgba(107, 127, 215, 0.3)' };
+        return {
+          bg: isDark ? 'rgba(107, 127, 215, 0.15)' : 'rgba(80, 99, 191, 0.12)',
+          text: themeColors.brand.primary,
+          border: isDark ? 'rgba(107, 127, 215, 0.3)' : 'rgba(80, 99, 191, 0.25)',
+        };
       case 'success':
-        return { bg: 'rgba(78, 205, 196, 0.15)', text: colors.semantic.success, border: 'rgba(78, 205, 196, 0.3)' };
+        return {
+          bg: isDark ? 'rgba(78, 205, 196, 0.15)' : 'rgba(0, 168, 150, 0.12)',
+          text: themeColors.semantic.success,
+          border: isDark ? 'rgba(78, 205, 196, 0.3)' : 'rgba(0, 168, 150, 0.25)',
+        };
       case 'warning':
-        return { bg: 'rgba(247, 183, 49, 0.15)', text: colors.semantic.warning, border: 'rgba(247, 183, 49, 0.3)' };
+        return {
+          bg: isDark ? 'rgba(247, 183, 49, 0.15)' : 'rgba(217, 130, 43, 0.12)',
+          text: themeColors.semantic.warning,
+          border: isDark ? 'rgba(247, 183, 49, 0.3)' : 'rgba(217, 130, 43, 0.25)',
+        };
       case 'danger':
-        return { bg: 'rgba(224, 91, 91, 0.15)', text: colors.semantic.danger, border: 'rgba(224, 91, 91, 0.3)' };
+        return {
+          bg: isDark ? 'rgba(224, 91, 91, 0.15)' : 'rgba(214, 48, 49, 0.12)',
+          text: themeColors.semantic.danger,
+          border: isDark ? 'rgba(224, 91, 91, 0.3)' : 'rgba(214, 48, 49, 0.25)',
+        };
       case 'neutral':
       default:
-        return { bg: colors.bg.overlay, text: colors.text.secondary, border: colors.border.subtle };
+        return {
+          bg: themeColors.bg.overlay,
+          text: themeColors.text.secondary,
+          border: themeColors.border.subtle,
+        };
     }
   };
 

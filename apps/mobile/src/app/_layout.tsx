@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { View, ActivityIndicator, StatusBar } from 'react-native';
 import { useUniDemicFonts } from '@/hooks/useUniDemicFonts';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useThemeStore } from '@/store/useThemeStore';
 import { colors } from '@/constants/tokens';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -11,11 +12,13 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 export default function RootLayout() {
   const { fontsLoaded, fontError } = useUniDemicFonts();
   const { isAuthenticated, isLoading, initAuth } = useAuthStore();
+  const { resolvedTheme, colors: themeColors, initTheme } = useThemeStore();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     initAuth();
+    initTheme();
   }, []);
 
   useEffect(() => {
@@ -53,12 +56,15 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg.base }}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.bg.base} />
+    <View style={{ flex: 1, backgroundColor: themeColors.bg.base }}>
+      <StatusBar
+        barStyle={resolvedTheme === 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors.bg.base}
+      />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: colors.bg.base },
+          contentStyle: { backgroundColor: themeColors.bg.base },
           animation: 'fade',
           animationDuration: 180,
           freezeOnBlur: true,

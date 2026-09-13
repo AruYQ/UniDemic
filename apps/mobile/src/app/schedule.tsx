@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Pressable,
   Alert,
   RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Plus, CalendarDots } from 'phosphor-react-native';
-import { colors, radius, spacing, typography } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { ScheduleCard } from '@/components/academic/ScheduleCard';
 import { ScheduleCardSkeleton } from '@/components/ui/UniSkeleton';
@@ -21,6 +21,7 @@ import { UniButton } from '@/components/ui/UniButton';
 import { UniInput } from '@/components/ui/UniInput';
 import { UniTimePicker } from '@/components/ui/UniTimePicker';
 import { useAcademicStore } from '@/store/useAcademicStore';
+import { useUniTheme } from '@/store/useThemeStore';
 import { DayOfWeek } from '@/types/academic';
 
 /*
@@ -60,6 +61,8 @@ export default function ScheduleScreen() {
     createSchedule,
     deleteSchedule,
   } = useAcademicStore();
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('monday');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -128,7 +131,10 @@ export default function ScheduleScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={styles.container}
+      edges={['top']}
+    >
       <View style={styles.header}>
         <Animated.View entering={FadeInDown.duration(280)}>
           <Text style={styles.title}>Jadwal Kuliah</Text>
@@ -140,7 +146,7 @@ export default function ScheduleScreen() {
           style={styles.addButton}
           hitSlop={8}
         >
-          <Plus size={18} color={colors.text.inverse} weight="bold" />
+          <Plus size={18} color={themeColors.text.inverse} weight="bold" />
           <Text style={styles.addButtonText}>Tambah</Text>
         </Pressable>
       </View>
@@ -204,7 +210,7 @@ export default function ScheduleScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={() => fetchSchedules(true)}
-            tintColor={colors.brand.primary}
+            tintColor={themeColors.brand.primary}
           />
         }
       >
@@ -225,7 +231,7 @@ export default function ScheduleScreen() {
           ))
         ) : (
           <EmptyState
-            icon={<CalendarDots size={32} color={colors.brand.primary} weight="duotone" />}
+            icon={<CalendarDots size={32} color={themeColors.brand.primary} weight="duotone" />}
             title="Tidak Ada Jadwal"
             description={`Belum ada jadwal kuliah pada hari ${
               DAYS.find((d) => d.key === selectedDay)?.label
@@ -317,137 +323,138 @@ export default function ScheduleScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg.base,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  title: {
-    fontFamily: typography.display.fontFamily,
-    fontSize: 24,
-    color: colors.text.primary,
-  },
-  subtitle: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.text.secondary,
-    marginTop: 2,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.brand.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 8,
-    borderRadius: radius.md,
-  },
-  addButtonText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  dayTabsContainer: {
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.subtle,
-  },
-  dayTabsScroll: {
-    paddingHorizontal: spacing.xl,
-    gap: spacing.sm,
-  },
-  dayTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: radius.full,
-    backgroundColor: colors.bg.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  dayTabActive: {
-    backgroundColor: colors.brand.primary,
-    borderColor: colors.brand.primary,
-  },
-  dayTabLabel: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  dayTabLabelActive: {
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  dayTabBadge: {
-    backgroundColor: colors.bg.overlay,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: radius.full,
-  },
-  dayTabBadgeActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-  },
-  dayTabBadgeText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 10,
-    color: colors.text.secondary,
-  },
-  dayTabBadgeTextActive: {
-    color: colors.text.inverse,
-  },
-  listContent: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
-    paddingBottom: 120,
-  },
-  formGap: {
-    gap: spacing.md,
-  },
-  inputLabel: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-    marginBottom: -4,
-  },
-  courseSelectRow: {
-    gap: spacing.sm,
-    paddingVertical: 4,
-  },
-  courseChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: radius.md,
-    backgroundColor: colors.bg.overlay,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    maxWidth: 200,
-  },
-  courseChipSelected: {
-    backgroundColor: 'rgba(107, 127, 215, 0.2)',
-    borderColor: colors.brand.primary,
-  },
-  courseChipText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  courseChipTextSelected: {
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-  timeInputsRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg.base,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.sm,
+    },
+    title: {
+      fontFamily: typography.display.fontFamily,
+      fontSize: 24,
+      color: colors.text.primary,
+    },
+    subtitle: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.text.secondary,
+      marginTop: 2,
+    },
+    addButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.brand.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
+      borderRadius: radius.md,
+    },
+    addButtonText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    dayTabsContainer: {
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.subtle,
+    },
+    dayTabsScroll: {
+      paddingHorizontal: spacing.xl,
+      gap: spacing.sm,
+    },
+    dayTab: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: radius.full,
+      backgroundColor: colors.bg.surface,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    dayTabActive: {
+      backgroundColor: colors.brand.primary,
+      borderColor: colors.brand.primary,
+    },
+    dayTabLabel: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    dayTabLabelActive: {
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    dayTabBadge: {
+      backgroundColor: colors.bg.overlay,
+      paddingHorizontal: 6,
+      paddingVertical: 1,
+      borderRadius: radius.full,
+    },
+    dayTabBadgeActive: {
+      backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    },
+    dayTabBadgeText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 10,
+      color: colors.text.secondary,
+    },
+    dayTabBadgeTextActive: {
+      color: colors.text.inverse,
+    },
+    listContent: {
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.md,
+      paddingBottom: 120,
+    },
+    formGap: {
+      gap: spacing.md,
+    },
+    inputLabel: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+      marginBottom: -4,
+    },
+    courseSelectRow: {
+      gap: spacing.sm,
+      paddingVertical: 4,
+    },
+    courseChip: {
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: radius.md,
+      backgroundColor: colors.bg.overlay,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      maxWidth: 200,
+    },
+    courseChipSelected: {
+      backgroundColor: 'rgba(107, 127, 215, 0.2)',
+      borderColor: colors.brand.primary,
+    },
+    courseChipText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    courseChipTextSelected: {
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+    timeInputsRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+  });

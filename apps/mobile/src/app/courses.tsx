@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Pressable,
   Alert,
   RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import {
@@ -17,7 +17,7 @@ import {
   ArrowsClockwise,
   Check,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { CourseCard } from '@/components/academic/CourseCard';
 import { CourseCardSkeleton } from '@/components/ui/UniSkeleton';
@@ -27,6 +27,7 @@ import { UniButton } from '@/components/ui/UniButton';
 import { UniInput } from '@/components/ui/UniInput';
 import { UniBadge } from '@/components/ui/UniBadge';
 import { useAcademicStore } from '@/store/useAcademicStore';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
@@ -54,6 +55,8 @@ export default function CoursesScreen() {
     createCourse,
     deleteCourse,
   } = useAcademicStore();
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
   const [isSemesterModalVisible, setIsSemesterModalVisible] = useState(false);
   const [isCourseModalVisible, setIsCourseModalVisible] = useState(false);
@@ -145,7 +148,10 @@ export default function CoursesScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={styles.container}
+      edges={['top']}
+    >
       {/* Top Header */}
       <View style={styles.header}>
         <Animated.View entering={FadeInDown.duration(280)}>
@@ -158,7 +164,7 @@ export default function CoursesScreen() {
           style={styles.addButton}
           hitSlop={8}
         >
-          <Plus size={18} color={colors.text.inverse} weight="bold" />
+          <Plus size={18} color={themeColors.text.inverse} weight="bold" />
           <Text style={styles.addButtonText}>Tambah</Text>
         </Pressable>
       </View>
@@ -166,7 +172,7 @@ export default function CoursesScreen() {
       {/* Active Semester Banner & Switcher */}
       <View style={styles.semesterBanner}>
         <View style={styles.semesterLeft}>
-          <GraduationCap size={20} color={colors.brand.primary} weight="duotone" />
+          <GraduationCap size={20} color={themeColors.brand.primary} weight="duotone" />
           <View>
             <Text style={styles.semesterLabel}>SEMESTER AKTIF</Text>
             <Text style={styles.semesterName} numberOfLines={1}>
@@ -180,7 +186,7 @@ export default function CoursesScreen() {
           style={styles.switchSemesterBtn}
           hitSlop={8}
         >
-          <ArrowsClockwise size={15} color={colors.brand.secondary} weight="bold" />
+          <ArrowsClockwise size={15} color={themeColors.brand.secondary} weight="bold" />
           <Text style={styles.switchSemesterText}>Ganti</Text>
         </Pressable>
       </View>
@@ -193,7 +199,7 @@ export default function CoursesScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={() => fetchCoursesAndSemesters(true)}
-            tintColor={colors.brand.primary}
+            tintColor={themeColors.brand.primary}
           />
         }
       >
@@ -215,7 +221,7 @@ export default function CoursesScreen() {
           ))
         ) : (
           <EmptyState
-            icon={<GraduationCap size={32} color={colors.brand.primary} weight="duotone" />}
+            icon={<GraduationCap size={32} color={themeColors.brand.primary} weight="duotone" />}
             title="Belum Ada Mata Kuliah"
             description="Tambahkan mata kuliah pertama Anda untuk mulai mengisi jadwal, tugas, dan ujian."
             actionLabel="Tambah Mata Kuliah"
@@ -259,7 +265,7 @@ export default function CoursesScreen() {
                   {isActive ? (
                     <UniBadge label="AKTIF" variant="success" size="sm" />
                   ) : (
-                    <Check size={16} color={colors.text.muted} />
+                    <Check size={16} color={themeColors.text.muted} />
                   )}
                 </Pressable>
               );
@@ -350,141 +356,142 @@ export default function CoursesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg.base,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  title: {
-    fontFamily: typography.display.fontFamily,
-    fontSize: 24,
-    color: colors.text.primary,
-  },
-  subtitle: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.text.secondary,
-    marginTop: 2,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.brand.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 8,
-    borderRadius: radius.md,
-  },
-  addButtonText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.text.inverse,
-    fontWeight: '700',
-  },
-  semesterBanner: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.bg.surface,
-    marginHorizontal: spacing.xl,
-    marginVertical: spacing.sm,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    ...shadows.card,
-  },
-  semesterLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    flex: 1,
-    marginRight: spacing.sm,
-  },
-  semesterLabel: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 10,
-    color: colors.brand.primary,
-    letterSpacing: 0.5,
-  },
-  semesterName: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: 14,
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  switchSemesterBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.bg.overlay,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  switchSemesterText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.brand.secondary,
-    fontWeight: '600',
-  },
-  listContent: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
-    paddingBottom: 120,
-  },
-  modalContent: {
-    gap: spacing.md,
-  },
-  modalSectionLabel: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-    textTransform: 'uppercase',
-  },
-  semesterList: {
-    gap: spacing.sm,
-  },
-  semesterItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.bg.overlay,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-  },
-  semesterItemActive: {
-    borderColor: colors.brand.secondary,
-    backgroundColor: 'rgba(78, 205, 196, 0.08)',
-  },
-  semesterItemText: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: 14,
-    color: colors.text.secondary,
-  },
-  semesterItemTextActive: {
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border.subtle,
-    marginVertical: spacing.sm,
-  },
-  rowInputs: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg.base,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.sm,
+    },
+    title: {
+      fontFamily: typography.display.fontFamily,
+      fontSize: 24,
+      color: colors.text.primary,
+    },
+    subtitle: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.text.secondary,
+      marginTop: 2,
+    },
+    addButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.brand.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
+      borderRadius: radius.md,
+    },
+    addButtonText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    semesterBanner: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.bg.surface,
+      marginHorizontal: spacing.xl,
+      marginVertical: spacing.sm,
+      padding: spacing.md,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      ...shadows.card,
+    },
+    semesterLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      flex: 1,
+      marginRight: spacing.sm,
+    },
+    semesterLabel: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 10,
+      color: colors.brand.primary,
+      letterSpacing: 0.5,
+    },
+    semesterName: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 14,
+      color: colors.text.primary,
+      fontWeight: '600',
+    },
+    switchSemesterBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.bg.overlay,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    switchSemesterText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.brand.secondary,
+      fontWeight: '600',
+    },
+    listContent: {
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.md,
+      paddingBottom: 120,
+    },
+    modalContent: {
+      gap: spacing.md,
+    },
+    modalSectionLabel: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+      textTransform: 'uppercase',
+    },
+    semesterList: {
+      gap: spacing.sm,
+    },
+    semesterItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.bg.overlay,
+      padding: spacing.md,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    semesterItemActive: {
+      borderColor: colors.brand.secondary,
+      backgroundColor: 'rgba(78, 205, 196, 0.08)',
+    },
+    semesterItemText: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: 14,
+      color: colors.text.secondary,
+    },
+    semesterItemTextActive: {
+      color: colors.text.primary,
+      fontWeight: '600',
+    },
+    divider: {
+      height: 1,
+      backgroundColor: colors.border.subtle,
+      marginVertical: spacing.sm,
+    },
+    rowInputs: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+  });

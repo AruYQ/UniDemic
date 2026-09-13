@@ -1,14 +1,23 @@
+import { useThemeStore } from '@/store/useThemeStore';
+
 /**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
+ * Hook to access current theme tokens and mode
  */
-
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
 export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
-
-  return Colors[theme];
+  const { colors, resolvedTheme, themeMode, isDark, setThemeMode } = useThemeStore();
+  return {
+    ...colors,
+    resolvedTheme,
+    themeMode,
+    isDark,
+    setThemeMode,
+    // Compatibility helpers for standard template
+    text: colors.text.primary,
+    background: colors.bg.base,
+    backgroundElement: colors.bg.surface,
+    backgroundSelected: colors.bg.overlay,
+    textSecondary: colors.text.secondary,
+  };
 }
+
+export { useUniTheme } from '@/store/useThemeStore';

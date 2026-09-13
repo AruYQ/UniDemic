@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { FadeInRight, Easing } from 'react-native-reanimated';
 import { Clock, MapPin, User, Trash } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 import { CourseSchedule } from '@/types/academic';
 
 /*
@@ -30,6 +31,9 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
   onDelete,
   onPress,
 }) => {
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
+
   const courseName = schedule.course?.name || 'Mata Kuliah';
   const courseCode = schedule.course?.code || 'KULIAH';
   const lecturer = schedule.course?.lecturer || 'Dosen Pengampu';
@@ -72,7 +76,7 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
                 hitSlop={8}
                 style={styles.deleteBtn}
               >
-                <Trash size={16} color={colors.text.muted} weight="duotone" />
+                <Trash size={16} color={themeColors.text.muted} weight="duotone" />
               </Pressable>
             )}
           </View>
@@ -84,13 +88,13 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
           {/* Metadata Chips */}
           <View style={styles.chipsRow}>
             <View style={styles.chip}>
-              <MapPin size={12} color={colors.brand.secondary} weight="duotone" />
+              <MapPin size={12} color={themeColors.brand.secondary} weight="duotone" />
               <Text style={styles.chipText}>{room}</Text>
             </View>
 
             {lecturer && (
               <View style={styles.chip}>
-                <User size={12} color={colors.text.secondary} weight="duotone" />
+                <User size={12} color={themeColors.text.secondary} weight="duotone" />
                 <Text style={styles.chipText} numberOfLines={1}>
                   {lecturer}
                 </Text>
@@ -103,88 +107,89 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    ...shadows.card,
-  },
-  timeColumn: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingRight: spacing.md,
-    borderRightWidth: 1,
-    borderRightColor: colors.border.subtle,
-    minWidth: 70,
-  },
-  startTime: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 14,
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-  timeLine: {
-    width: 2,
-    height: 12,
-    backgroundColor: colors.border.default,
-    marginVertical: 3,
-    borderRadius: radius.full,
-  },
-  endTime: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 12,
-    color: colors.text.muted,
-  },
-  infoColumn: {
-    flex: 1,
-    paddingLeft: spacing.md,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  courseCode: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.brand.secondary,
-    letterSpacing: 0.5,
-  },
-  deleteBtn: {
-    padding: 2,
-  },
-  courseName: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: 15,
-    color: colors.text.primary,
-    lineHeight: 20,
-    marginBottom: spacing.xs,
-  },
-  chipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    alignItems: 'center',
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.bg.overlay,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.sm,
-  },
-  chipText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.text.secondary,
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+      ...shadows.card,
+    },
+    timeColumn: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingRight: spacing.md,
+      borderRightWidth: 1,
+      borderRightColor: colors.border.subtle,
+      minWidth: 70,
+    },
+    startTime: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 14,
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+    timeLine: {
+      width: 2,
+      height: 12,
+      backgroundColor: colors.border.default,
+      marginVertical: 3,
+      borderRadius: radius.full,
+    },
+    endTime: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 12,
+      color: colors.text.muted,
+    },
+    infoColumn: {
+      flex: 1,
+      paddingLeft: spacing.md,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 2,
+    },
+    courseCode: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 11,
+      color: colors.brand.secondary,
+      letterSpacing: 0.5,
+    },
+    deleteBtn: {
+      padding: 2,
+    },
+    courseName: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 15,
+      color: colors.text.primary,
+      lineHeight: 20,
+      marginBottom: spacing.xs,
+    },
+    chipsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      alignItems: 'center',
+    },
+    chip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      backgroundColor: colors.bg.overlay,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: radius.sm,
+    },
+    chipText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 11,
+      color: colors.text.secondary,
+    },
+  });

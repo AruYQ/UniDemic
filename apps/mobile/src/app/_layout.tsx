@@ -82,6 +82,14 @@ export default function RootLayout() {
             animationDuration: 240,
           }}
         />
+        <Stack.Screen
+          name="gpa"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 240,
+          }}
+        />
         <Stack.Screen name="tasks" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>

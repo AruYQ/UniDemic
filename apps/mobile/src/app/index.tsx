@@ -20,6 +20,7 @@ import {
   ArrowRight,
   MoonStars,
   SunDim,
+  Medal,
 } from 'phosphor-react-native';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { UniBadge } from '@/components/ui/UniBadge';
@@ -28,6 +29,7 @@ import { DashboardSkeleton } from '@/components/ui/UniSkeleton';
 import { AppearanceModal } from '@/components/ui/AppearanceModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAcademicStore } from '@/store/useAcademicStore';
+import { useTrackingStore } from '@/store/useTrackingStore';
 import { useUniTheme } from '@/store/useThemeStore';
 import { DayOfWeek } from '@/types/academic';
 
@@ -55,6 +57,7 @@ export default function DashboardScreen() {
     isRefreshing,
     fetchDashboard,
   } = useAcademicStore();
+  const { cumulativeGpa, fetchGpaData } = useTrackingStore();
   const { colors: themeColors, shadows: themeShadows, resolvedTheme } = useUniTheme();
   const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
   const [showAppearanceModal, setShowAppearanceModal] = useState(false);
@@ -62,6 +65,7 @@ export default function DashboardScreen() {
   useEffect(() => {
     // On-demand fetch khusus beranda
     fetchDashboard();
+    fetchGpaData();
   }, []);
 
   const getGreeting = () => {
@@ -116,7 +120,10 @@ export default function DashboardScreen() {
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
-            onRefresh={() => fetchDashboard(true)}
+            onRefresh={() => {
+              fetchDashboard(true);
+              fetchGpaData(undefined, true);
+            }}
             tintColor={themeColors.brand.primary}
           />
         }
@@ -269,6 +276,37 @@ export default function DashboardScreen() {
                 </View>
                 <Text style={styles.sksNumber}>{totalSks}</Text>
                 <Text style={styles.bentoLabel}>Total Beban SKS Kuliah</Text>
+              </Animated.View>
+
+              {/* Card 3: Cumulative GPA & Simulator Shortcut */}
+              <Animated.View
+                entering={FadeInDown.delay(260)
+                  .duration(300)
+                  .easing(Easing.out(Easing.cubic))}
+                style={[styles.bentoCard, styles.bentoCardFull]}
+              >
+                <Pressable
+                  onPress={() => router.push('/gpa' as any)}
+                  style={styles.gpaBentoPressable}
+                >
+                  <View style={styles.gpaBentoLeft}>
+                    <View style={styles.bentoHeader}>
+                      <Medal size={20} color={themeColors.brand.accent} weight="duotone" />
+                      <UniBadge label="IPK & SIMULATOR" variant="primary" size="sm" />
+                    </View>
+                    <Text style={styles.gpaBentoTitle}>
+                      {cumulativeGpa && cumulativeGpa.cumulative_gpa > 0
+                        ? `IPK Kumulatif: ${Number(cumulativeGpa.cumulative_gpa).toFixed(2)}`
+                        : 'Simulator & Pelacak IPK'}
+                    </Text>
+                    <Text style={styles.bentoLabel}>
+                      Simulasikan target nilai semester depan untuk proyeksi kelulusan
+                    </Text>
+                  </View>
+                  <View style={styles.gpaBentoArrow}>
+                    <ArrowRight size={18} color={themeColors.brand.primary} weight="bold" />
+                  </View>
+                </Pressable>
               </Animated.View>
             </View>
 
@@ -486,10 +524,10 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
     },
     bentoGrid: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: spacing.md,
     },
     bentoCard: {
-      flex: 1,
       backgroundColor: colors.bg.surface,
       borderRadius: radius.lg,
       borderWidth: 1,
@@ -498,8 +536,40 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       ...shadows.card,
     },
     bentoCardSpan1: {
+      flex: 1,
+      minWidth: '45%',
       justifyContent: 'space-between',
       minHeight: 135,
+    },
+    bentoCardFull: {
+      width: '100%',
+    },
+    gpaBentoPressable: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    gpaBentoLeft: {
+      flex: 1,
+      paddingRight: spacing.md,
+    },
+    gpaBentoTitle: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 16,
+      color: colors.text.primary,
+      lineHeight: 22,
+      marginTop: spacing.xs,
+      marginBottom: 2,
+    },
+    gpaBentoArrow: {
+      width: 38,
+      height: 38,
+      borderRadius: radius.full,
+      backgroundColor: colors.bg.elevated,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
     },
     bentoHeader: {
       flexDirection: 'row',

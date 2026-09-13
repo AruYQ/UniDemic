@@ -252,6 +252,43 @@ Setiap entry menggunakan format ini:
 **Verifikasi:**
 - `npx tsc --noEmit` di `apps/mobile`: 100% Lolos tanpa error.
 
+---
 
+### [2026-09-13] — API Integration Testing — Phase 3 Semua Endpoint
 
+**Branch**: `feature/mobile/academic-tracking`
+**Status**: Selesai ✅
+
+**Yang dikerjakan:**
+- Testing komprehensif seluruh endpoint Phase 3 menggunakan automated PowerShell test script
+- Ditemukan dan diverifikasi route yang benar antara backend vs mobile service
+- Verifikasi konsistensi tipe data (`AttendanceStatus`, `CreateGradePayload`, `GpaSimulationPayload`) antara `tracking.ts` dan backend validation
+
+**Hasil Testing — 20/20 PASSED:**
+| Section | Test | Status |
+|---|---|---|
+| Auth | Login | ✅ |
+| Attendance | Create (present/sick/absent) | ✅ ✅ ✅ |
+| Attendance | Get List + Summary | ✅ ✅ |
+| Attendance | Update + Delete | ✅ ✅ |
+| Grade Components | Create UTS/UAS/Tugas/Kuis + List | ✅ ✅ ✅ ✅ ✅ |
+| Grades | Create UTS/UAS + List + Course GPA | ✅ ✅ ✅ ✅ |
+| GPA | Cumulative GPA | ✅ |
+| GPA | Simulator (4 courses) | ✅ |
+| Cleanup | Delete Attendance + Grade | ✅ ✅ |
+
+**Temuan & Keputusan Teknis:**
+- `AttendanceStatus` enum backend: `present`, `absent`, `permission`, `sick` (English) — sudah sesuai dengan `types/tracking.ts` ✅
+- `CreateGradePayload` membutuhkan field `name` — sudah diimplementasi di `AddGradeModal` ✅
+- `AttendanceSummary` response fields: `present_count`, `absent_count`, `permission_count`, `attendance_percentage`, `minimum_percentage`, `warning`, `remaining_safe_absences` — sudah sesuai dengan types ✅
+- `GpaSimulationPayload` menggunakan key `simulations` (array of `{ course_name, credits, target_grade }`) — sudah sesuai dengan `GpaSimulationPayload` interface ✅
+- Route update/delete attendance: `PUT/DELETE /api/attendances/{id}` (tidak nested di course) — sudah benar di `trackingService.ts` ✅
+- Route GPA simulator: `POST /api/gpa-simulator` (bukan `/api/gpa/simulate`) — sudah benar ✅
+
+**Warning Alert Test:**
+- Dengan 1 `present`, 1 `sick`, 1 `absent` → attendance_percentage = 33.33% → `warning = true` ✅
+- Logic warning muncul saat: persentase < 75% OR remaining_safe_absences ≤ 1
+
+**Referensi:**
+- Test script: `C:\Users\veray\.gemini\antigravity-ide\brain\f395b9cb-7897-45bb-8e64-ae8187496570\scratch\test_phase3.ps1`
 

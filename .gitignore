@@ -41,3 +41,8 @@ Thumbs.db
 *.swo
 .phpunit.result.cache
 .phpunit.cache/
+
+# AI Agent instructions
+AGENTS.md
+agents.md
+

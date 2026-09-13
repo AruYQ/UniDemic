@@ -246,3 +246,26 @@ Setiap entry menggunakan format ini:
 
 ---
 
+### [2026-09-13] — Mobile UX Enhancements & Full Dynamic Theme System
+
+**Branch**: `develop`
+**Status**: Selesai
+
+**Yang dikerjakan:**
+- **Metro Bundler (Windows EMFILE fix)**: Mengonfigurasi `apps/mobile/metro.config.js` dengan `graceful-fs` untuk mengatasi batas file descriptor (`EMFILE: too many open files`) pada Windows saat reload Metro bundler.
+- **Exam Countdown**: Menambahkan kalkulasi sisa hari (`getDaysRemaining`) dan badge countdown dinamis (`H-hari`, `Besok (H-1)`, `Hari Ini`, `Selesai`) dengan color variant semantik pada `ExamCard.tsx`.
+- **Login UX & Keyboard Handling**: Mengoptimalkan `KeyboardAvoidingView` dan padding scroll pada `login.tsx` agar form input password tidak terhalang keyboard virtual di perangkat fisik.
+- **Dashboard Top Bar Safe Area**: Memperbaiki header beranda (`index.tsx`) dengan `SafeAreaView edges={['top']}` agar tidak terpotong oleh status bar atau notch layar hp.
+- **Theme System & Appearance Modal**:
+  - Membuat `useThemeStore.ts` dengan dukungan tiga mode: `'dark'`, `'light'`, dan `'system'` (mengikuti skema warna sistem OS via `Appearance.addChangeListener`).
+  - Menambahkan dialog pemilihan tema `AppearanceModal.tsx` dengan micro-interaction dan icon toggle pada top bar beranda.
+  - Memperluas token warna dan shadow pada `tokens.ts` (`lightColors`, `lightShadows`, `darkColors`, `darkShadows`).
+  - Mengubah arsitektur stylesheet di seluruh screen dan komponen mobile dari pola statis menjadi pola pabrik dinamis `createStyles(colors, shadows)` dengan `useUniTheme()` dan `useMemo()`.
+  - Memperbaiki reaktivitas warna background, card, avatar profile, teks nama pengguna, input form, dialog modal, picker, bottom nav, dan badge di seluruh antarmuka saat beralih antara Dark Mode dan Light Mode.
+
+**Test results:**
+- `npx tsc --noEmit` di `apps/mobile`: 0 error.
+- `php artisan test` di `apps/api`: 70 tests passed (227 assertions).
+
+---
+

@@ -26,13 +26,14 @@ UniDemic menggunakan alur kerja cabang berbasis fitur:
 
 ## 📝 Format Commit Message (Conventional Commits)
 
-Semua commit WAJIB mengikuti standar [Conventional Commits](https://www.conventionalcommits.org/):
+Semua commit WAJIB mengikuti standar [Conventional Commits](https://www.conventionalcommits.org/) dan **WAJIB ditulis dalam Bahasa Inggris** (*English only*, format imperatif seperti `add`, `fix`, `update`):
 
 ```
-<type>(<scope>): <deskripsi singkat>
+<type>(<scope>): <short description in English>
 
-[body opsional — penjelasan detail perubahan]
+[optional body — detailed explanation of changes]
 ```
+
 
 ### Types:
 | Type | Kapan Digunakan |

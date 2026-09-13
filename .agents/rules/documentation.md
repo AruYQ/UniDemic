@@ -16,8 +16,10 @@ tanpa terkecuali dan tanpa perlu diaktifkan secara manual.
 
 4. **Keputusan teknis besar**: Tambah ADR baru di `docs/decisions/ADR.md`
 
-5. **Commit convention**: Selalu gunakan format `type: deskripsi`
+5. **Commit convention**: Selalu gunakan Conventional Commits **dalam Bahasa Inggris** (*English only*, imperative format):
+   - Format: `<type>(<scope>): <short description in English>`
    - `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `style:`, `perf:`
+
 
 ## Wajib Diaktifkan untuk Task UI
 

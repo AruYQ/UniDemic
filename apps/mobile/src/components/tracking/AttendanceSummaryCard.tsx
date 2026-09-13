@@ -164,7 +164,7 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       borderWidth: 1,
       borderColor: colors.border.subtle,
       ...shadows.card,
-      marginBottom: spacing.lg,
+      marginBottom: spacing.md,
     },
     headerRow: {
       flexDirection: 'row',

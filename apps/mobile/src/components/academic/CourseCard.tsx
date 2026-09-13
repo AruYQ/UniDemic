@@ -14,14 +14,15 @@ import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/consta
 import { useUniTheme } from '@/store/useThemeStore';
 import { Course } from '@/types/academic';
 import { UniBadge } from '../ui/UniBadge';
+import { UniSwipeable } from '../ui/UniSwipeable';
 
 /*
 <vibe_check>
 Screen/Component : CourseCard (components/academic/CourseCard.tsx)
-Tujuan           : Menampilkan informasi ringkas mata kuliah yang diambil mahasiswa pada semester aktif
+Tujuan           : Menampilkan informasi ringkas mata kuliah yang diambil mahasiswa pada semester aktif dengan aksi swipe hapus
 Layout strategy  : Bento card: Header (Kode MK + SKS badge), Nama MK prominent, metadata dosen/ruang, footer jumlah jadwal & tugas
 Color tokens     : bg.surface (#171B26), border.subtle (#252A3D), brand.primary (#6B7FD7), brand.secondary (#4ECDC4)
-Animation plan   : FadeInRight staggered
+Animation plan   : FadeInRight staggered + swipe gesture
 Typography       : SpaceGrotesk_600SemiBold (nama MK), JetBrainsMono_400Regular (kode & SKS)
 Anti-slop check  : Rule #5 (Offset shadow), Rule #10 (JetBrains Mono untuk SKS & Kode)
 </vibe_check>
@@ -44,12 +45,13 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
   return (
-    <Animated.View
-      entering={FadeInRight.delay(index * 50)
-        .duration(240)
-        .easing(Easing.out(Easing.cubic))}
-      style={styles.container}
-    >
+    <UniSwipeable onDelete={onDelete ? () => onDelete(course.id) : undefined}>
+      <Animated.View
+        entering={FadeInRight.delay(index * 50)
+          .duration(240)
+          .easing(Easing.out(Easing.cubic))}
+        style={styles.container}
+      >
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
@@ -122,6 +124,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
         </View>
       </Pressable>
     </Animated.View>
+    </UniSwipeable>
   );
 };
 

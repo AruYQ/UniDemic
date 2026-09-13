@@ -2,6 +2,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { View, ActivityIndicator, StatusBar } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useUniDemicFonts } from '@/hooks/useUniDemicFonts';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useThemeStore } from '@/store/useThemeStore';
@@ -56,7 +57,7 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: themeColors.bg.base }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: themeColors.bg.base }}>
       <StatusBar
         barStyle={resolvedTheme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor={themeColors.bg.base}
@@ -93,6 +94,6 @@ export default function RootLayout() {
         <Stack.Screen name="tasks" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>
-    </View>
+    </GestureHandlerRootView>
   );
 }

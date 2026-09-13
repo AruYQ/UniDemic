@@ -972,8 +972,8 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       fontWeight: '600',
     },
     sectionHeaderRow: {
-      marginTop: spacing.xs,
-      marginBottom: -4,
+      marginTop: spacing.sm,
+      marginBottom: spacing.sm,
     },
     sectionHeading: {
       ...typography.label,
@@ -987,7 +987,7 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       borderWidth: 1,
       borderColor: colors.border.subtle,
       ...shadows.card,
-      marginBottom: spacing.xs,
+      marginBottom: spacing.md,
     },
     gpaHeroTop: {
       flexDirection: 'row',

@@ -30,6 +30,7 @@ import { UniInput } from '@/components/ui/UniInput';
 import { GpaSimulationItem } from '@/types/tracking';
 import { useTrackingStore } from '@/store/useTrackingStore';
 import { useUniTheme } from '@/store/useThemeStore';
+import { BottomNav } from '@/components/ui/BottomNav';
 
 /*
 <vibe_check>
@@ -421,6 +422,9 @@ export default function GpaScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Floating Bottom Navigation */}
+      <BottomNav />
     </SafeAreaView>
   );
 }
@@ -452,7 +456,7 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
     scrollContent: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.lg,
-      paddingBottom: spacing.xxxl,
+      paddingBottom: 110,
       gap: spacing.xl,
     },
     heroCard: {

@@ -11,14 +11,15 @@ import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/consta
 import { useUniTheme } from '@/store/useThemeStore';
 import { Assignment } from '@/types/academic';
 import { UniBadge } from '../ui/UniBadge';
+import { UniSwipeable } from '../ui/UniSwipeable';
 
 /*
 <vibe_check>
 Screen/Component : AssignmentCard (components/academic/AssignmentCard.tsx)
-Tujuan           : Menampilkan status tugas kuliah, tenggat waktu, prioritas, dan progress penyelesaian yang interaktif
+Tujuan           : Menampilkan status tugas kuliah, tenggat waktu, prioritas, swipe-to-delete, dan progress penyelesaian yang interaktif
 Layout strategy  : Top metadata (matkul + priority badge), judul tugas, bar progress horizontal, status toggle
 Color tokens     : bg.surface (#171B26), semantic.warning (#F7B731), semantic.danger (#E05B5B), semantic.success (#4ECDC4)
-Animation plan   : FadeInRight staggered
+Animation plan   : FadeInRight staggered + smooth swipe gesture
 Typography       : SpaceGrotesk_600SemiBold (judul), JetBrainsMono_400Regular (progress & tanggal)
 Anti-slop check  : Rule #7 (Badge status geometris, bukan emoji), Rule #11 (Full background tint), Rule #28 (withSpring press)
 </vibe_check>
@@ -75,12 +76,13 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
   };
 
   return (
-    <Animated.View
-      entering={FadeInRight.delay(index * 45)
-        .duration(240)
-        .easing(Easing.out(Easing.cubic))}
-      style={styles.container}
-    >
+    <UniSwipeable onDelete={onDelete ? () => onDelete(assignment.id) : undefined}>
+      <Animated.View
+        entering={FadeInRight.delay(index * 45)
+          .duration(240)
+          .easing(Easing.out(Easing.cubic))}
+        style={styles.container}
+      >
       <View
         style={[
           styles.card,
@@ -181,6 +183,7 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
         </View>
       </View>
     </Animated.View>
+    </UniSwipeable>
   );
 };
 

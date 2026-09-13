@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { FadeInRight, Easing } from 'react-native-reanimated';
 import {
@@ -8,7 +8,8 @@ import {
   Books,
   Trash,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
+import { useUniTheme } from '@/store/useThemeStore';
 import { Exam } from '@/types/academic';
 import { UniBadge } from '../ui/UniBadge';
 
@@ -35,6 +36,8 @@ export const ExamCard: React.FC<ExamCardProps> = ({
   index = 0,
   onDelete,
 }) => {
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
@@ -52,6 +55,40 @@ export const ExamCard: React.FC<ExamCardProps> = ({
     return `${parts[0]}:${parts[1]} WIB`;
   };
 
+  const getDaysRemaining = (dateStr: string) => {
+    if (!dateStr) return null;
+    const parts = dateStr.split('T')[0].split('-');
+    if (parts.length !== 3) return null;
+
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+
+    const target = new Date(year, month, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    target.setHours(0, 0, 0, 0);
+
+    const diffTime = target.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return { label: 'SELESAI', variant: 'neutral' as const };
+    }
+    if (diffDays === 0) {
+      return { label: 'HARI INI', variant: 'danger' as const };
+    }
+    if (diffDays === 1) {
+      return { label: 'BESOK (H-1)', variant: 'danger' as const };
+    }
+    if (diffDays <= 7) {
+      return { label: `H-${diffDays} HARI`, variant: 'warning' as const };
+    }
+    return { label: `H-${diffDays} HARI`, variant: 'primary' as const };
+  };
+
+  const countdown = getDaysRemaining(exam.date);
+
   return (
     <Animated.View
       entering={FadeInRight.delay(index * 50)
@@ -62,18 +99,27 @@ export const ExamCard: React.FC<ExamCardProps> = ({
       <View style={styles.card}>
         {/* Header: Exam Type & Course */}
         <View style={styles.header}>
-          <UniBadge
-            label={exam.type.toUpperCase()}
-            variant="warning"
-            size="sm"
-          />
+          <View style={styles.badgeGroup}>
+            <UniBadge
+              label={exam.type.toUpperCase()}
+              variant="warning"
+              size="sm"
+            />
+            {countdown && (
+              <UniBadge
+                label={countdown.label}
+                variant={countdown.variant}
+                size="sm"
+              />
+            )}
+          </View>
           {onDelete && (
             <Pressable
               onPress={() => onDelete(exam.id)}
               hitSlop={8}
               style={styles.deleteBtn}
             >
-              <Trash size={15} color={colors.text.muted} weight="duotone" />
+              <Trash size={15} color={themeColors.text.muted} weight="duotone" />
             </Pressable>
           )}
         </View>
@@ -85,13 +131,13 @@ export const ExamCard: React.FC<ExamCardProps> = ({
         {/* Date & Time Info */}
         <View style={styles.infoRow}>
           <View style={styles.infoItem}>
-            <CalendarDots size={14} color={colors.brand.accent} weight="duotone" />
+            <CalendarDots size={14} color={themeColors.brand.accent} weight="duotone" />
             <Text style={styles.infoText}>{formatDate(exam.date)}</Text>
           </View>
 
           {exam.time && (
             <View style={styles.infoItem}>
-              <Clock size={14} color={colors.brand.primary} weight="duotone" />
+              <Clock size={14} color={themeColors.brand.primary} weight="duotone" />
               <Text style={styles.infoText}>{formatTime(exam.time)}</Text>
             </View>
           )}
@@ -100,7 +146,7 @@ export const ExamCard: React.FC<ExamCardProps> = ({
         {/* Location / Room */}
         {exam.location ? (
           <View style={styles.locationItem}>
-            <MapPin size={14} color={colors.brand.secondary} weight="duotone" />
+            <MapPin size={14} color={themeColors.brand.secondary} weight="duotone" />
             <Text style={styles.locationText}>Ruang / Lokasi: {exam.location}</Text>
           </View>
         ) : null}
@@ -109,7 +155,7 @@ export const ExamCard: React.FC<ExamCardProps> = ({
         {exam.topics ? (
           <View style={styles.topicsBox}>
             <View style={styles.topicsHeader}>
-              <Books size={13} color={colors.text.muted} weight="duotone" />
+              <Books size={13} color={themeColors.text.muted} weight="duotone" />
               <Text style={styles.topicsTitle}>Materi / Kisi-kisi:</Text>
             </View>
             <Text style={styles.topicsContent}>{exam.topics}</Text>
@@ -120,85 +166,91 @@ export const ExamCard: React.FC<ExamCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: spacing.md,
-  },
-  card: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.lg,
-    ...shadows.card,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  deleteBtn: {
-    padding: 2,
-  },
-  courseName: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: 17,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-    lineHeight: 22,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  infoText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  locationItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 2,
-    marginBottom: spacing.sm,
-  },
-  locationText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.brand.secondary,
-  },
-  topicsBox: {
-    backgroundColor: colors.bg.overlay,
-    padding: spacing.sm,
-    borderRadius: radius.md,
-    marginTop: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-  },
-  topicsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginBottom: 2,
-  },
-  topicsTitle: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-  topicsContent: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
-    color: colors.text.primary,
-    lineHeight: 16,
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      marginBottom: spacing.md,
+    },
+    card: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.lg,
+      ...shadows.card,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    badgeGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    deleteBtn: {
+      padding: 2,
+    },
+    courseName: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 17,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+      lineHeight: 22,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    infoItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    infoText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    locationItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginTop: 2,
+      marginBottom: spacing.sm,
+    },
+    locationText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.brand.secondary,
+    },
+    topicsBox: {
+      backgroundColor: colors.bg.overlay,
+      padding: spacing.sm,
+      borderRadius: radius.md,
+      marginTop: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+    },
+    topicsHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      marginBottom: 2,
+    },
+    topicsTitle: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    topicsContent: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 12,
+      color: colors.text.primary,
+      lineHeight: 16,
+    },
+  });

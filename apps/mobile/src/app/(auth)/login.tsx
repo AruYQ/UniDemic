@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -18,11 +18,12 @@ import {
   ArrowRight,
   ShieldCheck,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { UniButton } from '@/components/ui/UniButton';
 import { UniInput } from '@/components/ui/UniInput';
 import { UniBadge } from '@/components/ui/UniBadge';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
@@ -50,6 +51,8 @@ const loginSchema = z.object({
 export default function LoginScreen() {
   const router = useRouter();
   const { login, isLoading, error: authError, clearError } = useAuthStore();
+  const { colors: themeColors, shadows: themeShadows } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -81,12 +84,14 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets={true}
       >
         {/* Hero Section */}
         <Animated.View
@@ -95,7 +100,7 @@ export default function LoginScreen() {
         >
           <View style={styles.brandRow}>
             <View style={styles.logoBadge}>
-              <GraduationCap size={28} color={colors.brand.primary} weight="duotone" />
+              <GraduationCap size={28} color={themeColors.brand.primary} weight="duotone" />
             </View>
             <UniBadge label="ACADEMIC OS" variant="primary" size="sm" />
           </View>
@@ -134,7 +139,7 @@ export default function LoginScreen() {
             keyboardType="email-address"
             error={errors.email}
             leftIcon={
-              <EnvelopeSimple size={20} color={colors.text.secondary} weight="duotone" />
+              <EnvelopeSimple size={20} color={themeColors.text.secondary} weight="duotone" />
             }
           />
 
@@ -149,13 +154,13 @@ export default function LoginScreen() {
             isPassword
             error={errors.password}
             leftIcon={
-              <LockKey size={20} color={colors.text.secondary} weight="duotone" />
+              <LockKey size={20} color={themeColors.text.secondary} weight="duotone" />
             }
           />
 
           <View style={styles.forgotRow}>
             <View style={styles.securityPill}>
-              <ShieldCheck size={14} color={colors.brand.secondary} weight="duotone" />
+              <ShieldCheck size={14} color={themeColors.brand.secondary} weight="duotone" />
               <Text style={styles.securityText}>Sanctum 256-bit Encrypted</Text>
             </View>
           </View>
@@ -164,7 +169,7 @@ export default function LoginScreen() {
             label="Masuk Sekarang"
             onPress={handleLogin}
             loading={isLoading}
-            rightIcon={<ArrowRight size={18} color={colors.bg.base} weight="bold" />}
+            rightIcon={<ArrowRight size={18} color={themeColors.text.inverse} weight="bold" />}
             style={styles.submitButton}
           />
         </Animated.View>
@@ -203,139 +208,140 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg.base,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxl + 16,
-    paddingBottom: spacing.xxl,
-    justifyContent: 'space-between',
-  },
-  heroSection: {
-    marginBottom: spacing.xl,
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  logoBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    backgroundColor: colors.bg.surface,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroTitle: {
-    fontFamily: typography.display.fontFamily,
-    fontSize: 34,
-    color: colors.text.primary,
-    letterSpacing: typography.display.letterSpacing,
-    marginBottom: spacing.xs,
-  },
-  heroSubtitle: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: typography.body.fontSize,
-    color: colors.text.secondary,
-    lineHeight: 22,
-  },
-  card: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.xl,
-    ...shadows.card,
-  },
-  cardHeading: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: typography.h2.fontSize,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  cardSubheading: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: typography.bodySmall.fontSize,
-    color: colors.text.muted,
-    marginBottom: spacing.lg,
-  },
-  errorBanner: {
-    backgroundColor: 'rgba(224, 91, 91, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(224, 91, 91, 0.3)',
-    borderRadius: radius.sm,
-    padding: spacing.sm + 2,
-    marginBottom: spacing.md,
-  },
-  errorBannerText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: typography.bodySmall.fontSize,
-    color: colors.semantic.danger,
-  },
-  forgotRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.lg,
-    marginTop: -spacing.xs,
-  },
-  securityPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  securityText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.text.muted,
-  },
-  submitButton: {
-    marginTop: spacing.xs,
-  },
-  footer: {
-    marginTop: spacing.xl,
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  switchPrompt: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: typography.body.fontSize,
-    color: colors.text.secondary,
-  },
-  switchLink: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: typography.body.fontSize,
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-  legalRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  legalText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
-    color: colors.text.muted,
-  },
-  legalLink: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-    textDecorationLine: 'underline',
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg.base,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.xxl + 16,
+      paddingBottom: spacing.xxl + 48,
+    },
+    heroSection: {
+      marginBottom: spacing.xl,
+    },
+    brandRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    logoBadge: {
+      width: 44,
+      height: 44,
+      borderRadius: radius.md,
+      backgroundColor: colors.bg.surface,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    heroTitle: {
+      fontFamily: typography.display.fontFamily,
+      fontSize: 34,
+      color: colors.text.primary,
+      letterSpacing: typography.display.letterSpacing,
+      marginBottom: spacing.xs,
+    },
+    heroSubtitle: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: typography.body.fontSize,
+      color: colors.text.secondary,
+      lineHeight: 22,
+    },
+    card: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.xl,
+      ...shadows.card,
+    },
+    cardHeading: {
+      fontFamily: typography.h2.fontFamily,
+      fontSize: typography.h2.fontSize,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    cardSubheading: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: typography.bodySmall.fontSize,
+      color: colors.text.muted,
+      marginBottom: spacing.lg,
+    },
+    errorBanner: {
+      backgroundColor: 'rgba(224, 91, 91, 0.12)',
+      borderWidth: 1,
+      borderColor: 'rgba(224, 91, 91, 0.3)',
+      borderRadius: radius.sm,
+      padding: spacing.sm + 2,
+      marginBottom: spacing.md,
+    },
+    errorBannerText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: typography.bodySmall.fontSize,
+      color: colors.semantic.danger,
+    },
+    forgotRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.lg,
+      marginTop: -spacing.xs,
+    },
+    securityPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    securityText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    submitButton: {
+      marginTop: spacing.xs,
+    },
+    footer: {
+      marginTop: spacing.xxl,
+      marginBottom: spacing.md,
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    switchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    switchPrompt: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: typography.body.fontSize,
+      color: colors.text.secondary,
+    },
+    switchLink: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: typography.body.fontSize,
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+    legalRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    legalText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 12,
+      color: colors.text.muted,
+    },
+    legalLink: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+      textDecorationLine: 'underline',
+    },
+  });

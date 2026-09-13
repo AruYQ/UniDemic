@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Pressable,
   RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, Easing } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import {
@@ -18,13 +18,17 @@ import {
   BookBookmark,
   CheckSquareOffset,
   ArrowRight,
+  MoonStars,
+  SunDim,
 } from 'phosphor-react-native';
-import { colors, radius, spacing, typography, shadows } from '@/constants/tokens';
+import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { UniBadge } from '@/components/ui/UniBadge';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { DashboardSkeleton } from '@/components/ui/UniSkeleton';
+import { AppearanceModal } from '@/components/ui/AppearanceModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAcademicStore } from '@/store/useAcademicStore';
+import { useUniTheme } from '@/store/useThemeStore';
 import { DayOfWeek } from '@/types/academic';
 
 /*
@@ -51,6 +55,9 @@ export default function DashboardScreen() {
     isRefreshing,
     fetchDashboard,
   } = useAcademicStore();
+  const { colors: themeColors, shadows: themeShadows, resolvedTheme } = useUniTheme();
+  const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
+  const [showAppearanceModal, setShowAppearanceModal] = useState(false);
 
   useEffect(() => {
     // On-demand fetch khusus beranda
@@ -102,7 +109,7 @@ export default function DashboardScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -110,7 +117,7 @@ export default function DashboardScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={() => fetchDashboard(true)}
-            tintColor={colors.brand.primary}
+            tintColor={themeColors.brand.primary}
           />
         }
       >
@@ -121,17 +128,41 @@ export default function DashboardScreen() {
         >
           <View style={styles.userInfo}>
             <View style={styles.avatarPill}>
-              <Text style={styles.avatarText}>{getInitials(user?.name)}</Text>
+              <Text style={styles.avatarText}>
+                {getInitials(user?.name)}
+              </Text>
             </View>
             <View>
-              <Text style={styles.greetingText}>{getGreeting()},</Text>
-              <Text style={styles.userNameText}>{user?.name || 'Mahasiswa'}</Text>
+              <Text style={styles.greetingText}>
+                {getGreeting()},
+              </Text>
+              <Text style={styles.userNameText}>
+                {user?.name || 'Mahasiswa'}
+              </Text>
             </View>
           </View>
 
-          <Pressable onPress={logout} style={styles.logoutButton} hitSlop={12}>
-            <SignOut size={20} color={colors.text.secondary} weight="duotone" />
-          </Pressable>
+          <View style={styles.topActions}>
+            <Pressable
+              onPress={() => setShowAppearanceModal(true)}
+              style={styles.iconButton}
+              hitSlop={8}
+            >
+              {resolvedTheme === 'dark' ? (
+                <MoonStars size={20} color={themeColors.brand.primary} weight="duotone" />
+              ) : (
+                <SunDim size={20} color={themeColors.brand.accent} weight="duotone" />
+              )}
+            </Pressable>
+
+            <Pressable
+              onPress={logout}
+              style={styles.iconButton}
+              hitSlop={8}
+            >
+              <SignOut size={20} color={themeColors.text.secondary} weight="duotone" />
+            </Pressable>
+          </View>
         </Animated.View>
 
         {/* Loading Shimmer State ala Instagram/Linear */}
@@ -154,7 +185,7 @@ export default function DashboardScreen() {
                 />
                 {nextClass && (
                   <View style={styles.timeBadge}>
-                    <Clock size={14} color={colors.brand.secondary} weight="duotone" />
+                    <Clock size={14} color={themeColors.brand.secondary} weight="duotone" />
                     <Text style={styles.timeText}>
                       {formatTime(nextClass.start_time)} - {formatTime(nextClass.end_time)} WIB
                     </Text>
@@ -177,9 +208,11 @@ export default function DashboardScreen() {
                 </>
               ) : (
                 <View style={styles.noClassBox}>
-                  <CalendarCheck size={28} color={colors.brand.secondary} weight="duotone" />
+                  <CalendarCheck size={28} color={themeColors.brand.secondary} weight="duotone" />
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.noClassTitle}>Tidak ada jadwal kuliah hari ini</Text>
+                    <Text style={styles.noClassTitle}>
+                      Tidak ada jadwal kuliah hari ini
+                    </Text>
                     <Text style={styles.noClassSubtitle}>
                       Manfaatkan waktu luang untuk menyelesaikan tugas atau belajar mandiri.
                     </Text>
@@ -191,8 +224,10 @@ export default function DashboardScreen() {
                 onPress={() => router.replace('/schedule' as any)}
                 style={styles.heroFooterAction}
               >
-                <Text style={styles.heroFooterActionText}>Lihat Kalender Mingguan</Text>
-                <ArrowRight size={14} color={colors.brand.primary} weight="bold" />
+                <Text style={styles.heroFooterActionText}>
+                  Lihat Kalender Mingguan
+                </Text>
+                <ArrowRight size={14} color={themeColors.brand.primary} weight="bold" />
               </Pressable>
             </Animated.View>
 
@@ -206,7 +241,7 @@ export default function DashboardScreen() {
                 style={[styles.bentoCard, styles.bentoCardSpan1]}
               >
                 <View style={styles.bentoHeader}>
-                  <GraduationCap size={20} color={colors.brand.primary} weight="duotone" />
+                  <GraduationCap size={20} color={themeColors.brand.primary} weight="duotone" />
                   <UniBadge
                     label={activeSemester ? 'AKTIF' : 'BELUM AKTIF'}
                     variant={activeSemester ? 'success' : 'neutral'}
@@ -229,7 +264,7 @@ export default function DashboardScreen() {
                 style={[styles.bentoCard, styles.bentoCardSpan1]}
               >
                 <View style={styles.bentoHeader}>
-                  <BookBookmark size={20} color={colors.brand.secondary} weight="duotone" />
+                  <BookBookmark size={20} color={themeColors.brand.secondary} weight="duotone" />
                   <UniBadge label="SEMESTER INI" variant="neutral" size="sm" />
                 </View>
                 <Text style={styles.sksNumber}>{totalSks}</Text>
@@ -246,7 +281,7 @@ export default function DashboardScreen() {
             >
               <View style={styles.sectionHeader}>
                 <View style={styles.sectionTitleRow}>
-                  <CheckSquareOffset size={18} color={colors.brand.primary} weight="duotone" />
+                  <CheckSquareOffset size={18} color={themeColors.brand.primary} weight="duotone" />
                   <Text style={styles.sectionTitle}>Tugas Mendatang</Text>
                 </View>
                 <Pressable onPress={() => router.replace('/tasks' as any)}>
@@ -256,7 +291,10 @@ export default function DashboardScreen() {
 
               {pendingAssignments.length > 0 ? (
                 pendingAssignments.map((assignment) => (
-                  <View key={assignment.id} style={styles.taskMiniCard}>
+                  <View
+                    key={assignment.id}
+                    style={styles.taskMiniCard}
+                  >
                     <View style={styles.taskMiniLeft}>
                       <Text style={styles.taskCourseName}>
                         {assignment.course?.name || 'Mata Kuliah'}
@@ -284,254 +322,276 @@ export default function DashboardScreen() {
         )}
       </ScrollView>
 
+      {/* Appearance / Theme Settings Modal */}
+      <AppearanceModal
+        visible={showAppearanceModal}
+        onClose={() => setShowAppearanceModal(false)}
+      />
+
       {/* Floating Bottom Navigation */}
       <BottomNav />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg.base,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
-    paddingBottom: 110,
-    gap: spacing.lg,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
-  },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  avatarPill: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
-    backgroundColor: colors.bg.surface,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 16,
-    color: colors.brand.primary,
-    fontWeight: '700',
-  },
-  greetingText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.text.muted,
-  },
-  userNameText: {
-    fontFamily: typography.h2.fontFamily,
-    fontSize: 18,
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  logoutButton: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.md,
-    backgroundColor: colors.bg.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroCard: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.xl,
-    ...shadows.card,
-  },
-  heroHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  timeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  timeText: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 12,
-    color: colors.brand.secondary,
-  },
-  courseCode: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 12,
-    color: colors.brand.primary,
-    letterSpacing: 0.5,
-    marginBottom: spacing.xs,
-  },
-  courseTitle: {
-    fontFamily: typography.h1.fontFamily,
-    fontSize: 20,
-    color: colors.text.primary,
-    lineHeight: 26,
-    marginBottom: spacing.xs,
-  },
-  courseLecturer: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.text.secondary,
-    marginBottom: spacing.md,
-  },
-  noClassBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  noClassTitle: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: 15,
-    color: colors.text.primary,
-    marginBottom: 2,
-  },
-  noClassSubtitle: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-    lineHeight: 16,
-  },
-  heroFooterAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.subtle,
-  },
-  heroFooterActionText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.brand.primary,
-    fontWeight: '600',
-  },
-  bentoGrid: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  bentoCard: {
-    flex: 1,
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.lg,
-    ...shadows.card,
-  },
-  bentoCardSpan1: {
-    justifyContent: 'space-between',
-    minHeight: 135,
-  },
-  bentoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  semesterName: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: 16,
-    color: colors.brand.primary,
-    lineHeight: 20,
-    marginTop: spacing.xs,
-  },
-  sksNumber: {
-    fontFamily: typography.display.fontFamily,
-    fontSize: 34,
-    color: colors.brand.secondary,
-    letterSpacing: -1,
-    marginTop: spacing.xs,
-  },
-  bentoLabel: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  sectionContainer: {
-    gap: spacing.sm,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  sectionTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  sectionTitle: {
-    fontFamily: typography.h3.fontFamily,
-    fontSize: 15,
-    color: colors.text.primary,
-    fontWeight: '600',
-  },
-  seeAllText: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: 12,
-    color: colors.brand.primary,
-  },
-  taskMiniCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.md,
-  },
-  taskMiniLeft: {
-    flex: 1,
-    marginRight: spacing.sm,
-  },
-  taskCourseName: {
-    fontFamily: typography.mono.fontFamily,
-    fontSize: 11,
-    color: colors.brand.secondary,
-    marginBottom: 2,
-  },
-  taskTitle: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: 14,
-    color: colors.text.primary,
-    fontWeight: '500',
-  },
-  taskMiniRight: {
-    alignItems: 'flex-end',
-  },
-  emptyMiniCard: {
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  emptyMiniText: {
-    fontFamily: typography.bodySmall.fontFamily,
-    fontSize: 13,
-    color: colors.text.secondary,
-    textAlign: 'center',
-  },
-});
+const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg.base,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.sm,
+      paddingBottom: 110,
+      gap: spacing.lg,
+    },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.sm,
+    },
+    userInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    avatarPill: {
+      width: 44,
+      height: 44,
+      borderRadius: radius.md,
+      backgroundColor: colors.bg.surface,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: {
+      fontFamily: typography.h2.fontFamily,
+      fontSize: 16,
+      color: colors.brand.primary,
+      fontWeight: '700',
+    },
+    greetingText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.text.muted,
+    },
+    userNameText: {
+      fontFamily: typography.h2.fontFamily,
+      fontSize: 18,
+      color: colors.text.primary,
+      fontWeight: '600',
+    },
+    topActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    iconButton: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.md,
+      backgroundColor: colors.bg.surface,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    heroCard: {
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.xl,
+      ...shadows.card,
+    },
+    heroHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.md,
+    },
+    timeBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: colors.bg.overlay,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: radius.sm,
+    },
+    timeText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 12,
+      color: colors.text.secondary,
+    },
+    courseCode: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 12,
+      color: colors.brand.primary,
+      letterSpacing: 0.5,
+      marginBottom: spacing.xs,
+    },
+    courseTitle: {
+      fontFamily: typography.h1.fontFamily,
+      fontSize: 20,
+      color: colors.text.primary,
+      lineHeight: 26,
+      marginBottom: spacing.xs,
+    },
+    courseLecturer: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.text.secondary,
+      marginBottom: spacing.md,
+    },
+    noClassBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.md,
+      backgroundColor: colors.bg.overlay,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.default,
+    },
+    noClassTitle: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 15,
+      color: colors.text.primary,
+      marginBottom: 2,
+    },
+    noClassSubtitle: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 12,
+      color: colors.text.muted,
+      lineHeight: 16,
+    },
+    heroFooterAction: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingTop: spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: colors.border.subtle,
+    },
+    heroFooterActionText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+    bentoGrid: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    bentoCard: {
+      flex: 1,
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.lg,
+      ...shadows.card,
+    },
+    bentoCardSpan1: {
+      justifyContent: 'space-between',
+      minHeight: 135,
+    },
+    bentoHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    semesterName: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 16,
+      color: colors.text.primary,
+      lineHeight: 20,
+      marginTop: spacing.xs,
+    },
+    sksNumber: {
+      fontFamily: typography.display.fontFamily,
+      fontSize: 34,
+      color: colors.brand.secondary,
+      letterSpacing: -1,
+      marginTop: spacing.xs,
+    },
+    bentoLabel: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 12,
+      color: colors.text.muted,
+    },
+    sectionContainer: {
+      gap: spacing.sm,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    sectionTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    sectionTitle: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 15,
+      color: colors.text.primary,
+      fontWeight: '600',
+    },
+    seeAllText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 12,
+      color: colors.brand.primary,
+    },
+    taskMiniCard: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.md,
+      ...shadows.card,
+    },
+    taskMiniLeft: {
+      flex: 1,
+      marginRight: spacing.sm,
+    },
+    taskCourseName: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 11,
+      color: colors.brand.primary,
+      marginBottom: 2,
+    },
+    taskTitle: {
+      fontFamily: typography.body.fontFamily,
+      fontSize: 14,
+      color: colors.text.primary,
+      fontWeight: '500',
+    },
+    taskMiniRight: {
+      alignItems: 'flex-end',
+    },
+    emptyMiniCard: {
+      backgroundColor: colors.bg.overlay,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      padding: spacing.lg,
+      alignItems: 'center',
+    },
+    emptyMiniText: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 13,
+      color: colors.text.muted,
+      textAlign: 'center',
+    },
+  });

@@ -4,16 +4,17 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Trash } from 'phosphor-react-native';
 import { Grade } from '@/types/tracking';
 import { UniBadge } from '@/components/ui/UniBadge';
+import { UniSwipeable } from '@/components/ui/UniSwipeable';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { useUniTheme } from '@/store/useThemeStore';
 
 /*
 <vibe_check>
 Screen/Component : GradeItemCard (components/tracking/GradeItemCard.tsx)
-Tujuan           : Menampilkan kartu nilai individu (nama asesmen, skor nilai 0-100, komponen terkait, dan aksi hapus)
-Layout strategy  : Horizontal row dengan nama dan komponen di kiri, badge skor nilai besar di kanan, dan delete button
+Tujuan           : Menampilkan kartu nilai individu (nama asesmen, skor nilai 0-100, komponen terkait, swipe-to-delete, dan aksi hapus)
+Layout strategy  : Swipeable row dengan nama dan komponen di kiri, badge skor nilai besar di kanan, dan delete button
 Color tokens     : bg.surface, bg.elevated, border.subtle, score color semantic
-Animation plan   : FadeInDown duration 220ms
+Animation plan   : FadeInDown duration 220ms + smooth swipe physics
 Typography       : SpaceGrotesk untuk nama nilai, Syne_700Bold untuk skor numerik
 Anti-slop check  : Rule #1 (tokens), Rule #2 (Phosphor duotone), Rule #4 (dynamic theme), Rule #10 (typography)
 </vibe_check>
@@ -38,43 +39,45 @@ export const GradeItemCard: React.FC<GradeItemCardProps> = ({ grade, onDelete })
   const { color: scoreColor } = getScoreVariant(scoreNum);
 
   return (
-    <Animated.View
-      entering={FadeInDown.duration(220)}
-      style={styles.card}
-    >
-      <View style={styles.leftContent}>
-        <View style={styles.badgeRow}>
-          {grade.component?.name ? (
-            <UniBadge label={grade.component.name.toUpperCase()} variant="primary" size="sm" />
-          ) : (
-            <UniBadge label="CUSTOM" variant="neutral" size="sm" />
-          )}
-          {grade.weight ? (
-            <Text style={styles.weightText}>Bobot: {grade.weight}%</Text>
-          ) : grade.component?.weight ? (
-            <Text style={styles.weightText}>Bobot: {grade.component.weight}%</Text>
-          ) : null}
+    <UniSwipeable onDelete={onDelete ? () => onDelete(grade.id) : undefined}>
+      <Animated.View
+        entering={FadeInDown.duration(220)}
+        style={styles.card}
+      >
+        <View style={styles.leftContent}>
+          <View style={styles.badgeRow}>
+            {grade.component?.name ? (
+              <UniBadge label={grade.component.name.toUpperCase()} variant="primary" size="sm" />
+            ) : (
+              <UniBadge label="CUSTOM" variant="neutral" size="sm" />
+            )}
+            {grade.weight ? (
+              <Text style={styles.weightText}>Bobot: {grade.weight}%</Text>
+            ) : grade.component?.weight ? (
+              <Text style={styles.weightText}>Bobot: {grade.component.weight}%</Text>
+            ) : null}
+          </View>
+          <Text style={styles.gradeName}>{grade.name}</Text>
         </View>
-        <Text style={styles.gradeName}>{grade.name}</Text>
-      </View>
 
-      <View style={styles.rightContent}>
-        <View style={[styles.scorePill, { borderColor: scoreColor }]}>
-          <Text style={[styles.scoreText, { color: scoreColor }]}>
-            {Math.round(scoreNum * 10) / 10}
-          </Text>
+        <View style={styles.rightContent}>
+          <View style={[styles.scorePill, { borderColor: scoreColor }]}>
+            <Text style={[styles.scoreText, { color: scoreColor }]}>
+              {Math.round(scoreNum * 10) / 10}
+            </Text>
+          </View>
+          {onDelete && (
+            <Pressable
+              onPress={() => onDelete(grade.id)}
+              style={styles.deleteBtn}
+              hitSlop={8}
+            >
+              <Trash size={16} color={themeColors.text.muted} weight="duotone" />
+            </Pressable>
+          )}
         </View>
-        {onDelete && (
-          <Pressable
-            onPress={() => onDelete(grade.id)}
-            style={styles.deleteBtn}
-            hitSlop={8}
-          >
-            <Trash size={16} color={themeColors.text.muted} weight="duotone" />
-          </Pressable>
-        )}
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </UniSwipeable>
   );
 };
 
@@ -89,7 +92,6 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       padding: spacing.md,
       borderWidth: 1,
       borderColor: colors.border.subtle,
-      marginBottom: spacing.sm,
       ...shadows.card,
     },
     leftContent: {

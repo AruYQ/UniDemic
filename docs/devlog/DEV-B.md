@@ -292,3 +292,25 @@ Setiap entry menggunakan format ini:
 **Referensi:**
 - Test script: `C:\Users\veray\.gemini\antigravity-ide\brain\f395b9cb-7897-45bb-8e64-ae8187496570\scratch\test_phase3.ps1`
 
+### [2026-09-13] — Fix UI/UX Polish: Swipe Gesture, Record Spacing, and GPA Screen Navbar
+
+**Branch**: `feature/mobile/phase-3-tracking`
+**Status**: Selesai ✅
+
+**Yang dikerjakan:**
+- **Swipe-to-Delete Support**:
+  - Membungkus root layout (`_layout.tsx`) dengan `<GestureHandlerRootView style={{ flex: 1 }}>` agar gesture native iOS & Android aktif.
+  - Membuat reusable component `UniSwipeable` (`src/components/ui/UniSwipeable.tsx`) menggunakan `react-native-gesture-handler`.
+  - Mengintegrasikan `UniSwipeable` di seluruh card: `AttendanceItemCard`, `GradeItemCard`, `AssignmentCard`, `ScheduleCard`, `ExamCard`, dan `CourseCard`.
+- **Perbaikan Spacing Header vs Record**:
+  - Memperbaiki `sectionHeaderRow` di `course/[id].tsx` yang sebelumnya `marginBottom: -4` (terlalu dekat / menempel ke record pertama) menjadi `marginTop: spacing.sm, marginBottom: spacing.sm`.
+  - Menyelaraskan margin `AttendanceSummaryCard` dan `gpaHeroCard` ke `spacing.md` agar visual hierarchy dan padding vertikal simetris di iOS/Android.
+- **Floating BottomNav di Layar GPA**:
+  - Menambahkan `<BottomNav />` pada `src/app/gpa.tsx` agar konsisten dengan screen utama (`index`, `schedule`, `courses`, `tasks`).
+  - Mengatur `scrollContent.paddingBottom: 110` agar form simulasi IPK dan tombol CTA kalkulasi tidak tertutup bottom nav.
+
+**Keputusan Desain & Teknis:**
+- `UniSwipeable` memberikan opsi swipe ke kiri dengan background merah semantic danger dan ikon tempat sampah, sambil tetap mempertahankan tombol delete tap langsung untuk kenyamanan pengguna.
+- Spacing proporsional (8px - 16px) memastikan readability teks sub-header terhadap daftar record di bawahnya.
+
+

@@ -12,14 +12,15 @@ import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/consta
 import { useUniTheme } from '@/store/useThemeStore';
 import { Exam } from '@/types/academic';
 import { UniBadge } from '../ui/UniBadge';
+import { UniSwipeable } from '../ui/UniSwipeable';
 
 /*
 <vibe_check>
 Screen/Component : ExamCard (components/academic/ExamCard.tsx)
-Tujuan           : Menampilkan jadwal dan persiapan ujian mahasiswa (UTS, UAS, Quiz) lengkap dengan tanggal, ruangan, dan topik
+Tujuan           : Menampilkan jadwal dan persiapan ujian mahasiswa (UTS, UAS, Quiz) lengkap dengan tanggal, ruangan, swipe-to-delete, dan topik
 Layout strategy  : Top row badge tipe ujian + tombol hapus, nama mata kuliah besar, grid waktu & lokasi, expandable topik
 Color tokens     : bg.surface (#171B26), brand.accent (#F7B731), brand.primary (#6B7FD7), border.subtle (#252A3D)
-Animation plan   : FadeInRight staggered
+Animation plan   : FadeInRight staggered + swipe gesture
 Typography       : SpaceGrotesk_600SemiBold untuk judul matkul, JetBrainsMono_400Regular untuk tanggal & jam
 Anti-slop check  : Rule #7 (Badge geometris), Rule #10 (Space Grotesk + JetBrains Mono)
 </vibe_check>
@@ -90,79 +91,83 @@ export const ExamCard: React.FC<ExamCardProps> = ({
   const countdown = getDaysRemaining(exam.date);
 
   return (
-    <Animated.View
-      entering={FadeInRight.delay(index * 50)
-        .duration(240)
-        .easing(Easing.out(Easing.cubic))}
-      style={styles.container}
-    >
-      <View style={styles.card}>
-        {/* Header: Exam Type & Course */}
-        <View style={styles.header}>
-          <View style={styles.badgeGroup}>
-            <UniBadge
-              label={exam.type.toUpperCase()}
-              variant="warning"
-              size="sm"
-            />
-            {countdown && (
+    <UniSwipeable onDelete={onDelete ? () => onDelete(exam.id) : undefined}>
+      <Animated.View
+        entering={FadeInRight.delay(index * 50)
+          .duration(240)
+          .easing(Easing.out(Easing.cubic))}
+        style={styles.container}
+      >
+        <View style={styles.card}>
+          {/* Header: Exam Type & Course */}
+          <View style={styles.header}>
+            <View style={styles.badgeGroup}>
               <UniBadge
-                label={countdown.label}
-                variant={countdown.variant}
+                label={exam.type.toUpperCase()}
+                variant="warning"
                 size="sm"
               />
+              {countdown && (
+                <UniBadge
+                  label={countdown.label}
+                  variant={countdown.variant}
+                  size="sm"
+                />
+              )}
+            </View>
+
+            {onDelete && (
+              <Pressable
+                onPress={() => onDelete(exam.id)}
+                hitSlop={8}
+                style={styles.deleteBtn}
+              >
+                <Trash size={15} color={themeColors.text.muted} weight="duotone" />
+              </Pressable>
             )}
           </View>
-          {onDelete && (
-            <Pressable
-              onPress={() => onDelete(exam.id)}
-              hitSlop={8}
-              style={styles.deleteBtn}
-            >
-              <Trash size={15} color={themeColors.text.muted} weight="duotone" />
-            </Pressable>
-          )}
-        </View>
 
-        <Text style={styles.courseName} numberOfLines={2}>
-          {exam.course?.name || 'Mata Kuliah'}
-        </Text>
+          {/* Course Name */}
+          <Text style={styles.courseName} numberOfLines={2}>
+            {exam.course?.name || 'Mata Kuliah'}
+          </Text>
 
-        {/* Date & Time Info */}
-        <View style={styles.infoRow}>
-          <View style={styles.infoItem}>
-            <CalendarDots size={14} color={themeColors.brand.accent} weight="duotone" />
-            <Text style={styles.infoText}>{formatDate(exam.date)}</Text>
-          </View>
-
-          {exam.time && (
+          {/* Date & Time Info */}
+          <View style={styles.infoRow}>
             <View style={styles.infoItem}>
-              <Clock size={14} color={themeColors.brand.primary} weight="duotone" />
-              <Text style={styles.infoText}>{formatTime(exam.time)}</Text>
+              <CalendarDots size={14} color={themeColors.brand.accent} weight="duotone" />
+              <Text style={styles.infoText}>{formatDate(exam.date)}</Text>
             </View>
-          )}
+
+            {exam.time ? (
+              <View style={styles.infoItem}>
+                <Clock size={14} color={themeColors.brand.primary} weight="duotone" />
+                <Text style={styles.infoText}>{formatTime(exam.time)}</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {/* Location / Room */}
+          {exam.location ? (
+            <View style={styles.locationItem}>
+              <MapPin size={14} color={themeColors.brand.secondary} weight="duotone" />
+              <Text style={styles.locationText}>Ruang / Lokasi: {exam.location}</Text>
+            </View>
+          ) : null}
+
+          {/* Topics / Syllabus */}
+          {exam.topics ? (
+            <View style={styles.topicsBox}>
+              <View style={styles.topicsHeader}>
+                <Books size={13} color={themeColors.text.muted} weight="duotone" />
+                <Text style={styles.topicsTitle}>Materi / Kisi-kisi:</Text>
+              </View>
+              <Text style={styles.topicsContent}>{exam.topics}</Text>
+            </View>
+          ) : null}
         </View>
-
-        {/* Location / Room */}
-        {exam.location ? (
-          <View style={styles.locationItem}>
-            <MapPin size={14} color={themeColors.brand.secondary} weight="duotone" />
-            <Text style={styles.locationText}>Ruang / Lokasi: {exam.location}</Text>
-          </View>
-        ) : null}
-
-        {/* Topics / Syllabus */}
-        {exam.topics ? (
-          <View style={styles.topicsBox}>
-            <View style={styles.topicsHeader}>
-              <Books size={13} color={themeColors.text.muted} weight="duotone" />
-              <Text style={styles.topicsTitle}>Materi / Kisi-kisi:</Text>
-            </View>
-            <Text style={styles.topicsContent}>{exam.topics}</Text>
-          </View>
-        ) : null}
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </UniSwipeable>
   );
 };
 

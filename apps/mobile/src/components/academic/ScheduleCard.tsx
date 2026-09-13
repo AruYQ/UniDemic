@@ -5,14 +5,15 @@ import { Clock, MapPin, User, Trash } from 'phosphor-react-native';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { useUniTheme } from '@/store/useThemeStore';
 import { CourseSchedule } from '@/types/academic';
+import { UniSwipeable } from '../ui/UniSwipeable';
 
 /*
 <vibe_check>
 Screen/Component : ScheduleCard (components/academic/ScheduleCard.tsx)
-Tujuan           : Menampilkan slot jadwal kuliah harian dengan kejelasan jam, ruang kuliah, dan nama dosen
+Tujuan           : Menampilkan slot jadwal kuliah harian dengan kejelasan jam, ruang kuliah, nama dosen, dan aksi swipe hapus
 Layout strategy  : Left column time block mono + Right content mata kuliah & chips metadata
 Color tokens     : bg.surface (#171B26), border.subtle (#252A3D), brand.primary (#6B7FD7), brand.secondary (#4ECDC4)
-Animation plan   : FadeInRight staggered berdurasi 240ms
+Animation plan   : FadeInRight staggered berdurasi 240ms + swipe gesture
 Typography       : JetBrainsMono_400Regular (jam & ruang), SpaceGrotesk_600SemiBold (nama matkul)
 Anti-slop check  : Rule #5 (Offset shadow), Rule #10 (Mono + Space Grotesk), Rule #20 (Indigo-slate)
 </vibe_check>
@@ -47,11 +48,12 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
   };
 
   return (
-    <Animated.View
-      entering={FadeInRight.delay(index * 50)
-        .duration(240)
-        .easing(Easing.out(Easing.cubic))}
-    >
+    <UniSwipeable onDelete={onDelete ? () => onDelete(schedule.id) : undefined}>
+      <Animated.View
+        entering={FadeInRight.delay(index * 50)
+          .duration(240)
+          .easing(Easing.out(Easing.cubic))}
+      >
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
@@ -104,6 +106,7 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({
         </View>
       </Pressable>
     </Animated.View>
+    </UniSwipeable>
   );
 };
 

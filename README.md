@@ -30,9 +30,11 @@ UniDemic adalah platform produktivitas akademik dan kolaborasi open-source yang 
 
 - 🔐 **Autentikasi & Profil Kampus**: Manajemen sesi mobile yang aman via Laravel Sanctum, biodata akademik mahasiswa, preferensi belajar, dan manajemen multi-device token.
 - 📚 **Academic Core**: Manajemen multi-semester, mata kuliah, jadwal perkuliahan mingguan, tugas (*assignments*) dengan progress tracking interaktif, dan jadwal ujian (*exams*).
-- 📊 **Academic Tracking**: Pencatatan presensi dengan notifikasi batas absensi, kalkulasi nilai komponen berbobot, Indeks Prestasi Semester (IPS), Indeks Prestasi Kumulatif (IPK), dan simulator target IPK.
+- 📊 **Academic Tracking**: Pencatatan presensi dengan gestur swipe-to-delete otomatis & peringatan batas toleransi alpa, kalkulasi nilai komponen berbobot, nilai akhir matkul, Indeks Prestasi Kumulatif (IPK), dan simulator proyeksi target IPK.
+- 🎨 **Dynamic Theme System**: Dukungan penuh Mode Gelap (Dark Mode), Mode Terang (Light Mode), dan mode otomatis mengikuti sistem OS dengan token warna terstandarisasi.
 - ⏱️ **Productivity & Focus** *(Planned)*: Study planner harian, matriks prioritas tugas, dan timer fokus Pomodoro.
 - 🤖 **AI Academic Intelligence** *(Planned)*: Ringkasan materi bertenaga Google Gemini, generator kuis otomatis, dan asisten riset materi kuliah.
+
 
 ---
 
@@ -44,13 +46,14 @@ Status pengerjaan detail dan histori commit dapat dilihat di [docs/PROGRESS.md](
 | :---: | :--- | :---: | :---: | :---: |
 | **1** | **Foundation** (Auth Sanctum, Base Setup, CI/CD, Navigation) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **2** | **Academic Core** (Semesters, Courses, Schedules, Tasks, Exams) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
-| **3** | **Academic Tracking** (Attendance, Grades, IPS/IPK, Simulator) | 🔄 Sedang Berjalan | ✅ Selesai | ⏳ Dalam Antrean |
-| **4** | **Productivity** (Tasks, Study Planner, Focus Timer) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
+| **3** | **Academic Tracking** (Attendance, Grades, IPS/IPK, Simulator) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
+| **4** | **Productivity** (Tasks, Study Planner, Focus Timer) | 🔄 Siap Dikerjakan | ⏳ Dalam Antrean | ⏳ Dalam Antrean |
 | **5** | **Learning** (Materials, Notes, Flashcards, Quiz) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **6** | **Communication** (Chat, DM, Course Discussion) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **7** | **Collaboration** (Study Groups, Projects, Kanban) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **8** | **Intelligence (AI)** (AI Assistant, RAG, Quiz Gen) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **9** | **Web Companion** (Next.js Desktop/Tablet Dashboard) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
+
 
 ---
 
@@ -125,6 +128,12 @@ Sebelum melakukan integrasi fitur baru, seluruh test suite wajib lulus pengujian
   cd apps/mobile
   npx tsc --noEmit
   ```
+- **Academic Tracking & Simulator Test Suite**:
+  ```bash
+  cd apps/mobile
+  npx tsx scripts/verify-tracking.ts
+  ```
+
 
 ---
 

@@ -6,10 +6,14 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CourseScheduleController;
 use App\Http\Controllers\Api\ExamController;
+use App\Http\Controllers\Api\GoalController;
 use App\Http\Controllers\Api\GpaController;
 use App\Http\Controllers\Api\GradeController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SemesterController;
+use App\Http\Controllers\Api\StudyPlannerController;
+use App\Http\Controllers\Api\StudySessionController;
+use App\Http\Controllers\Api\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -112,6 +116,34 @@ $registerApiRoutes = function () {
         Route::get('/profile/cumulative-gpa', [GpaController::class, 'cumulativeGpa']);
         Route::get('/gpa/cumulative', [GpaController::class, 'cumulativeGpa']);
         Route::post('/gpa-simulator', [GpaController::class, 'simulate']);
+
+        // Productivity: Tasks & Subtasks
+        Route::get('/tasks', [TaskController::class, 'index']);
+        Route::post('/tasks', [TaskController::class, 'store']);
+        Route::get('/tasks/{id}', [TaskController::class, 'show']);
+        Route::put('/tasks/{id}', [TaskController::class, 'update']);
+        Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
+        Route::patch('/tasks/{id}/toggle-complete', [TaskController::class, 'toggleComplete']);
+        Route::post('/tasks/{task_id}/subtasks', [TaskController::class, 'storeSubtask']);
+        Route::put('/subtasks/{id}', [TaskController::class, 'updateSubtask']);
+        Route::delete('/subtasks/{id}', [TaskController::class, 'destroySubtask']);
+
+        // Productivity: Study Sessions (Focus Timer)
+        Route::get('/study-sessions', [StudySessionController::class, 'index']);
+        Route::post('/study-sessions', [StudySessionController::class, 'store']);
+        Route::get('/study-sessions/summary', [StudySessionController::class, 'summary']);
+        Route::delete('/study-sessions/{id}', [StudySessionController::class, 'destroy']);
+
+        // Productivity: Goals
+        Route::get('/goals', [GoalController::class, 'index']);
+        Route::post('/goals', [GoalController::class, 'store']);
+        Route::get('/goals/{id}', [GoalController::class, 'show']);
+        Route::put('/goals/{id}', [GoalController::class, 'update']);
+        Route::patch('/goals/{id}/progress', [GoalController::class, 'updateProgress']);
+        Route::delete('/goals/{id}', [GoalController::class, 'destroy']);
+
+        // Productivity: Smart Study Planner
+        Route::post('/study-planner/suggest', [StudyPlannerController::class, 'suggest']);
 
         // Backward compatibility
         Route::get('/user', function (Request $request) {

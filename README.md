@@ -32,9 +32,8 @@ UniDemic adalah platform produktivitas akademik dan kolaborasi open-source yang 
 - 📚 **Academic Core**: Manajemen multi-semester, mata kuliah, jadwal perkuliahan mingguan, tugas (*assignments*) dengan progress tracking interaktif, dan jadwal ujian (*exams*).
 - 📊 **Academic Tracking**: Pencatatan presensi dengan gestur swipe-to-delete otomatis & peringatan batas toleransi alpa, kalkulasi nilai komponen berbobot, nilai akhir matkul, Indeks Prestasi Kumulatif (IPK), dan simulator proyeksi target IPK.
 - 🎨 **Dynamic Theme System**: Dukungan penuh Mode Gelap (Dark Mode), Mode Terang (Light Mode), dan mode otomatis mengikuti sistem OS dengan token warna terstandarisasi.
-- ⏱️ **Productivity & Focus** *(Planned)*: Study planner harian, matriks prioritas tugas, dan timer fokus Pomodoro.
+- ⏱️ **Productivity & Focus**: Manajemen tugas berprioritas & sub-tugas dengan auto-progress, sesi belajar fokus (Pomodoro, Custom, Stopwatch) dengan ringkasan analitik harian/mingguan, target capaian akademik (Goals), dan Smart Study Planner cerdas bebas bentrok jadwal kuliah.
 - 🤖 **AI Academic Intelligence** *(Planned)*: Ringkasan materi bertenaga Google Gemini, generator kuis otomatis, dan asisten riset materi kuliah.
-
 
 ---
 
@@ -47,7 +46,7 @@ Status pengerjaan detail dan histori commit dapat dilihat di [docs/PROGRESS.md](
 | **1** | **Foundation** (Auth Sanctum, Base Setup, CI/CD, Navigation) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **2** | **Academic Core** (Semesters, Courses, Schedules, Tasks, Exams) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **3** | **Academic Tracking** (Attendance, Grades, IPS/IPK, Simulator) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
-| **4** | **Productivity** (Tasks, Study Planner, Focus Timer) | 🔄 Siap Dikerjakan | ⏳ Dalam Antrean | ⏳ Dalam Antrean |
+| **4** | **Productivity** (Tasks, Goals, Study Sessions, Study Planner) | 🔄 In Progress | ✅ Selesai (`develop`) | ⏳ Siap Dikerjakan |
 | **5** | **Learning** (Materials, Notes, Flashcards, Quiz) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **6** | **Communication** (Chat, DM, Course Discussion) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **7** | **Collaboration** (Study Groups, Projects, Kanban) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |

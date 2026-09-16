@@ -292,8 +292,8 @@ Setiap entry menggunakan format ini:
 
 ### [2026-09-16] — Phase 4 Productivity Backend API Implementation
 
-**Branch**: `feature/backend/productivity`
-**Status**: Selesai (Backend Ready for User Testing — Uncommitted per User Request) ⏳
+**Branch**: `develop` (via PR [#2](https://github.com/AruYQ/UniDemic/pull/2) dari `feature/backend/productivity`)
+**Status**: Selesai & Merged ke `develop` ✅
 
 **Yang dikerjakan:**
 - **Shared Types ([packages/types/src/index.ts](file:///c:/proj/UniDemic/packages/types/src/index.ts))**:

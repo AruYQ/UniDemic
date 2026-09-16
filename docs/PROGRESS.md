@@ -156,6 +156,8 @@
 
 ## Phase 4 — Productivity
 
+> **Status Terkini**: Backend API telah selesai 100% (22 Feature Tests, 107 assertions) dan telah digabungkan ke cabang `develop` melalui [Pull Request #2](https://github.com/AruYQ/UniDemic/pull/2). Modul antarmuka mobile siap dikerjakan oleh Dev B.
+
 ### Dev A (Backend / rekis-0103)
 
 | Task | Status | Catatan |
@@ -223,4 +225,4 @@
 
 ---
 
-*Terakhir diupdate: 2026-09-08 | Updated by: AI Agent (Antigravity)*
+*Terakhir diupdate: 2026-09-16 | Updated by: Dev A (rekis-0103)*

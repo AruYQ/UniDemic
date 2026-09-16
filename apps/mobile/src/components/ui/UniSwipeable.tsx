@@ -18,10 +18,27 @@ export const UniSwipeable: React.FC<UniSwipeableProps> = ({
 }) => {
   const { colors: themeColors } = useUniTheme();
   const swipeableRef = useRef<Swipeable>(null);
+  const isPromptingRef = useRef(false);
 
   if (!enabled || !onDelete) {
     return <>{children}</>;
   }
+
+  const handleDelete = () => {
+    if (isPromptingRef.current) return;
+    isPromptingRef.current = true;
+    swipeableRef.current?.close();
+    onDelete();
+    setTimeout(() => {
+      isPromptingRef.current = false;
+    }, 600);
+  };
+
+  const handleSwipeableOpen = (direction: 'left' | 'right') => {
+    if (direction === 'right') {
+      handleDelete();
+    }
+  };
 
   const renderRightActions = (
     progress: RNAnimated.AnimatedInterpolation<number>,
@@ -38,11 +55,6 @@ export const UniSwipeable: React.FC<UniSwipeableProps> = ({
       outputRange: [1, 0.5, 0],
       extrapolate: 'clamp',
     });
-
-    const handleDelete = () => {
-      swipeableRef.current?.close();
-      onDelete();
-    };
 
     return (
       <View style={styles.rightActionContainer}>
@@ -64,13 +76,16 @@ export const UniSwipeable: React.FC<UniSwipeableProps> = ({
       friction={2}
       enableTrackpadTwoFingerGesture
       rightThreshold={40}
+      overshootRight={false}
       renderRightActions={renderRightActions}
+      onSwipeableOpen={handleSwipeableOpen}
       containerStyle={styles.swipeContainer}
     >
       {children}
     </Swipeable>
   );
 };
+
 
 const styles = StyleSheet.create({
   swipeContainer: {

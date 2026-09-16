@@ -160,32 +160,60 @@ export default function CourseDetailScreen() {
     }
   };
 
-  const handleDeleteAssignment = async (assignId: number) => {
-    try {
-      await deleteAssignment(assignId);
-      loadData(true);
-    } catch {
-      Alert.alert('Error', 'Gagal menghapus tugas.');
-    }
+  const handleDeleteAssignment = (assignId: number) => {
+    Alert.alert('Hapus Tugas', 'Yakin ingin menghapus tugas ini?', [
+      { text: 'Batal', style: 'cancel' },
+      {
+        text: 'Hapus',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteAssignment(assignId);
+            loadData(true);
+          } catch {
+            Alert.alert('Error', 'Gagal menghapus tugas.');
+          }
+        },
+      },
+    ]);
   };
 
-  const handleDeleteSchedule = async (schedId: number) => {
-    try {
-      await deleteSchedule(schedId);
-      loadData(true);
-    } catch {
-      Alert.alert('Error', 'Gagal menghapus jadwal.');
-    }
+  const handleDeleteSchedule = (schedId: number) => {
+    Alert.alert('Hapus Jadwal', 'Yakin ingin menghapus slot jadwal ini?', [
+      { text: 'Batal', style: 'cancel' },
+      {
+        text: 'Hapus',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteSchedule(schedId);
+            loadData(true);
+          } catch {
+            Alert.alert('Error', 'Gagal menghapus jadwal.');
+          }
+        },
+      },
+    ]);
   };
 
-  const handleDeleteExam = async (examId: number) => {
-    try {
-      await deleteExam(examId);
-      loadData(true);
-    } catch {
-      Alert.alert('Error', 'Gagal menghapus ujian.');
-    }
+  const handleDeleteExam = (examId: number) => {
+    Alert.alert('Hapus Ujian', 'Yakin ingin menghapus jadwal ujian ini?', [
+      { text: 'Batal', style: 'cancel' },
+      {
+        text: 'Hapus',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteExam(examId);
+            loadData(true);
+          } catch {
+            Alert.alert('Error', 'Gagal menghapus ujian.');
+          }
+        },
+      },
+    ]);
   };
+
 
   const handleSaveModal = async () => {
     if (activeTab === 'assignments') {

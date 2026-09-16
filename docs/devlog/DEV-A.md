@@ -269,3 +269,25 @@ Setiap entry menggunakan format ini:
 
 ---
 
+### [2026-09-16] — Phase 3 E2E Integration Verification & Swipe-to-Delete Refinement
+
+**Branch**: `develop`
+**Status**: Selesai ✅
+
+**Yang dikerjakan:**
+- **Merge & Verification Phase 3**: Menggabungkan dan memverifikasi integrasi antarmuka Phase 3 Academic Tracking (Presensi, Nilai, GPA, Simulator) dari branch `feature/mobile/academic-tracking` ke `develop`.
+- **Swipe-to-Delete Automatic Trigger ([UniSwipeable.tsx](apps/mobile/src/components/ui/UniSwipeable.tsx))**:
+  - Menambahkan listener `onSwipeableOpen` pada komponen reusable `UniSwipeable` dengan debounce guard (`isPromptingRef`).
+  - Mengubah alur swipe agar begitu kartu digeser melewati ambang batas (`rightThreshold: 40`), dialog konfirmasi peringatan (`Alert.alert`) langsung terbuka seketika tanpa mengharuskan pengguna mengetuk tombol tempat sampah merah dua kali.
+  - Menyelaraskan animasi penutupan kartu otomatis (`swipeableRef.current?.close()`), sehingga jika pengguna membatalkan penghapusan, kartu kembali ke posisi normal tanpa tersangkut dalam kondisi terbuka.
+- **Konsistensi Dialog Peringatan ([course/[id].tsx](apps/mobile/src/app/course/[id].tsx))**:
+  - Membungkus seluruh aksi penghapusan jadwal, tugas, ujian, presensi, dan nilai asesmen dengan dialog konfirmasi `Alert.alert` agar konsisten dan mencegah penghapusan data akademik tanpa sengaja.
+
+**Test results:**
+- `npx tsc --noEmit` di `apps/mobile`: 0 error (100% Pass).
+- `php artisan test` di `apps/api`: 70 tests passed (227 assertions, 100% Pass).
+- `npx tsx scripts/verify-tracking.ts`: 12/12 tracking tests passed (100% Pass).
+
+---
+
+

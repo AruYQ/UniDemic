@@ -10,7 +10,7 @@
 | Info | Detail |
 |------|--------|
 | **Repo** | [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic) |
-| **Phase aktif** | Phase 3 — Academic Tracking (Completed) |
+| **Phase aktif** | Phase 3 — Academic Tracking (Completed & Verified) |
 | **Dev A (Backend)** | rekis-0103 |
 | **Dev B (Frontend)** | AruYQ |
 | **Mulai** | 2026-09-08 |
@@ -149,6 +149,8 @@
 | Nilai per komponen ter-input dan GPA terhitung benar | `[x]` | Dev A & B (API + UI) | 2026-09-13 |
 | GPA simulator berfungsi dengan input nilai hipotetis | `[x]` | Dev A & B (API + UI) | 2026-09-13 |
 | UI & Layar Mobile Tracking Terintegrasi | `[x]` | Dev B (AI Agent) | 2026-09-13 |
+| Swipe-to-delete gesture dengan konfirmasi alert otomatis | `[x]` | Dev A & User | 2026-09-16 |
+
 
 ---
 

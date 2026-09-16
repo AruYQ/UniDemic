@@ -156,7 +156,40 @@
 
 ## Phase 4 — Productivity
 
-> Akan diisi setelah Checkpoint 3 selesai.
+### Dev A (Backend / rekis-0103)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Shared TypeScript types (`packages/types`) | `[x]` | Tasks, Subtasks, StudySession, Goals, StudyPlanner contracts |
+| Database migrations | `[x]` | `productivity_tasks`, `task_subtasks`, `study_sessions`, `goals` |
+| Eloquent Models & Relations | `[x]` | Task, TaskSubtask, StudySession, Goal models with auto progress & auto complete hooks |
+| API Resources & FormRequests | `[x]` | Strict FormRequest validation & JSON Resources for all entities |
+| Task endpoints (`/tasks`, `/tasks/{id}/subtasks`) | `[x]` | Full CRUD, priority, deadline, label filter, auto subtask progress & toggle complete |
+| Study Session endpoints (`/study-sessions`, `/summary`) | `[x]` | Focus timer / Pomodoro recording & multi-dimensional summary (today, week, course) |
+| Goal endpoints (`/goals`, `/goals/{id}/progress`) | `[x]` | Target vs current tracking, auto-completion on target reach, PATCH progress |
+| Smart Study Planner (`/study-planner/suggest`) | `[x]` | Free-slot distribution algorithm balancing exams, tasks, assignments & class schedules |
+| Feature Test Suite (Productivity) | `[x]` | 22 tests passed, 107 assertions (92 total tests suite passed) |
+
+### Dev B (Frontend / AruYQ)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Task & Subtask management UI | `[ ]` | Pending mobile implementation |
+| Study Session (Focus Timer / Pomodoro) UI | `[ ]` | Pending mobile implementation |
+| Goals tracking UI | `[ ]` | Pending mobile implementation |
+| Smart Study Planner recommendation UI | `[ ]` | Pending mobile implementation |
+
+### ⏳ Checkpoint 4 Verification
+
+| Item | Status | Verified by | Tanggal |
+|------|--------|-------------|---------|
+| Backend Productivity API Suite 100% Pass | `[x]` | Dev A (Test Suite: 22 tests, 107 assertions) | 2026-09-16 |
+| Task & Subtask Progress Auto Calculation | `[x]` | Dev A (Feature Tests & Model Hooks) | 2026-09-16 |
+| Focus Timer & Study Session Aggregation | `[x]` | Dev A (Summary metrics verified) | 2026-09-16 |
+| Goal auto-completion on target reached | `[x]` | Dev A (Goal model hook verified) | 2026-09-16 |
+| Smart Study Planner Conflict Resolution | `[x]` | Dev A (Schedule overlap test verified) | 2026-09-16 |
+| Mobile Productivity Screen & Gestures | `[ ]` | Dev B | - |
+| User Acceptance & E2E Validation | `[ ]` | User | - |
 
 ---
 

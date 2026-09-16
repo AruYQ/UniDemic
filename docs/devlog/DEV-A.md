@@ -290,4 +290,49 @@ Setiap entry menggunakan format ini:
 
 ---
 
+### [2026-09-16] — Phase 4 Productivity Backend API Implementation
+
+**Branch**: `feature/backend/productivity`
+**Status**: Selesai (Backend Ready for User Testing — Uncommitted per User Request) ⏳
+
+**Yang dikerjakan:**
+- **Shared Types ([packages/types/src/index.ts](file:///c:/proj/UniDemic/packages/types/src/index.ts))**:
+  - Menambahkan kontrak TypeScript lengkap untuk modul Produktivitas: `ProductivityTask`, `TaskSubtask`, `TaskPriority`, `StudySession`, `StudySessionType`, `StudySessionSummary`, `Goal`, `GoalType`, `StudyPlanItem`, `StudyPlanSuggestion`, serta seluruh payload request/response CRUD terkait.
+- **Database Migrations (`apps/api/database/migrations/`)**:
+  - `2026_09_16_000001_create_productivity_tasks_table.php`: tabel `productivity_tasks` dengan kolom `user_id`, `course_id` (nullable), `title`, `description`, `priority` (low, medium, high, urgent), `deadline`, `label`, `is_recurring`, `recurrence_pattern`, `progress` (0-100), `is_completed`, `completed_at`.
+  - `2026_09_16_000002_create_task_subtasks_table.php`: tabel `task_subtasks` dengan kolom `task_id`, `title`, `is_done`, `order`.
+  - `2026_09_16_000003_create_study_sessions_table.php`: tabel `study_sessions` dengan kolom `user_id`, `course_id`, `task_id`, `type` (pomodoro, custom, stopwatch), `duration_minutes`, `started_at`, `ended_at`, `notes`, `is_completed`.
+  - `2026_09_16_000004_create_goals_table.php`: tabel `goals` dengan kolom `user_id`, `title`, `description`, `type` (weekly, monthly, semester, custom), `target_value`, `current_value`, `unit`, `start_date`, `end_date`, `is_completed`.
+- **Eloquent Models & Hooks (`apps/api/app/Models/`)**:
+  - `Task`: relasi ke `User`, `Course`, `TaskSubtask`, dan `StudySession`. Dilengkapi method `recalculateProgress()` untuk kalkulasi otomatis `progress` dan `is_completed` berdasarkan rasio subtask yang selesai.
+  - `TaskSubtask`: model hook `booted()` pada event `saved` dan `deleted` yang memicu pembaruan progress task induk secara reaktif.
+  - `StudySession`: relasi ke `User`, `Course`, dan `Task`.
+  - `Goal`: model hook `saving` yang secara otomatis menandai `is_completed = true` ketika `current_value >= target_value`.
+  - `User`: penambahan relasi `tasks()`, `studySessions()`, dan `goals()`.
+- **FormRequests & API Resources (`apps/api/app/Http/Requests/Productivity/` & `Resources/`)**:
+  - Validasi ketat: `StoreTaskRequest`, `UpdateTaskRequest`, `StoreSubtaskRequest`, `UpdateSubtaskRequest`, `StoreStudySessionRequest`, `StoreGoalRequest`, `UpdateGoalRequest`, `StudyPlannerRequest`.
+  - Resources: `TaskResource`, `TaskSubtaskResource`, `StudySessionResource`, `GoalResource`.
+- **Controllers & API Endpoints (`apps/api/app/Http/Controllers/Api/`)**:
+  - `TaskController`: CRUD task, filter prioritas/status/label/mata kuliah, toggle complete (`/tasks/{id}/toggle-complete`), serta operasi subtask mandiri.
+  - `StudySessionController`: pencatatan sesi belajar mandiri/pomodoro/stopwatch dengan validasi isolasi data dan metrik agregasi ringkasan (`/study-sessions/summary`) mencakup menit belajar hari ini, minggu ini, total sesi, dan rincian per mata kuliah.
+  - `GoalController`: manajemen target capaian akademik, filter jenis target, dan update progress cepat via PATCH (`/goals/{id}/progress`).
+  - `StudyPlannerController`: algoritma rekomendasi jadwal cerdas (`/study-planner/suggest`) yang memadukan deadline tugas mendesak, jadwal ujian mendatang, dan jadwal kuliah aktif untuk memetakan blok belajar bebas tabrakan jadwal.
+- **Pendaftaran Rute API ([routes/api.php](file:///c:/proj/UniDemic/apps/api/routes/api.php))**:
+  - Mendaftarkan rute Productivity di bawah middleware `auth:sanctum` untuk namespace `/api/...` dan `/api/v1/...`.
+- **Feature Test Suite (`apps/api/tests/Feature/Productivity/`)**:
+  - Menulis 4 file test komprehensif: `TaskTest.php` (8 tests), `StudySessionTest.php` (5 tests), `GoalTest.php` (6 tests), `StudyPlannerTest.php` (3 tests).
+  - Hasil test: 22 tests lulus (107 assertions).
+  - Total test suite backend: 92 tests lulus (334 assertions, 100% Pass).
+
+**Keputusan teknis:**
+- **Table Name Isolation**: Menggunakan nama tabel `productivity_tasks` untuk menghindari potensi benturan dengan reserved keywords atau queue job workers, sembari mempertahankan nama class Eloquent `App\Models\Task`.
+- **Subtask Reactive Progress**: Menggunakan model events Eloquent (`saved` dan `deleted` pada `TaskSubtask`) agar progres task selalu terhitung secara konsisten baik saat subtask ditandai selesai, diubah, maupun dihapus.
+- **Smart Planner Constraint Checking**: Algoritma penjadwalan secara dinamis memeriksa nama hari kuliah (`monday`, `tuesday`, dll.) dan memverifikasi ketiadaan interval tumpang tindih waktu sebelum menugaskan slot belajar.
+
+**Test results:**
+- `php artisan test --filter=Productivity`: 22 passed (107 assertions, 100% Pass).
+- `php artisan test` (seluruh sistem): 92 passed (334 assertions, 100% Pass).
+- `npx tsc --noEmit` di `apps/mobile`: 0 error (100% Pass).
+
+
 

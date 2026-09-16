@@ -1,51 +1,53 @@
-# 🛡️ Security Policy
+# 🛡️ Kebijakan Keamanan UniDemic
 
-UniDemic takes security and data privacy very seriously. We appreciate your efforts to responsibly disclose any vulnerabilities.
+> 🌐 **Bahasa**: [Bahasa Indonesia](SECURITY.md) | [English](SECURITY.en.md)
+
+UniDemic menempatkan keamanan data dan privasi civitas akademika sebagai prioritas tertinggi. Kami sangat menghargai kontribusi para peneliti keamanan dan komunitas dalam melaporkan kerentanan secara bertanggung jawab.
 
 ---
 
-## 📦 Supported Versions
+## 📦 Versi yang Didukung
 
-Kami secara aktif memelihara dan memberikan patch keamanan pada versi berikut:
+Kami secara aktif memelihara dan menyediakan tambalan (*patch*) keamanan untuk versi berikut:
 
-| Project / Component | Version | Supported |
+| Proyek / Komponen | Versi | Status Dukungan |
 | :--- | :--- | :---: |
-| **API (`apps/api`)** | Laravel 11.x / PHP 8.3+ | :white_check_mark: |
-| **Mobile (`apps/mobile`)** | Expo SDK 57 / React Native 0.81+ | :white_check_mark: |
-| **Shared Types (`packages/types`)** | v0.1.x | :white_check_mark: |
+| **API Backend (`apps/api`)** | Laravel 11.x / PHP 8.3+ | :white_check_mark: Didukung |
+| **Aplikasi Mobile (`apps/mobile`)** | Expo SDK 57 / React Native 0.81+ | :white_check_mark: Didukung |
+| **Tipe Bersama (`packages/types`)** | v0.1.x | :white_check_mark: Didukung |
 
 ---
 
-## 🚨 Reporting a Vulnerability
+## 🚨 Pelaporan Kerentanan
 
-Jika Anda menemukan potensi kerentanan keamanan di UniDemic:
+Jika Anda menemukan potensi celah keamanan pada ekosistem UniDemic:
 
-1. **JANGAN** membuat public issue atau pull request terbuka yang mempublikasikan celah keamanan tersebut.
-2. Laporkan secara privat melalui fitur **[GitHub Security Advisory](https://github.com/AruYQ/UniDemic/security/advisories/new)** atau kirimkan email ke:
-   - `security@unidemic.dev` (atau kontak maintainer utama: `@AruYQ` & `@rekis-0103` via GitHub).
-3. Cantumkan informasi sedetail mungkin dalam laporan Anda:
-   - Deskripsi kerentanan dan potensi dampak.
-   - Langkah-langkah reproduksi (proof-of-concept / request payload).
-   - Versi komponen atau endpoint API yang terdampak.
-   - Usulan mitigasi atau perbaikan (jika ada).
+1. **JANGAN** mempublikasikan masalah tersebut secara terbuka melalui GitHub Issues publik atau Pull Request.
+2. Laporkan secara privat melalui fitur **[GitHub Security Advisory](https://github.com/AruYQ/UniDemic/security/advisories/new)** atau hubungi pengelola repositori:
+   - Surel: `security@unidemic.dev` (atau kontak pengelola utama `@AruYQ` & `@rekis-0103` via GitHub).
+3. Sertakan rincian selengkap mungkin dalam laporan Anda:
+   - Deskripsi mendalam mengenai celah keamanan dan potensi risikonya.
+   - Langkah-langkah mereproduksi masalah (*proof-of-concept* skrip atau muatan data uji).
+   - Layanan, parameter, atau layar yang terdampak.
+   - Gagasan perbaikan atau mitigasi (bila tersedia).
 
 ---
 
-## ⏱️ Response Timeline & SLA
+## ⏱️ Linimasa Tanggapan & Layanan
 
-- **Konfirmasi Awal**: Tim akan merespons dan mengonfirmasi penerimaan laporan dalam waktu **48 jam**.
-- **Investigasi & Validasi**: Tim akan memverifikasi kerentanan dalam kurun waktu **3-5 hari kerja**.
-- **Patch & Rilis**: Perbaikan keamanan akan dirilis secepat mungkin, dan kredit kontributor keamanan akan dicantumkan dalam rilis (kecuali jika pelapor meminta anonimitas).
+- **Konfirmasi Penerimaan**: Tim akan mengirimkan konfirmasi penerimaan laporan maksimal dalam kurun waktu **48 jam**.
+- **Investigasi & Verifikasi**: Tim akan meneliti dan memvalidasi temuan dalam waktu **3-5 hari kerja**.
+- **Pembaruan & Perilisan**: Perbaikan keamanan akan segera dirilis, dan identitas pelapor akan dicantumkan dalam catatan rilis (*release notes*) sebagai bentuk penghargaan (kecuali jika pelapor meminta identitasnya dirahasiakan).
 
 ---
 
 ## 🔒 Praktik Keamanan dalam UniDemic
 
-UniDemic menerapkan standar keamanan multi-lapis:
+UniDemic menerapkan pendekatan pertahanan berlapis:
 
-- **Autentikasi & Sesi**: Laravel Sanctum token-based authentication dengan hashing SHA-256 dan revocable tokens per perangkat.
-- **Enkripsi Kredensial**: Password di-hash menggunakan algoritma modern (Bcrypt/Argon2).
-- **Proteksi Brute-Force**: Rate limiting ketat (10 request/menit) pada endpoint autentikasi (`/auth/login`, `/auth/register`).
-- **Validasi Data**: Validasi ketat dua arah menggunakan Laravel FormRequest di backend dan Zod schema di frontend.
-- **Isolasi Data (Multi-tenancy)**: Setiap entitas akademik (semester, kuliah, jadwal, tugas, ujian, presensi, nilai) terisolasi secara ketat berdasarkan `user_id` pemilik token.
-- **Penyimpanan Token Mobile**: Menggunakan `expo-secure-store` (Keychain di iOS dan Keystore bersandi AES di Android).
+- **Autentikasi & Sesi**: Autentikasi berbasis token Laravel Sanctum dengan enkripsi hashing SHA-256 dan pencabutan token per perangkat.
+- **Perlindungan Kredensial**: Kata sandi di-hash menggunakan algoritma modern standar industri (Bcrypt/Argon2).
+- **Pembatasan Laju Permintaan (Rate Limiting)**: Proteksi brute-force ketat (10 permintaan/menit) pada endpoint autentikasi publik (`/auth/login`, `/auth/register`).
+- **Validasi Data Menyeluruh**: Validasi ketat dua arah menggunakan Laravel FormRequest pada backend dan skema Zod pada form antarmuka mobile.
+- **Isolasi Data Pengguna (Multi-Tenancy)**: Filter ketat kepemilikan data pengguna (`where('user_id', $user->id)`) di seluruh modul akademik (semester, perkuliahan, jadwal, tugas, ujian, presensi, nilai, sesi belajar, target capaian).
+- **Penyimpanan Kunci Aman di Mobile**: Akses token disimpan secara eksklusif menggunakan `expo-secure-store` (iOS Keychain dan Android Keystore bersandi AES), bukan penyimpanan teks polos seperti AsyncStorage biasa.

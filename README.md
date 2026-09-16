@@ -2,10 +2,12 @@
 
 **Your university life, organized.**
 
+> 🌐 **Bahasa**: [Bahasa Indonesia](README.md) | [English](README.en.md)
+
 UniDemic adalah platform produktivitas akademik dan kolaborasi open-source yang dirancang untuk membantu mahasiswa mengelola seluruh ekosistem kehidupan perkuliahan dalam satu aplikasi modern, terintegrasi, dan intuitif.
 
 [![Backend CI](https://github.com/AruYQ/UniDemic/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/AruYQ/UniDemic/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Lisensi: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Expo](https://img.shields.io/badge/Expo-SDK%2057-000020?logo=expo)](https://expo.dev)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB?logo=react)](https://reactnative.dev)
 [![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel)](https://laravel.com)
@@ -16,10 +18,10 @@ UniDemic adalah platform produktivitas akademik dan kolaborasi open-source yang 
 ## 📑 Daftar Isi
 
 - [✨ Fitur Utama](#-fitur-utama)
-- [🗺️ Roadmap & Status Pengembangan](#️-roadmap--status-pengembangan)
-- [🚀 Tech Stack](#-tech-stack)
-- [💻 Panduan Instalasi Cepat (Quick Start)](#-panduan-instalasi-cepat-quick-start)
-- [🧪 Pengujian & Quality Assurance](#-pengujian--quality-assurance)
+- [🗺️ Peta Jalan & Status Pengembangan](#️-peta-jalan--status-pengembangan)
+- [🚀 Tumpukan Teknologi](#-tumpukan-teknologi)
+- [💻 Panduan Instalasi Cepat](#-panduan-instalasi-cepat)
+- [🧪 Pengujian & Penjaminan Kualitas](#-pengujian--penjaminan-kualitas)
 - [📖 Indeks Dokumentasi](#-indeks-dokumentasi)
 - [🤝 Kontribusi & Kebijakan](#-kontribusi--kebijakan)
 - [👥 Tim Pengembang](#-tim-pengembang)
@@ -28,56 +30,55 @@ UniDemic adalah platform produktivitas akademik dan kolaborasi open-source yang 
 
 ## ✨ Fitur Utama
 
-- 🔐 **Autentikasi & Profil Kampus**: Manajemen sesi mobile yang aman via Laravel Sanctum, biodata akademik mahasiswa, preferensi belajar, dan manajemen multi-device token.
-- 📚 **Academic Core**: Manajemen multi-semester, mata kuliah, jadwal perkuliahan mingguan, tugas (*assignments*) dengan progress tracking interaktif, dan jadwal ujian (*exams*).
-- 📊 **Academic Tracking**: Pencatatan presensi dengan gestur swipe-to-delete otomatis & peringatan batas toleransi alpa, kalkulasi nilai komponen berbobot, nilai akhir matkul, Indeks Prestasi Kumulatif (IPK), dan simulator proyeksi target IPK.
-- 🎨 **Dynamic Theme System**: Dukungan penuh Mode Gelap (Dark Mode), Mode Terang (Light Mode), dan mode otomatis mengikuti sistem OS dengan token warna terstandarisasi.
-- ⏱️ **Productivity & Focus**: Manajemen tugas berprioritas & sub-tugas dengan auto-progress, sesi belajar fokus (Pomodoro, Custom, Stopwatch) dengan ringkasan analitik harian/mingguan, target capaian akademik (Goals), dan Smart Study Planner cerdas bebas bentrok jadwal kuliah.
-- 🤖 **AI Academic Intelligence** *(Planned)*: Ringkasan materi bertenaga Google Gemini, generator kuis otomatis, dan asisten riset materi kuliah.
+- 🔐 **Autentikasi & Profil Kampus**: Manajemen sesi mobile yang aman via Laravel Sanctum, biodata akademik mahasiswa, preferensi belajar, dan pencabutan token multi-perangkat.
+- 📚 **Inti Akademik (Academic Core)**: Manajemen multi-semester, mata kuliah, jadwal perkuliahan mingguan, pelacakan tugas dengan progress bar interaktif, dan hitung mundur jadwal ujian.
+- 📊 **Pelacakan Akademik (Academic Tracking)**: Pencatatan presensi dengan gestur geser-hapus otomatis & peringatan batas toleransi alpa, kalkulasi komponen nilai berbobot, nilai akhir mata kuliah, Indeks Prestasi Kumulatif (IPK), dan simulator target IPK interaktif.
+- 🎨 **Sistem Tema Dinamis**: Dukungan penuh Mode Gelap (Dark Mode), Mode Terang (Light Mode), dan mode otomatis mengikuti sistem operasi dengan palet warna terstandarisasi.
+- ⏱️ **Produktivitas & Fokus**: Manajemen tugas berprioritas & sub-tugas dengan kalkulasi progres otomatis, sesi fokus belajar (Pomodoro, Kustom, Stopwatch) dengan rekap analitik harian/mingguan, target capaian belajar (Goals), dan algoritma perencana jadwal belajar cerdas yang bebas bentrok jadwal kuliah.
+- 🤖 **Kecerdasan Akademik AI** *(Direncanakan)*: Ringkasan materi bertenaga Google Gemini, pembuat kuis otomatis, dan asisten riset akademik.
 
 ---
 
-## 🗺️ Roadmap & Status Pengembangan
+## 🗺️ Peta Jalan & Status Pengembangan
 
-Status pengerjaan detail dan histori commit dapat dilihat di [docs/PROGRESS.md](docs/PROGRESS.md).
+Status pengerjaan detail dan riwayat pengerjaan dapat dilihat di [docs/PROGRESS.md](docs/PROGRESS.md).
 
-| Phase | Modul & Fitur | Status | Backend | Mobile |
+| Fase | Modul & Fitur | Status Keseluruhan | Backend | Mobile |
 | :---: | :--- | :---: | :---: | :---: |
-| **1** | **Foundation** (Auth Sanctum, Base Setup, CI/CD, Navigation) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
-| **2** | **Academic Core** (Semesters, Courses, Schedules, Tasks, Exams) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
-| **3** | **Academic Tracking** (Attendance, Grades, IPS/IPK, Simulator) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
-| **4** | **Productivity** (Tasks, Goals, Study Sessions, Study Planner) | 🔄 In Progress | ✅ Selesai (`develop`) | ⏳ Siap Dikerjakan |
-| **5** | **Learning** (Materials, Notes, Flashcards, Quiz) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
-| **6** | **Communication** (Chat, DM, Course Discussion) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
-| **7** | **Collaboration** (Study Groups, Projects, Kanban) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
-| **8** | **Intelligence (AI)** (AI Assistant, RAG, Quiz Gen) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
-| **9** | **Web Companion** (Next.js Desktop/Tablet Dashboard) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
-
+| **1** | **Fondasi** (Autentikasi Sanctum, Penyiapan Dasar, CI/CD, Navigasi) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
+| **2** | **Inti Akademik** (Semester, Mata Kuliah, Jadwal, Tugas, Ujian) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
+| **3** | **Pelacakan Akademik** (Presensi, Komponen Nilai, IPS/IPK, Simulator) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
+| **4** | **Produktivitas** (Tugas, Sasaran Belajar, Sesi Fokus, Perencana Cerdas) | 🔄 Sedang Berjalan | ✅ Selesai (`develop`) | ⏳ Siap Dikerjakan |
+| **5** | **Pembelajaran** (Materi, Catatan, Kartu Flash, Kuis) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
+| **6** | **Komunikasi** (Obrolan, Pesan Langsung, Diskusi Kuliah) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
+| **7** | **Kolaborasi** (Kelompok Belajar, Proyek Tim, Papan Kanban) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
+| **8** | **Kecerdasan AI** (Asisten AI, RAG Ringkasan, Generator Kuis) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
+| **9** | **Aplikasi Web** (Dasbor Desktop/Tablet Next.js) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 
 ---
 
-## 🚀 Tech Stack
+## 🚀 Tumpukan Teknologi
 
-| Layer | Komponen & Library |
+| Lapisan | Komponen & Pustaka |
 | :--- | :--- |
-| **Mobile App** | React Native, Expo SDK 57, TypeScript, Expo Router |
-| **State & Fetching** | Zustand, TanStack React Query, Axios |
+| **Aplikasi Mobile** | React Native, Expo SDK 57, TypeScript, Expo Router |
+| **Status & Pengambilan Data** | Zustand, TanStack React Query, Axios |
 | **Backend API** | Laravel 11 / PHP 8.3+, Laravel Sanctum |
-| **Database** | PostgreSQL 16 |
-| **Cache & Queue** | Redis 7 |
-| **Object Storage** | MinIO (Local S3-compatible) / AWS S3 |
-| **Shared Types** | TypeScript Monorepo Package (`packages/types`) |
-| **CI/CD** | GitHub Actions (Matrix Test PHP 8.3 & 8.4) |
+| **Basis Data** | PostgreSQL 16 |
+| **Cache & Antrean** | Redis 7 |
+| **Penyimpanan Objek** | MinIO (Kompatibel S3 Lokal) / AWS S3 |
+| **Tipe Bersama** | Paket TypeScript Monorepo (`packages/types`) |
+| **CI/CD** | GitHub Actions (Pengujian Matriks PHP 8.3 & 8.4) |
 
 ---
 
-## 💻 Panduan Instalasi Cepat (Quick Start)
+## 💻 Panduan Instalasi Cepat
 
 ### 1. Prasyarat Sistem
 - **Docker & Docker Compose**
 - **PHP 8.3+** dan **Composer 2.x**
 - **Node.js 20+** dan **npm**
-- Aplikasi **Expo Go** (pada perangkat Android/iOS) atau Emulator
+- Aplikasi ponsel **Expo Go** (di perangkat fisik Android/iOS) atau Emulator
 
 ### 2. Kloning Repositori
 ```bash
@@ -86,11 +87,11 @@ cd UniDemic
 git checkout develop
 ```
 
-### 3. Menjalankan Infrastruktur Database & Cache (Docker)
+### 3. Menjalankan Layanan Infrastruktur (Docker)
 ```bash
 docker compose -f infrastructure/docker-compose.yml up -d
 ```
-*Layanan PostgreSQL (port 5432), Redis (port 6379), dan MinIO (port 9000 & 9001) akan berjalan di latar belakang.*
+*Menjalankan PostgreSQL (port 5432), Redis (port 6379), dan MinIO (port 9000 & konsol 9001).*
 
 ### 4. Menjalankan Backend API (`apps/api`)
 ```bash
@@ -101,7 +102,7 @@ php artisan key:generate
 php artisan migrate --seed
 php artisan serve
 ```
-*API siap menerima request di: `http://localhost:8000` (atau `http://10.0.2.2:8000` untuk Android Emulator).*
+*API siap menerima permintaan di: `http://localhost:8000` (atau `http://10.0.2.2:8000` untuk Emulator Android).*
 
 ### 5. Menjalankan Aplikasi Mobile (`apps/mobile`)
 ```bash
@@ -109,30 +110,33 @@ cd ../mobile
 npm install
 npx expo start
 ```
-*Scan QR code menggunakan aplikasi **Expo Go** di ponsel Anda atau tekan `a` untuk membuka Android Emulator.*
+*Pindai kode QR menggunakan aplikasi **Expo Go** di ponsel Anda atau tekan tombol `a` untuk membuka Emulator Android.*
 
 ---
 
-## 🧪 Pengujian & Quality Assurance
+## 🧪 Pengujian & Penjaminan Kualitas
 
-Sebelum melakukan integrasi fitur baru, seluruh test suite wajib lulus pengujian:
+Sebelum mengajukan integrasi fitur baru, seluruh rangkaian pengujian wajib lulus:
 
-- **Backend Unit & Feature Test**:
+- **Pengujian Unit & Fitur Backend**:
   ```bash
   cd apps/api
   php artisan test
   ```
-- **Mobile TypeScript Verification**:
+  *(92 pengujian lulus, 334 asersi mencakup modul Autentikasi, Inti Akademik, Pelacakan Nilai, dan Produktivitas).*
+
+- **Pemeriksaan Tipe Statis Mobile**:
   ```bash
   cd apps/mobile
   npx tsc --noEmit
   ```
-- **Academic Tracking & Simulator Test Suite**:
+  *(0 kesalahan).*
+
+- **Pengujian Integrasi Pelacakan Akademik**:
   ```bash
   cd apps/mobile
   npx tsx scripts/verify-tracking.ts
   ```
-
 
 ---
 
@@ -140,37 +144,37 @@ Sebelum melakukan integrasi fitur baru, seluruh test suite wajib lulus pengujian
 
 | Dokumen | Deskripsi |
 | :--- | :--- |
-| [Read.md](Read.md) | Spesifikasi lengkap kebutuhan dan fitur sistem UniDemic |
-| [implementation_plan.md](implementation_plan.md) | Panduan langkah per langkah implementasi 9 phase |
-| [UI-UX_Guides.md](UI-UX_Guides.md) | Standar desain, token tipografi Syne & Inter, dan prinsip Vibe Coding |
-| [docs/PROGRESS.md](docs/PROGRESS.md) | Tracker status tugas, checkpoint verifikasi, dan checklist phase |
-| [docs/devlog/DEV-A.md](docs/devlog/DEV-A.md) | Log teknis pengerjaan Backend (rekis-0103) |
-| [docs/devlog/DEV-B.md](docs/devlog/DEV-B.md) | Log teknis pengerjaan Frontend Mobile (AruYQ) |
-| [docs/decisions/ADR.md](docs/decisions/ADR.md) | Architecture Decision Records (ADR) |
+| [Read.md](Read.md) | Spesifikasi lengkap kebutuhan fungsional dan fitur UniDemic |
+| [implementation_plan.md](implementation_plan.md) | Panduan terperinci pelaksanaan 9 fase pengembangan |
+| [UI-UX_Guides.md](UI-UX_Guides.md) | Panduan standar desain antarmuka, tipografi, dan prinsip Vibe Coding |
+| [docs/PROGRESS.md](docs/PROGRESS.md) | Pelacak progres tugas, gerbang verifikasi, dan pos pemeriksaan |
+| [docs/devlog/DEV-A.md](docs/devlog/DEV-A.md) | Jurnal rekayasa teknis backend (rekis-0103) |
+| [docs/devlog/DEV-B.md](docs/devlog/DEV-B.md) | Jurnal rekayasa teknis mobile (AruYQ) |
+| [docs/decisions/ADR.md](docs/decisions/ADR.md) | Catatan Keputusan Arsitektur (*Architecture Decision Records*) |
 
 ---
 
 ## 🤝 Kontribusi & Kebijakan
 
-Kami mengundang kontribusi komunitas! Sebelum berkontribusi, harap membaca panduan berikut:
+Kami menyambut kontribusi dari komunitas! Sebelum berkontribusi, silakan pelajari dokumen kebijakan berikut:
 
-- 📖 [Panduan Kontribusi (CONTRIBUTING.md)](CONTRIBUTING.md) — Alur Git branch, format pesan commit, dan proses review PR.
-- 📜 [Kode Etik (CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md) — Standar norma komunikasi komunitas berbasis Contributor Covenant v2.1.
-- 🛡️ [Kebijakan Keamanan (SECURITY.md)](SECURITY.md) — Tata cara pelaporan kerentanan keamanan secara bertanggung jawab.
-- ⚖️ [Lisensi Open-Source (LICENSE)](LICENSE) — Dirilis di bawah lisensi resmi **MIT License**.
+- 📖 **Panduan Kontribusi**: [Bahasa Indonesia (CONTRIBUTING.md)](CONTRIBUTING.md) | [English (CONTRIBUTING.en.md)](CONTRIBUTING.en.md)
+- 📜 **Pedoman Perilaku**: [Bahasa Indonesia (CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md) | [English (CODE_OF_CONDUCT.en.md)](CODE_OF_CONDUCT.en.md)
+- 🛡️ **Kebijakan Keamanan**: [Bahasa Indonesia (SECURITY.md)](SECURITY.md) | [English (SECURITY.en.md)](SECURITY.en.md)
+- ⚖️ **Lisensi Open-Source**: [Lisensi MIT (LICENSE)](LICENSE)
 
 ---
 
 ## 👥 Tim Pengembang
 
-| Pengembang | Peran | GitHub |
+| Pengembang | Peran | Profil GitHub |
 | :--- | :--- | :--- |
-| **AruYQ** | Dev B — Frontend & Mobile Lead | [@AruYQ](https://github.com/AruYQ) |
-| **rekis-0103** | Dev A — Backend & API Lead | [@rekis-0103](https://github.com/rekis-0103) |
+| **AruYQ** | Dev B — Ketua Frontend & Mobile | [@AruYQ](https://github.com/AruYQ) |
+| **rekis-0103** | Dev A — Ketua Backend & API | [@rekis-0103](https://github.com/rekis-0103) |
 
 ---
 
 <p align="center">
   Dibuat dengan ❤️ untuk seluruh mahasiswa Indonesia & dunia.<br>
-  <b>UniDemic — One platform for your academic life.</b>
+  <b>UniDemic — Seluruh kehidupan perkuliahan Anda, tertata rapi.</b>
 </p>

@@ -1,53 +1,54 @@
-# 🤝 Contributing to UniDemic
+# 🤝 Panduan Kontribusi UniDemic
 
-Terima kasih atas minat Anda untuk berkontribusi pada UniDemic! Sebagai proyek open-source, kami menyambut setiap bentuk kontribusi, baik berupa pelaporan bug, penyempurnaan fitur, perbaikan dokumentasi, maupun optimasi kode.
+> 🌐 **Bahasa**: [Bahasa Indonesia](CONTRIBUTING.md) | [English](CONTRIBUTING.en.md)
 
----
-
-## 📜 Code of Conduct
-
-Semua kontributor diharapkan mematuhi [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) untuk menjaga lingkungan kerja yang inklusif, profesional, dan ramah.
+Terima kasih atas minat Anda untuk berkontribusi pada UniDemic! Sebagai proyek sumber terbuka (*open-source*), kami menyambut hangat setiap bentuk kontribusi, baik berupa pelaporan masalah (*bug report*), usulan fitur baru, penyempurnaan dokumentasi, maupun optimasi basis kode.
 
 ---
 
-## 🌳 Branching Strategy & Git Flow
+## 📜 Pedoman Perilaku
 
-UniDemic menggunakan alur kerja cabang berbasis fitur:
+Seluruh kontributor diharapkan mematuhi [Pedoman Perilaku Komunitas (CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md) (tersedia pula versi [English](CODE_OF_CONDUCT.en.md)) demi menjaga lingkungan kolaborasi yang inklusif, ramah, dan profesional.
 
-- **`main`**: Cabang produksi stabil. Hanya menerima merge dari rilis resmi.
-- **`develop`**: Cabang integrasi utama (*default development branch*). Semua feature branch ditargetkan ke sini.
-- **Cabang Fitur / Perbaikan**:
-  - `feature/backend/<nama-fitur>` — untuk pengembangan backend API.
-  - `feature/mobile/<nama-fitur>` — untuk pengembangan aplikasi React Native.
-  - `fix/<deskripsi-bug>` — untuk perbaikan bug.
+---
+
+## 🌳 Strategi Percabangan & Alur Kerja Git (Git Flow)
+
+UniDemic menggunakan alur kerja cabang berbasis fitur (*feature-branch workflow*):
+
+- **`main`**: Cabang produksi stabil. Hanya menerima penggabungan (*merge*) dari tag rilis resmi yang terverifikasi.
+- **`develop`**: Cabang integrasi utama (*default development branch*). Semua cabang fitur bermuara dan diajukan ke cabang ini.
+- **Pola Penamaan Cabang Fitur & Perbaikan**:
+  - `feature/backend/<nama-fitur>` — untuk pengerjaan backend API.
+  - `feature/mobile/<nama-fitur>` — untuk pengerjaan aplikasi React Native.
+  - `fix/<deskripsi-masalah>` — untuk perbaikan masalah atau *bug*.
   - `docs/<topik>` — untuk pembaruan dokumentasi.
 
 ---
 
-## 📝 Format Commit Message (Conventional Commits)
+## 📝 Format Pesan Komit (Conventional Commits)
 
-Semua commit WAJIB mengikuti standar [Conventional Commits](https://www.conventionalcommits.org/) dan **WAJIB ditulis dalam Bahasa Inggris** (*English only*, format imperatif seperti `add`, `fix`, `update`):
+Semua pesan komit **WAJIB mengikuti spesifikasi [Conventional Commits](https://www.conventionalcommits.org/)** dan **WAJIB ditulis dalam Bahasa Inggris** dengan kata kerja imperatif (`add`, `fix`, `implement`, `update`):
 
 ```
 <type>(<scope>): <short description in English>
 
-[optional body — detailed explanation of changes]
+[opsional body — penjelasan terperinci mengenai perubahan kode]
 ```
 
-
-### Types:
-| Type | Kapan Digunakan |
+### Jenis Komit (Commit Types):
+| Tipe | Kegunaan |
 | :--- | :--- |
-| `feat` | Fitur baru |
-| `fix` | Perbaikan bug |
-| `docs` | Perubahan dokumentasi |
-| `refactor` | Refactoring kode tanpa mengubah fungsionalitas |
-| `test` | Menambah atau memperbarui test suite |
-| `style` | Perubahan format, style, atau styling UI tanpa perubahan logika |
-| `perf` | Optimasi performa |
-| `chore` | Konfigurasi build, dependencies, atau tooling |
+| `feat` | Penambahan fitur baru bagi pengguna atau API |
+| `fix` | Perbaikan masalah atau kesalahan kode (*bug fix*) |
+| `docs` | Khusus pembaruan dokumen saja |
+| `refactor` | Restrukturisasi kode tanpa mengubah perilaku fitur |
+| `test` | Penambahan atau pembetulan rangkaian pengujian (*test suite*) |
+| `style` | Pemformatan tampilan atau gaya kode tanpa mengubah logika |
+| `perf` | Peningkatan kinerja atau kecepatan eksekusi |
+| `chore` | Pembaruan konfigurasi alat bantu, dependensi, atau skrip pembangunan |
 
-*Contoh:*
+*Contoh Komit yang Benar:*
 ```
 feat(academic): add course schedule conflict detection
 fix(api): include course relation in schedule resource
@@ -56,13 +57,13 @@ docs: update contributing guide and roadmap
 
 ---
 
-## 💻 Panduan Setup Lingkungan Lokal
+## 💻 Panduan Penyiapan Lingkungan Lokal
 
-### 1. Prasyarat
+### 1. Prasyarat Sistem
 - Git
-- PHP 8.3+ & Composer 2.x
-- Node.js 20+ & npm / yarn
-- Docker & Docker Compose
+- PHP 8.3+ dan Composer 2.x
+- Node.js 20+ dan npm
+- Docker dan Docker Compose
 
 ### 2. Kloning Repositori
 ```bash
@@ -75,10 +76,10 @@ git checkout develop
 ```bash
 docker compose -f infrastructure/docker-compose.yml up -d
 ```
-Layanan yang berjalan:
+Layanan yang berjalan di latar belakang:
 - PostgreSQL 16 (`localhost:5432`)
 - Redis 7 (`localhost:6379`)
-- MinIO S3 Local (`localhost:9000`, Console `localhost:9001`)
+- MinIO S3 Lokal (`localhost:9000`, Konsol Web `localhost:9001`)
 
 ### 4. Menjalankan Backend API (`apps/api`)
 ```bash
@@ -89,53 +90,53 @@ php artisan key:generate
 php artisan migrate --seed
 php artisan serve
 ```
-API berjalan di: `http://localhost:8000`
+Alamat API: `http://localhost:8000`
 
-### 5. Menjalankan Mobile App (`apps/mobile`)
+### 5. Menjalankan Aplikasi Mobile (`apps/mobile`)
 ```bash
 cd apps/mobile
 npm install
 npx expo start
 ```
-Gunakan Expo Go di ponsel fisik atau jalankan emulator Android / iOS Simulator.
+Pindai kode QR menggunakan aplikasi ponsel **Expo Go** atau jalankan Emulator Android / Simulator iOS.
 
 ---
 
-## ✅ Quality Checks & Definition of Done
+## ✅ Pemeriksaan Kualitas & Definisi Selesai (Definition of Done)
 
-Sebelum membuat Pull Request, pastikan seluruh pengujian lokal lulus:
+Sebelum membuat Pull Request, pastikan seluruh gerbang kualitas lokal telah terpenuhi:
 
-1. **Backend Tests**:
+1. **Pengujian Backend**:
    ```bash
    cd apps/api
    php artisan test
    ```
-   *Seluruh unit & feature tests harus 100% PASS.*
+   *Seluruh pengujian unit dan fitur harus 100% LULUS (PASS).*
 
-2. **Frontend Typecheck**:
+2. **Pemeriksaan Tipe Frontend**:
    ```bash
    cd apps/mobile
    npx tsc --noEmit
    ```
-   *Harus menghasilkan 0 error.*
+   *Wajib menghasilkan 0 kesalahan (0 error).*
 
 3. **Dokumentasi Wajib**:
-   - Perbarui status task di [`docs/PROGRESS.md`](docs/PROGRESS.md).
-   - Tulis log pengerjaan di [`docs/devlog/DEV-A.md`](docs/devlog/DEV-A.md) (Backend) atau [`docs/devlog/DEV-B.md`](docs/devlog/DEV-B.md) (Frontend).
-   - Jika ada keputusan arsitektural besar, catat di [`docs/decisions/ADR.md`](docs/decisions/ADR.md).
+   - Perbarui pos pemeriksaan pada [`docs/PROGRESS.md`](docs/PROGRESS.md).
+   - Tuliskan entri jurnal rekayasa di [`docs/devlog/DEV-A.md`](docs/devlog/DEV-A.md) (Backend) atau [`docs/devlog/DEV-B.md`](docs/devlog/DEV-B.md) (Frontend).
+   - Catat keputusan arsitektur baru di [`docs/decisions/ADR.md`](docs/decisions/ADR.md) bila diperlukan.
 
 ---
 
-## 🚀 Alur Pembuatan Pull Request (PR)
+## 🚀 Alur Pengajuan Pull Request (PR)
 
-1. Buat branch baru dari `develop`:
+1. Buat cabang baru dari `develop`:
    ```bash
    git checkout develop
    git pull origin develop
-   git checkout -b feature/nama-fitur
+   git checkout -b feature/nama-fitur-anda
    ```
-2. Kerjakan perubahan kode, tambahkan test, dan perbarui dokumentasi.
-3. Commit perubahan dengan pesan conventional commits.
-4. Push branch ke GitHub dan buka Pull Request ke cabang `develop`.
-5. Isi formulir PR sesuai template yang tersedia (`.github/pull_request_template.md`).
-6. Tunggu proses review dan pastikan CI workflow GitHub Actions berwarna hijau.
+2. Lakukan perubahan kode, lengkapi pengujian, dan perbarui dokumen terkait.
+3. Komit perubahan menggunakan format Conventional Commits berbahasa Inggris.
+4. Unggah cabang ke GitHub dan buka Pull Request dengan target cabang `develop`.
+5. Lengkapi formulir deskripsi PR sesuai template yang tersedia (`.github/pull_request_template.md`).
+6. Tunggu proses tinjauan kode dan pastikan alur kerja CI GitHub Actions berhasil tanpa galat.

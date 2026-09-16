@@ -71,4 +71,29 @@ class User extends Authenticatable
     {
         return $this->hasOne(Semester::class)->where('is_active', true);
     }
+
+    /**
+     * Get all productivity tasks belonging to the user.
+     */
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    /**
+     * Get all study sessions belonging to the user.
+     */
+    public function studySessions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StudySession::class);
+    }
+
+    /**
+     * Get all productivity goals belonging to the user.
+     */
+    public function goals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Goal::class);
+    }
 }
+

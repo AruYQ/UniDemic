@@ -22,6 +22,7 @@ AI agent HARUS mendokumentasikan setelah **setiap task selesai**:
 2. **Update PROGRESS.md** — tandai task dari `[ ]` ke `[x]`
 3. **Update ADR.md** jika ada keputusan arsitektur baru
 4. **Commit dokumentasi bersama kode** — bukan commit terpisah nanti
+5. **Wajib Pull Request (Zero Direct Push to `develop`/`main`)** — Dilarang keras push atau merge lokal langsung ke branch `develop` dan `main`. Selalu push ke branch feature, buat Pull Request ke `develop`, dan merge via PR.
 
 ---
 
@@ -209,9 +210,13 @@ Update PROGRESS.md: [/] → [x]
     ↓
 Jika ada keputusan besar → tambah ADR
     ↓
-Commit semua (kode + docs) dalam 1 commit
+Commit semua (kode + docs) di feature branch
     ↓
-Push & buat PR ke develop
+Push ke origin feature/<nama-fitur>
+    ↓
+Buka Pull Request ke develop (`gh pr create --base develop`)
+    ↓
+Merge via GitHub PR (`gh pr merge --merge`) — Dilarang direct push ke develop!
 ```
 
 ---

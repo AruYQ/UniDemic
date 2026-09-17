@@ -215,5 +215,35 @@ Pada Phase 2 (Academic Core), aplikasi mengelola banyak entitas relasional: Seme
 
 ---
 
+## ADR-0008 — Mandatory Pull Request & Integration Branch Protection Policy
+
+**Tanggal**: 2026-09-17
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+Sebelumnya, penggabungan kode ke branch integrasi (`develop`) terkadang dilakukan via merge lokal langsung dan direct push oleh developer/AI agent. Pola ini rawan risiko keamanan (bypass audit trail, potensi menimpa commit collaborator tanpa review, dan hilangnya riwayat PR context di GitHub).
+
+### Keputusan
+1. **Zero Direct Push to `develop` & `main`**:
+   - Dilarang keras melakukan `git push origin develop` atau `git push origin main` secara langsung dari branch lokal.
+   - Branch `develop` dan `main` diperlakukan sebagai protected integration branches.
+2. **Mandatory GitHub Pull Request (PR)**:
+   - Setiap fitur atau perbaikan (backend maupun mobile) wajib dikerjakan di branch terpisah (`feature/...`, `fix/...`).
+   - Setelah pekerjaan selesai dan lulus pengujian lokal (tests + typecheck + devlog), branch di-push ke remote GitHub.
+   - Wajib membuka Pull Request ke `develop` menggunakan GitHub CLI (`gh pr create`) atau UI GitHub.
+   - Penggabungan ke `develop` WAJIB dilakukan melalui merge Pull Request di GitHub (`gh pr merge --merge`).
+3. **Audit Trail & CI Quality Gate**:
+   - Semua perubahan memiliki nomor PR, deskripsi, dan riwayat checks yang jelas di repositori GitHub.
+
+### Konsekuensi
+- ✅ Mencegah konflik dan kerusakan tidak sengaja pada branch `develop`.
+- ✅ Kolaborator (Dev A & Dev B) dapat mereview dan melacak setiap integrasi dengan transparan.
+- ✅ Menyelaraskan alur kerja tim dengan best practice open-source modern.
+- ⚠️ Membutuhkan langkah tambahan untuk membuat dan me-merge PR via CLI/GitHub sebelum mengupdate branch lokal.
+
+---
+
 > ⬇️ ADR berikutnya ditambahkan di bawah saat ada keputusan arsitektur baru
+
 

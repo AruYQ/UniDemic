@@ -313,4 +313,58 @@ Setiap entry menggunakan format ini:
 - `UniSwipeable` memberikan opsi swipe ke kiri dengan background merah semantic danger dan ikon tempat sampah, sambil tetap mempertahankan tombol delete tap langsung untuk kenyamanan pengguna.
 - Spacing proporsional (8px - 16px) memastikan readability teks sub-header terhadap daftar record di bawahnya.
 
+---
+
+### [2026-09-17] — Phase 4: Productivity Mobile Frontend & Focus Timer Suite
+
+**Branch**: `feature/mobile/productivity`
+**Status**: Selesai & Terverifikasi (Lolos strict TypeScript typecheck 0 error)
+
+**Yang dikerjakan:**
+- **Types & Service Layer**:
+  - Menambahkan tipe data produktivitas lengkap di `apps/mobile/src/types/productivity.ts` (`ProductivityTask`, `TaskSubtask`, `StudySession`, `Goal`, `StudyPlanItem`, `StudyPlanSuggestion`, serta DTOs payload untuk tasks, subtasks, sessions, goals, planner).
+  - Membangun API service layer di `apps/mobile/src/services/productivityService.ts` untuk seluruh endpoint backend Phase 4 (`/api/tasks`, `/api/subtasks`, `/api/study-sessions`, `/api/goals`, `/api/study-planner/suggest`).
+- **State Management (Zustand)**:
+  - Membangun `apps/mobile/src/store/useProductivityStore.ts` dengan in-memory cache TTL 3 menit (`CACHE_TTL_MS`), penanganan loading state reaktif, optimistic updates pada checklist to-do dan subtask, serta Focus Timer / Pomodoro engine mandiri.
+- **Productivity UI Suite Components**:
+  - `TaskItemCard.tsx`: Kartu to-do produktivitas dengan checklist subtask interaktif, progress bar reaktif otomatis, inline subtask quick-add, status badges, dan gesture `UniSwipeable` untuk hapus cepat.
+  - `FocusTimerWidget.tsx`: Pomodoro 25 menit, jeda istirahat pendek (5m) & panjang (15m), mode stopwatch, pemilih mata kuliah terkait, catatan sesi, dan integrasi penyimpanan sesi belajar ke backend.
+  - `StudySessionSummaryCard.tsx`: Bento grid statistik waktu belajar (hari ini, minggu ini, rata-rata, dan alokasi per mata kuliah).
+  - `GoalCard.tsx`: Kartu pelacakan target capaian belajar (target vs realisasi), progress bar dinamis, tombol quick increment (+1), auto-complete saat target tercapai, dan swipe-to-delete.
+  - `StudyPlannerCard.tsx`: Kartu rekomendasi slot waktu belajar cerdas berbasis AI tanpa bentrok jadwal kuliah dengan tombol CTA langsung "Mulai Sesi" ke Focus Timer.
+  - `CreateTaskModal.tsx`: Dialog modal pembuatan tugas produktivitas dengan builder inline subtask awal, pemilihan tingkat prioritas (Rendah, Sedang, Tinggi, Urgent), tenggat waktu `UniDatePicker`, dan tag label.
+  - `CreateGoalModal.tsx`: Dialog modal penetapan target kuantitatif belajar (tipe mingguan, bulanan, semester, atau kustom) dengan satuan fleksibel dan batas waktu target.
+- **Integrasi Layar Terpadu (`apps/mobile/src/app/tasks.tsx`)**:
+  - Menghubungkan seluruh modul Phase 4 ke dalam 4 navigasi tab utama: **Kuliah** (Tugas & Ujian akademik), **To-Do** (Produktivitas & Subtasks), **Fokus Timer** (Pomodoro & Ringkasan sesi), dan **Target** (Goals & AI Study Planner).
+  - Menambahkan pull-to-refresh ganda yang memperbarui data akademik dan produktivitas sekaligus.
+
+**Screen/komponen yang dibuat/diubah:**
+- `apps/mobile/src/types/productivity.ts` — TypeScript interfaces & payload DTOs produktivitas
+- `apps/mobile/src/services/productivityService.ts` — Axios API service produktivitas
+- `apps/mobile/src/store/useProductivityStore.ts` — Zustand store & Focus Timer engine
+- `apps/mobile/src/components/productivity/TaskItemCard.tsx` — Kartu to-do & subtask checklist
+- `apps/mobile/src/components/productivity/FocusTimerWidget.tsx` — Pomodoro & session recorder
+- `apps/mobile/src/components/productivity/StudySessionSummaryCard.tsx` — Bento statistik belajar
+- `apps/mobile/src/components/productivity/GoalCard.tsx` — Kartu target progress tracker
+- `apps/mobile/src/components/productivity/StudyPlannerCard.tsx` — Kartu saran slot belajar AI
+- `apps/mobile/src/components/productivity/CreateTaskModal.tsx` — Modal tambah to-do & subtasks
+- `apps/mobile/src/components/productivity/CreateGoalModal.tsx` — Modal tambah target belajar
+- `apps/mobile/src/app/tasks.tsx` — Layar hub produktivitas terpadu 4 segmen
+
+**Vibe Check hasil:**
+- Layout: Bento cards, segmented scrollable pill tab bar, thumb-zone friendly touch targets.
+- Animasi: FadeInDown on mount (duration 220-260ms), liquid spring feedback pada tap status, subtask, dan timer buttons.
+- Anti-slop: Tanpa `#000000`/`#FFFFFF` mentah, font Syne + Space Grotesk + JetBrains Mono, Phosphor Icons Duotone, tanpa input teks manual tanggal (UniDatePicker).
+
+**API yang diintegrasikan:**
+- `GET/POST /api/tasks`, `PUT/DELETE /api/tasks/{id}`, `PATCH /api/tasks/{id}/toggle-complete`
+- `POST /api/tasks/{id}/subtasks`, `PUT/DELETE /api/tasks/{taskId}/subtasks/{subtaskId}`
+- `GET/POST /api/study-sessions`, `GET /api/study-sessions/summary`, `DELETE /api/study-sessions/{id}`
+- `GET/POST /api/goals`, `PUT/DELETE /api/goals/{id}`, `PATCH /api/goals/{id}/progress`
+- `GET /api/study-planner/suggest`
+
+**Verifikasi:**
+- `npx tsc --noEmit` di `apps/mobile`: 100% Lolos tanpa error (0 errors).
+
+
 

@@ -17,6 +17,8 @@ import {
   StudySessionType,
 } from '../types/productivity';
 import { productivityService } from '../services/productivityService';
+import { formatApiError } from '../lib/api';
+
 
 const CACHE_TTL_MS = 3 * 60 * 1000; // 3 Menit TTL
 
@@ -137,7 +139,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         isTasksLoading: false,
-        error: err?.response?.data?.message || 'Gagal memuat tugas produktivitas.',
+        error: formatApiError(err, 'Gagal memuat tugas produktivitas.'),
       });
     }
   },
@@ -151,7 +153,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
       }));
       return created;
     } catch (err: any) {
-      set({ error: err?.response?.data?.message || 'Gagal menambahkan tugas.' });
+      set({ error: formatApiError(err, 'Gagal menambahkan tugas.') });
       throw err;
     }
   },
@@ -165,7 +167,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
       }));
       return updated;
     } catch (err: any) {
-      set({ error: err?.response?.data?.message || 'Gagal memperbarui tugas.' });
+      set({ error: formatApiError(err, 'Gagal memperbarui tugas.') });
       throw err;
     }
   },
@@ -183,7 +185,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
       // Revert if error
       set({
         tasks: previous,
-        error: err?.response?.data?.message || 'Gagal menghapus tugas.',
+        error: formatApiError(err, 'Gagal menghapus tugas.'),
       });
       throw err;
     }
@@ -217,7 +219,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         tasks: previous,
-        error: err?.response?.data?.message || 'Gagal mengubah status tugas.',
+        error: formatApiError(err, 'Gagal mengubah status tugas.'),
       });
       throw err;
     }
@@ -245,7 +247,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
       }));
       return subtask;
     } catch (err: any) {
-      set({ error: err?.response?.data?.message || 'Gagal menambahkan subtask.' });
+      set({ error: formatApiError(err, 'Gagal menambahkan subtask.') });
       throw err;
     }
   },
@@ -294,7 +296,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         tasks: previous,
-        error: err?.response?.data?.message || 'Gagal memperbarui subtask.',
+        error: formatApiError(err, 'Gagal memperbarui subtask.'),
       });
       throw err;
     }
@@ -325,7 +327,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         tasks: previous,
-        error: err?.response?.data?.message || 'Gagal menghapus subtask.',
+        error: formatApiError(err, 'Gagal menghapus subtask.'),
       });
       throw err;
     }
@@ -355,7 +357,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         isSessionsLoading: false,
-        error: err?.response?.data?.message || 'Gagal memuat sesi belajar.',
+        error: formatApiError(err, 'Gagal memuat sesi belajar.'),
       });
     }
   },
@@ -371,7 +373,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
       get().fetchStudySessions(true).catch(() => {});
       return session;
     } catch (err: any) {
-      set({ error: err?.response?.data?.message || 'Gagal menyimpan sesi belajar.' });
+      set({ error: formatApiError(err, 'Gagal menyimpan sesi belajar.') });
       throw err;
     }
   },
@@ -388,7 +390,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         studySessions: previous,
-        error: err?.response?.data?.message || 'Gagal menghapus sesi belajar.',
+        error: formatApiError(err, 'Gagal menghapus sesi belajar.'),
       });
       throw err;
     }
@@ -414,7 +416,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         isGoalsLoading: false,
-        error: err?.response?.data?.message || 'Gagal memuat target belajar.',
+        error: formatApiError(err, 'Gagal memuat target belajar.'),
       });
     }
   },
@@ -428,7 +430,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
       }));
       return goal;
     } catch (err: any) {
-      set({ error: err?.response?.data?.message || 'Gagal membuat target.' });
+      set({ error: formatApiError(err, 'Gagal membuat target.') });
       throw err;
     }
   },
@@ -442,7 +444,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
       }));
       return updated;
     } catch (err: any) {
-      set({ error: err?.response?.data?.message || 'Gagal memperbarui target.' });
+      set({ error: formatApiError(err, 'Gagal memperbarui target.') });
       throw err;
     }
   },
@@ -455,7 +457,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
       }));
       return updated;
     } catch (err: any) {
-      set({ error: err?.response?.data?.message || 'Gagal memperbarui progres target.' });
+      set({ error: formatApiError(err, 'Gagal memperbarui progres target.') });
       throw err;
     }
   },
@@ -471,7 +473,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         goals: previous,
-        error: err?.response?.data?.message || 'Gagal menghapus target.',
+        error: formatApiError(err, 'Gagal menghapus target.'),
       });
       throw err;
     }
@@ -498,7 +500,7 @@ export const useProductivityStore = create<ProductivityState>((set, get) => ({
     } catch (err: any) {
       set({
         isPlannerLoading: false,
-        error: err?.response?.data?.message || 'Gagal memuat jadwal belajar cerdas.',
+        error: formatApiError(err, 'Gagal memuat jadwal belajar cerdas.'),
       });
     }
   },

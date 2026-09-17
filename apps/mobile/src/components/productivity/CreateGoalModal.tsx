@@ -13,6 +13,8 @@ import { UniButton } from '@/components/ui/UniButton';
 import { CreateGoalPayload, GoalType } from '@/types/productivity';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { useUniTheme } from '@/store/useThemeStore';
+import { formatApiError } from '@/lib/api';
+
 
 /*
 <vibe_check>
@@ -86,7 +88,7 @@ export const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
       setTargetDate('');
       onClose();
     } catch (err: any) {
-      Alert.alert('Gagal', err?.response?.data?.message || 'Gagal membuat target belajar.');
+      Alert.alert('Gagal', formatApiError(err, 'Gagal membuat target belajar.'));
     } finally {
       setIsSubmitting(false);
     }

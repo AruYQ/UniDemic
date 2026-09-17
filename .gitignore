@@ -42,7 +42,8 @@ Thumbs.db
 .phpunit.result.cache
 .phpunit.cache/
 
-# AI Agent instructions
+# AI Agent instructions & temp artifacts
 AGENTS.md
 agents.md
+Image-Error/
 

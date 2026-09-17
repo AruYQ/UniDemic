@@ -51,18 +51,26 @@ class StudyPlannerController extends Controller
         ->orderBy('date')
         ->get();
 
-        // B. Pending Assignments
+        // B. Pending Assignments (with future deadline or no deadline)
         $assignments = Assignment::whereHas('course.semester', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         })
         ->where('is_completed', false)
+        ->where(function ($q) use ($startDate) {
+            $q->whereNull('deadline')
+              ->orWhereDate('deadline', '>=', $startDate->toDateString());
+        })
         ->with('course')
         ->orderByRaw('deadline IS NULL, deadline ASC')
         ->get();
 
-        // C. Pending Tasks
+        // C. Pending Tasks (with future deadline or no deadline)
         $tasks = $user->tasks()
             ->where('is_completed', false)
+            ->where(function ($q) use ($startDate) {
+                $q->whereNull('deadline')
+                  ->orWhereDate('deadline', '>=', $startDate->toDateString());
+            })
             ->with('course')
             ->orderByRaw('deadline IS NULL, deadline ASC')
             ->get();
@@ -141,8 +149,8 @@ class StudyPlannerController extends Controller
             ];
         }
 
-        // If queue is empty, propose review sessions for active courses
-        if (empty($studyQueue)) {
+        // Always supplement queue with active course reviews if queue is small or empty
+        if (count($studyQueue) < 5) {
             $activeCourses = Course::whereHas('semester', function ($q) use ($user) {
                 $q->where('user_id', $user->id)->where('is_active', true);
             })->get();
@@ -158,7 +166,7 @@ class StudyPlannerController extends Controller
                     'deadline' => null,
                     'priority_score' => 20,
                     'duration_minutes' => 60,
-                    'reason' => 'Consistent weekly subject review',
+                    'reason' => 'Consistent weekly subject review for active semester',
                 ];
             }
         }
@@ -169,15 +177,9 @@ class StudyPlannerController extends Controller
         // 4. Distribute into available slots across the time range
         $plannedSchedule = [];
         $totalStudyMinutes = 0;
-        $queueIndex = 0;
-        $totalItems = count($studyQueue);
+        $scheduledIndices = [];
 
         for ($dayOffset = 0; $dayOffset < $daysAhead; $dayOffset++) {
-            if ($queueIndex >= $totalItems) {
-                // If items remain in daysAhead, cycle through if needed or stop
-                break;
-            }
-
             $currentDate = $startDate->copy()->addDays($dayOffset);
             $dayOfWeek = strtolower($currentDate->format('l'));
             $isWeekend = in_array($dayOfWeek, ['saturday', 'sunday']);
@@ -199,10 +201,6 @@ class StudyPlannerController extends Controller
                     continue;
                 }
 
-                if ($queueIndex >= $totalItems) {
-                    break;
-                }
-
                 // Check conflict with class times
                 $hasConflict = false;
                 foreach ($classTimes as $class) {
@@ -216,13 +214,35 @@ class StudyPlannerController extends Controller
                     continue;
                 }
 
-                $item = $studyQueue[$queueIndex];
+                // Find next eligible item in queue
+                $assignedIndex = null;
+                foreach ($studyQueue as $idx => $candidate) {
+                    if (isset($scheduledIndices[$idx])) {
+                        continue;
+                    }
+                    if ($candidate['deadline'] && $currentDate->isAfter($candidate['deadline'])) {
+                        continue;
+                    }
+                    $assignedIndex = $idx;
+                    break;
+                }
 
-                // If item has a deadline, don't schedule after the deadline
-                if ($item['deadline'] && $currentDate->isAfter($item['deadline'])) {
-                    // Try next item
+                // If all distinct items are used, allow repeating review items
+                if ($assignedIndex === null) {
+                    foreach ($studyQueue as $idx => $candidate) {
+                        if ($candidate['type'] === 'review') {
+                            $assignedIndex = $idx;
+                            break;
+                        }
+                    }
+                }
+
+                if ($assignedIndex === null) {
                     continue;
                 }
+
+                $item = $studyQueue[$assignedIndex];
+                $scheduledIndices[$assignedIndex] = true;
 
                 $plannedSchedule[] = [
                     'date' => $currentDate->format('Y-m-d'),
@@ -239,7 +259,6 @@ class StudyPlannerController extends Controller
 
                 $dailyMinutes += $slot['duration'];
                 $totalStudyMinutes += $slot['duration'];
-                $queueIndex++;
             }
         }
 

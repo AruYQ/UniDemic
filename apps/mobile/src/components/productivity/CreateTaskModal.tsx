@@ -16,6 +16,8 @@ import { Course } from '@/types/academic';
 import { CreateTaskPayload, TaskPriority } from '@/types/productivity';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { useUniTheme } from '@/store/useThemeStore';
+import { formatApiError } from '@/lib/api';
+
 
 /*
 <vibe_check>
@@ -97,7 +99,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       setCurrentSubtaskInput('');
       onClose();
     } catch (err: any) {
-      Alert.alert('Gagal', err?.response?.data?.message || 'Gagal menyimpan tugas.');
+      Alert.alert('Gagal', formatApiError(err, 'Gagal menyimpan tugas.'));
     } finally {
       setIsSubmitting(false);
     }

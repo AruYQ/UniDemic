@@ -366,5 +366,38 @@ Setiap entry menggunakan format ini:
 **Verifikasi:**
 - `npx tsc --noEmit` di `apps/mobile`: 100% Lolos tanpa error (0 errors).
 
+---
 
+### [2026-09-17] — Phase 4: Root Cause Resolution, Database Migration & UI/UX Redesign
 
+**Branch**: `fix/mobile/productivity-refinements`
+**Status**: Selesai & Terverifikasi Langsung di Perangkat (E2E Test Passed)
+
+**Yang dikerjakan:**
+- **Penyelesaian Fatal Runtime Error (SQLSTATE 42P01)**:
+  - Mengidentifikasi 8 tangkapan layar error `Image-Error/` di mana container Docker PostgreSQL (`unidemic-db`) belum menjalankan tabel migrasi Phase 4.
+  - Menjalankan migrasi `php artisan migrate` di container `unidemic-api` (`productivity_tasks`, `task_subtasks`, `study_sessions`, `goals`).
+- **Penyelesaian Deadlock Algoritma AI Study Planner**:
+  - Memperbaiki `apps/api/app/Http/Controllers/Api/StudyPlannerController.php` di mana deadline lampau menyebabkan `continue` loop tanpa increment `$queueIndex`, mengunci seluruh penjadwalan hari berikutnya.
+  - Memfilter hanya deadline masa depan dan menyuntikkan review matkul aktif sebagai pelengkap antrean belajar.
+- **Redesain Total UI/UX tasks.tsx**:
+  - **Full-Width 4-Segment Bar**: Menghapus scroll horizontal yang memotong tab `Target` menjadi `Tar...`, menggantikannya dengan 4 kolom segmen responsif (`Kuliah`, `To-Do`, `Fokus`, `Target`).
+  - **Eliminasi 3-Layer Filter Stacking**: Menggabungkan deretan filter bertumpuk menjadi compact segment strip hemat 60% viewport vertikal.
+  - **Always-Visible Focus Bento**: Kartu ringkasan sesi belajar kini selalu tampil anggun dengan default `0j 0m` saat belum ada data.
+  - **AI Planner Hero Card**: Membangun hero card cerdas dengan badge AI, total jam, dan CTA eksplisit "Buat Rekomendasi Sekarang".
+- **Sanitasi Error Database**:
+  - Menambahkan fungsi `formatApiError()` di `src/lib/api.ts` dan menggunakannya di `CreateTaskModal`, `CreateGoalModal`, `FocusTimerWidget`, serta `useProductivityStore` untuk mencegah bocornya pesan query SQL mentah ke pengguna.
+
+**Screen/komponen yang dibuat/diubah:**
+- `apps/api/app/Http/Controllers/Api/StudyPlannerController.php` — Algoritma alokasi bebas deadlock
+- `apps/mobile/src/lib/api.ts` — Utilitas sanitasi error `formatApiError`
+- `apps/mobile/src/store/useProductivityStore.ts` — Error handling tersanitasi
+- `apps/mobile/src/components/productivity/CreateTaskModal.tsx` — Sanitasi modal error
+- `apps/mobile/src/components/productivity/CreateGoalModal.tsx` — Sanitasi modal error
+- `apps/mobile/src/components/productivity/FocusTimerWidget.tsx` — Sanitasi modal error
+- `apps/mobile/src/app/tasks.tsx` — Redesain UI/UX hub produktivitas & tab bar
+
+**Verifikasi:**
+- PHPUnit backend tests: 22 passed, 203 assertions (`docker exec unidemic-api php artisan test --filter Productivity`).
+- TypeScript compiler: `npx tsc --noEmit` lolos 0 errors.
+- Live device testing: Teruji dan disetujui langsung oleh user pada perangkat fisik via Expo Metro.

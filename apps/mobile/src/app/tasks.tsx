@@ -47,12 +47,12 @@ import { StudyPlanItem } from '@/types/productivity';
 /*
 <vibe_check>
 Screen/Component : TasksScreen (app/tasks.tsx)
-Tujuan           : Hub produktivitas & akademik terpadu: Tugas Kuliah, To-Do & Subtasks reaktif, Pomodoro Focus Timer, Goals target tracker, dan Smart Study Planner
-Layout strategy  : Header + Contextual Add Button -> 4-Tab Switcher (Kuliah, To-Do, Fokus, Target) -> Sub-filters -> Content ScrollView -> Modals -> BottomNav
+Tujuan           : Hub produktivitas & akademik terpadu: Tugas Kuliah, To-Do & Subtasks reaktif, Pomodoro Focus Timer, Goals target tracker, dan Smart Study Planner AI
+Layout strategy  : Header + Contextual Add Button -> Full-width 4-Segment Bar (Kuliah, To-Do, Fokus, Target) -> Compact sub-filter -> Content ScrollView -> Modals -> BottomNav
 Color tokens     : bg.base, bg.surface, bg.overlay, brand.primary, brand.secondary, brand.accent
 Animation plan   : FadeInDown header & cards, liquid spring switchers
 Typography       : Syne_700Bold display, SpaceGrotesk untuk headings/labels, JetBrainsMono untuk numeric/time metrics
-Anti-slop check  : Rule #1 (tokens), Rule #2 (Phosphor duotone), Rule #4 (dynamic theme), Rule #21 (skeleton loading)
+Anti-slop check  : Rule #1 (tokens), Rule #2 (Phosphor duotone), Rule #4 (dynamic theme), Rule #21 (skeleton loading), Rule #28 (spring tap)
 </vibe_check>
 */
 
@@ -60,6 +60,20 @@ type MainTab = 'academic' | 'tasks' | 'focus' | 'goals';
 type AcademicSubTab = 'assignments' | 'exams';
 type AssignmentFilter = 'all' | 'in_progress' | 'completed';
 type TaskFilter = 'all' | 'high_priority' | 'in_progress' | 'completed';
+
+export const formatApiError = (err: any, fallback: string = 'Terjadi kesalahan sistem.'): string => {
+  const rawMsg = err?.response?.data?.message || err?.message;
+  if (!rawMsg) return fallback;
+  if (
+    rawMsg.includes('SQLSTATE') ||
+    rawMsg.includes('relation') ||
+    rawMsg.includes('does not exist') ||
+    rawMsg.includes('LINE 1:')
+  ) {
+    return 'Gagal memproses data di server. Database sedang diperbarui.';
+  }
+  return rawMsg;
+};
 
 export default function TasksScreen() {
   const { colors: themeColors, shadows: themeShadows } = useUniTheme();
@@ -234,7 +248,7 @@ export default function TasksScreen() {
       }
       setIsAcademicModalOpen(false);
     } catch (err: any) {
-      Alert.alert('Gagal', err?.response?.data?.message || 'Gagal menyimpan data.');
+      Alert.alert('Gagal', formatApiError(err, 'Gagal menyimpan data tugas/ujian.'));
     } finally {
       setIsSubmittingAcademic(false);
     }
@@ -284,7 +298,7 @@ export default function TasksScreen() {
     setActiveTab('focus');
     startTimer();
     Alert.alert(
-      'Sesi Dimulai',
+      'Sesi Fokus Dimulai',
       `Sesi fokus untuk "${item.title}" (${item.duration_minutes} menit) telah disiapkan!`
     );
   };
@@ -293,7 +307,7 @@ export default function TasksScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Top Header */}
       <View style={styles.header}>
-        <Animated.View entering={FadeInDown.duration(260)}>
+        <Animated.View entering={FadeInDown.duration(240)}>
           <Text style={styles.title}>Produktivitas & Tugas</Text>
           <Text style={styles.subtitle}>Target, To-Do, Fokus Belajar & Rekomendasi AI</Text>
         </Animated.View>
@@ -308,117 +322,146 @@ export default function TasksScreen() {
         )}
       </View>
 
-      {/* 4-Tab Main Switcher */}
+      {/* Full-Width 4-Segment Bar (No Horizontal Truncation) */}
       <View style={styles.mainTabContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tabBarScroll}
-        >
+        <View style={styles.mainTabBar}>
           {/* Tab 1: Kuliah */}
           <Pressable
             onPress={() => setActiveTab('academic')}
-            style={[styles.tabItem, activeTab === 'academic' && styles.tabItemActive]}
+            style={[styles.mainTabItem, activeTab === 'academic' && styles.mainTabItemActive]}
           >
             <GraduationCap
               size={17}
               color={activeTab === 'academic' ? themeColors.text.inverse : themeColors.text.muted}
               weight="duotone"
             />
-            <Text style={[styles.tabText, activeTab === 'academic' && styles.tabTextActive]}>
-              Kuliah ({assignments.length + exams.length})
+            <Text
+              style={[styles.mainTabText, activeTab === 'academic' && styles.mainTabTextActive]}
+              numberOfLines={1}
+            >
+              Kuliah
             </Text>
+            {assignments.length + exams.length > 0 && (
+              <View style={[styles.tabBadge, activeTab === 'academic' && styles.tabBadgeActive]}>
+                <Text style={[styles.tabBadgeText, activeTab === 'academic' && styles.tabBadgeTextActive]}>
+                  {assignments.length + exams.length}
+                </Text>
+              </View>
+            )}
           </Pressable>
 
-          {/* Tab 2: To-Do & Subtasks */}
+          {/* Tab 2: To-Do */}
           <Pressable
             onPress={() => setActiveTab('tasks')}
-            style={[styles.tabItem, activeTab === 'tasks' && styles.tabItemActive]}
+            style={[styles.mainTabItem, activeTab === 'tasks' && styles.mainTabItemActive]}
           >
             <CheckSquareOffset
               size={17}
               color={activeTab === 'tasks' ? themeColors.text.inverse : themeColors.text.muted}
               weight="duotone"
             />
-            <Text style={[styles.tabText, activeTab === 'tasks' && styles.tabTextActive]}>
-              To-Do ({tasks.length})
+            <Text
+              style={[styles.mainTabText, activeTab === 'tasks' && styles.mainTabTextActive]}
+              numberOfLines={1}
+            >
+              To-Do
             </Text>
+            {tasks.length > 0 && (
+              <View style={[styles.tabBadge, activeTab === 'tasks' && styles.tabBadgeActive]}>
+                <Text style={[styles.tabBadgeText, activeTab === 'tasks' && styles.tabBadgeTextActive]}>
+                  {tasks.length}
+                </Text>
+              </View>
+            )}
           </Pressable>
 
-          {/* Tab 3: Fokus Pomodoro */}
+          {/* Tab 3: Fokus */}
           <Pressable
             onPress={() => setActiveTab('focus')}
-            style={[styles.tabItem, activeTab === 'focus' && styles.tabItemActive]}
+            style={[styles.mainTabItem, activeTab === 'focus' && styles.mainTabItemActive]}
           >
             <Timer
               size={17}
               color={activeTab === 'focus' ? themeColors.text.inverse : themeColors.text.muted}
               weight="duotone"
             />
-            <Text style={[styles.tabText, activeTab === 'focus' && styles.tabTextActive]}>
-              Fokus Timer
+            <Text
+              style={[styles.mainTabText, activeTab === 'focus' && styles.mainTabTextActive]}
+              numberOfLines={1}
+            >
+              Fokus
             </Text>
           </Pressable>
 
           {/* Tab 4: Target & Saran AI */}
           <Pressable
             onPress={() => setActiveTab('goals')}
-            style={[styles.tabItem, activeTab === 'goals' && styles.tabItemActive]}
+            style={[styles.mainTabItem, activeTab === 'goals' && styles.mainTabItemActive]}
           >
             <Target
               size={17}
               color={activeTab === 'goals' ? themeColors.text.inverse : themeColors.text.muted}
               weight="duotone"
             />
-            <Text style={[styles.tabText, activeTab === 'goals' && styles.tabTextActive]}>
-              Target ({goals.length})
+            <Text
+              style={[styles.mainTabText, activeTab === 'goals' && styles.mainTabTextActive]}
+              numberOfLines={1}
+            >
+              Target
             </Text>
+            {goals.length > 0 && (
+              <View style={[styles.tabBadge, activeTab === 'goals' && styles.tabBadgeActive]}>
+                <Text style={[styles.tabBadgeText, activeTab === 'goals' && styles.tabBadgeTextActive]}>
+                  {goals.length}
+                </Text>
+              </View>
+            )}
           </Pressable>
-        </ScrollView>
+        </View>
       </View>
 
-      {/* Sub-Filters per Active Tab */}
+      {/* Streamlined Sub-Filters (Anti-Stacking) */}
       {activeTab === 'academic' && (
-        <View style={styles.academicSubFilterSection}>
-          {/* Sub Tab: Tugas vs Ujian */}
-          <View style={styles.subTabRow}>
+        <View style={styles.compactFilterRow}>
+          {/* Segment: Tugas vs Ujian */}
+          <View style={styles.compactSegmentGroup}>
             <Pressable
               onPress={() => setAcademicSubTab('assignments')}
               style={[
-                styles.subTabBtn,
-                academicSubTab === 'assignments' && styles.subTabBtnActive,
+                styles.compactSegmentBtn,
+                academicSubTab === 'assignments' && styles.compactSegmentBtnActive,
               ]}
             >
               <Text
                 style={[
-                  styles.subTabText,
-                  academicSubTab === 'assignments' && styles.subTabTextActive,
+                  styles.compactSegmentText,
+                  academicSubTab === 'assignments' && styles.compactSegmentTextActive,
                 ]}
               >
-                Tugas Kuliah ({assignments.length})
+                Tugas ({assignments.length})
               </Text>
             </Pressable>
             <Pressable
               onPress={() => setAcademicSubTab('exams')}
-              style={[styles.subTabBtn, academicSubTab === 'exams' && styles.subTabBtnActive]}
+              style={[styles.compactSegmentBtn, academicSubTab === 'exams' && styles.compactSegmentBtnActive]}
             >
               <Text
                 style={[
-                  styles.subTabText,
-                  academicSubTab === 'exams' && styles.subTabTextActive,
+                  styles.compactSegmentText,
+                  academicSubTab === 'exams' && styles.compactSegmentTextActive,
                 ]}
               >
-                Jadwal Ujian ({exams.length})
+                Ujian ({exams.length})
               </Text>
             </Pressable>
           </View>
 
-          {/* Sub filter status for assignments */}
+          {/* Compact status chips */}
           {academicSubTab === 'assignments' && (
-            <View style={styles.filterChipRow}>
+            <View style={styles.microChipRow}>
               {[
                 { key: 'all', label: 'Semua' },
-                { key: 'in_progress', label: 'Berjalan' },
+                { key: 'in_progress', label: 'Aktif' },
                 { key: 'completed', label: 'Selesai' },
               ].map((item) => {
                 const isSelected = assignmentFilter === item.key;
@@ -426,12 +469,12 @@ export default function TasksScreen() {
                   <Pressable
                     key={item.key}
                     onPress={() => setAssignmentFilter(item.key as AssignmentFilter)}
-                    style={[styles.filterChip, isSelected && styles.filterChipActive]}
+                    style={[styles.microChip, isSelected && styles.microChipActive]}
                   >
                     <Text
                       style={[
-                        styles.filterChipText,
-                        isSelected && styles.filterChipTextActive,
+                        styles.microChipText,
+                        isSelected && styles.microChipTextActive,
                       ]}
                     >
                       {item.label}
@@ -445,7 +488,7 @@ export default function TasksScreen() {
       )}
 
       {activeTab === 'tasks' && (
-        <View style={styles.filterChipRow}>
+        <View style={styles.taskFilterRow}>
           {[
             { key: 'all', label: 'Semua' },
             { key: 'high_priority', label: 'Prioritas Tinggi' },
@@ -583,8 +626,17 @@ export default function TasksScreen() {
             {/* Interactive Timer & Pomodoro Engine */}
             <FocusTimerWidget />
 
-            {/* Study Session Summary Bento */}
-            {sessionSummary && <StudySessionSummaryCard summary={sessionSummary} />}
+            {/* Always-visible Study Session Summary Bento */}
+            <StudySessionSummaryCard
+              summary={
+                sessionSummary || {
+                  today_minutes: 0,
+                  week_minutes: 0,
+                  total_sessions: 0,
+                  by_course: [],
+                }
+              }
+            />
 
             {/* Recent Session History */}
             <View style={styles.recentSessionsSection}>
@@ -607,7 +659,7 @@ export default function TasksScreen() {
                     <View key={session.id} style={styles.sessionHistoryRow}>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.sessionCourseText}>
-                          {sessionCourse ? sessionCourse.name : session.type.toUpperCase()}
+                          {sessionCourse ? sessionCourse.name : (session.type || 'FOKUS').toUpperCase()}
                         </Text>
                         <Text style={styles.sessionDateText}>{formattedDate}</Text>
                         {session.notes ? (
@@ -633,20 +685,89 @@ export default function TasksScreen() {
                 })
               ) : (
                 <Text style={styles.emptySessionText}>
-                  Belum ada rekaman sesi belajar. Gunakan tombol simpan di atas setelah fokus!
+                  Belum ada rekaman sesi belajar. Jalankan timer di atas dan simpan sesi Anda!
                 </Text>
               )}
             </View>
           </View>
         )}
 
-        {/* TAB 4: GOALS & SMART STUDY PLANNER */}
+        {/* TAB 4: GOALS & SMART STUDY PLANNER AI */}
         {activeTab === 'goals' && (
           <View style={styles.goalsContainer}>
+            {/* Prominent Smart Study Planner AI Section */}
+            <View style={styles.plannerHeroCard}>
+              <View style={styles.plannerHeroHeader}>
+                <View style={styles.plannerHeroTitleRow}>
+                  <View style={styles.aiSparkleBadge}>
+                    <Sparkle size={15} color={themeColors.brand.primary} weight="fill" />
+                  </View>
+                  <View>
+                    <Text style={styles.plannerHeroTitle}>Rencana Belajar Cerdas (AI)</Text>
+                    <Text style={styles.plannerHeroSubtitle}>
+                      {plannerSuggestion?.total_study_hours
+                        ? `${plannerSuggestion.total_study_hours} jam target • Terbebas bentrok kuliah`
+                        : 'Pemetaan slot belajar cerdas sesuai jadwal kuliah'}
+                    </Text>
+                  </View>
+                </View>
+
+                <Pressable
+                  onPress={() => fetchStudyPlanSuggestions(undefined, true)}
+                  style={styles.refreshPlannerBtn}
+                  hitSlop={8}
+                >
+                  <ArrowClockwise size={13} color={themeColors.brand.primary} weight="bold" />
+                  <Text style={styles.refreshPlannerText}>
+                    {isPlannerLoading ? 'Memuat...' : 'Segarkan'}
+                  </Text>
+                </Pressable>
+              </View>
+
+              {isPlannerLoading ? (
+                <AssignmentCardSkeleton />
+              ) : plannerSuggestion && plannerSuggestion.schedule.length > 0 ? (
+                <View style={styles.plannerCardsList}>
+                  {plannerSuggestion.schedule.map((item, idx) => (
+                    <StudyPlannerCard
+                      key={idx}
+                      item={item}
+                      onStartSession={handleStartSessionFromPlanner}
+                    />
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.plannerEmptyBox}>
+                  <Sparkle size={24} color={themeColors.brand.primary} weight="duotone" />
+                  <Text style={styles.plannerEmptyTitle}>Aktifkan Rekomendasi Belajar</Text>
+                  <Text style={styles.plannerEmptyText}>
+                    UniDemic menganalisis jam luang di luar kelas untuk menyarankan slot fokus terbaik.
+                  </Text>
+                  <Pressable
+                    onPress={() => fetchStudyPlanSuggestions(undefined, true)}
+                    style={styles.generatePlannerBtn}
+                  >
+                    <Sparkle size={14} color={themeColors.text.inverse} weight="fill" />
+                    <Text style={styles.generatePlannerBtnText}>Buat Rekomendasi Sekarang</Text>
+                  </Pressable>
+                </View>
+              )}
+            </View>
+
             {/* Goals Tracker Header */}
-            <View style={styles.sectionHeaderRow}>
-              <Target size={18} color={themeColors.brand.primary} weight="duotone" />
-              <Text style={styles.sectionTitle}>Target Belajar ({goals.length})</Text>
+            <View style={styles.goalsSectionHeader}>
+              <View style={styles.sectionHeaderRow}>
+                <Target size={18} color={themeColors.brand.primary} weight="duotone" />
+                <Text style={styles.sectionTitle}>Target Belajar Terukur ({goals.length})</Text>
+              </View>
+              <Pressable
+                onPress={() => setIsGoalModalOpen(true)}
+                style={styles.miniAddGoalBtn}
+                hitSlop={8}
+              >
+                <Plus size={13} color={themeColors.brand.primary} weight="bold" />
+                <Text style={styles.miniAddGoalText}>Tambah Target</Text>
+              </Pressable>
             </View>
 
             {isGoalsLoading && goals.length === 0 ? (
@@ -664,52 +785,11 @@ export default function TasksScreen() {
               <EmptyState
                 icon={<Target size={32} color={themeColors.brand.primary} weight="duotone" />}
                 title="Belum Ada Target"
-                description="Tetapkan target kuantitatif seperti jumlah jam belajar atau bab tugas."
-                actionLabel="Buat Target"
+                description="Tetapkan target kuantitatif seperti jumlah jam belajar, bab buku, atau tugas."
+                actionLabel="Tetapkan Target"
                 onAction={() => setIsGoalModalOpen(true)}
               />
             )}
-
-            {/* Smart Study Planner AI Recommendations */}
-            <View style={styles.plannerSection}>
-              <View style={styles.plannerHeaderRow}>
-                <View style={styles.sectionHeaderRow}>
-                  <Sparkle size={18} color={themeColors.brand.accent} weight="fill" />
-                  <Text style={styles.sectionTitle}>Rekomendasi Waktu Belajar</Text>
-                </View>
-                <Pressable
-                  onPress={() => fetchStudyPlanSuggestions(undefined, true)}
-                  style={styles.refreshPlannerBtn}
-                  hitSlop={8}
-                >
-                  <ArrowClockwise size={14} color={themeColors.brand.primary} weight="bold" />
-                  <Text style={styles.refreshPlannerText}>Segarkan</Text>
-                </Pressable>
-              </View>
-
-              <Text style={styles.plannerDescription}>
-                Algoritma UniDemic menganalisis jadwal kuliah, tenggat tugas, dan ujian untuk
-                menemukan slot belajar optimal tanpa bentrok.
-              </Text>
-
-              {isPlannerLoading ? (
-                <AssignmentCardSkeleton />
-              ) : plannerSuggestion && plannerSuggestion.schedule.length > 0 ? (
-                plannerSuggestion.schedule.map((item, idx) => (
-                  <StudyPlannerCard
-                    key={idx}
-                    item={item}
-                    onStartSession={handleStartSessionFromPlanner}
-                  />
-                ))
-              ) : (
-                <View style={styles.plannerEmptyBox}>
-                  <Text style={styles.plannerEmptyText}>
-                    Tidak ada jadwal mendesak atau semua slot belajar saat ini sudah terpenuhi.
-                  </Text>
-                </View>
-              )}
-            </View>
           </View>
         )}
       </ScrollView>
@@ -876,12 +956,12 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: spacing.xl,
-      paddingTop: spacing.sm,
-      paddingBottom: spacing.sm,
+      paddingTop: spacing.xs,
+      paddingBottom: spacing.xs,
     },
     title: {
       fontFamily: typography.display.fontFamily,
-      fontSize: 22,
+      fontSize: 21,
       color: colors.text.primary,
     },
     subtitle: {
@@ -896,7 +976,7 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       gap: 4,
       backgroundColor: colors.brand.primary,
       paddingHorizontal: spacing.md,
-      paddingVertical: 8,
+      paddingVertical: 7,
       borderRadius: radius.md,
     },
     addButtonText: {
@@ -906,77 +986,123 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       fontWeight: '700',
     },
     mainTabContainer: {
+      paddingHorizontal: spacing.xl,
       marginVertical: spacing.xs,
     },
-    tabBarScroll: {
-      paddingHorizontal: spacing.xl,
-      gap: spacing.xs,
-      paddingVertical: 4,
+    mainTabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.lg,
+      padding: 3,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+      gap: 4,
     },
-    tabItem: {
+    mainTabItem: {
+      flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
-      paddingHorizontal: 14,
+      justifyContent: 'center',
+      gap: 4,
       paddingVertical: 8,
+      borderRadius: radius.md,
+    },
+    mainTabItemActive: {
+      backgroundColor: colors.brand.primary,
+    },
+    mainTabText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    mainTabTextActive: {
+      color: colors.text.inverse,
+      fontWeight: '700',
+    },
+    tabBadge: {
+      backgroundColor: colors.bg.overlay,
+      paddingHorizontal: 5,
+      paddingVertical: 1,
+      borderRadius: radius.full,
+    },
+    tabBadgeActive: {
+      backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    },
+    tabBadgeText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 9,
+      color: colors.text.muted,
+      fontWeight: '700',
+    },
+    tabBadgeTextActive: {
+      color: colors.text.inverse,
+    },
+    compactFilterRow: {
+      paddingHorizontal: spacing.xl,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.xs,
+      gap: spacing.sm,
+    },
+    compactSegmentGroup: {
+      flexDirection: 'row',
+      backgroundColor: colors.bg.surface,
+      borderRadius: radius.md,
+      padding: 2,
+      borderWidth: 1,
+      borderColor: colors.border.subtle,
+    },
+    compactSegmentBtn: {
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: radius.sm,
+    },
+    compactSegmentBtnActive: {
+      backgroundColor: colors.bg.elevated,
+    },
+    compactSegmentText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+    },
+    compactSegmentTextActive: {
+      color: colors.text.primary,
+      fontWeight: '700',
+    },
+    microChipRow: {
+      flexDirection: 'row',
+      gap: 4,
+    },
+    microChip: {
+      paddingHorizontal: 8,
+      paddingVertical: 4,
       borderRadius: radius.full,
       backgroundColor: colors.bg.surface,
       borderWidth: 1,
       borderColor: colors.border.subtle,
     },
-    tabItemActive: {
-      backgroundColor: colors.brand.primary,
-      borderColor: colors.brand.primary,
+    microChipActive: {
+      backgroundColor: colors.bg.overlay,
+      borderColor: colors.brand.secondary,
     },
-    tabText: {
+    microChipText: {
       fontFamily: typography.label.fontFamily,
-      fontSize: 12,
+      fontSize: 10,
       color: colors.text.muted,
     },
-    tabTextActive: {
-      color: colors.text.inverse,
-      fontWeight: '700',
+    microChipTextActive: {
+      color: colors.brand.secondary,
+      fontWeight: '600',
     },
-    academicSubFilterSection: {
-      paddingHorizontal: spacing.xl,
-      gap: spacing.xs,
-      marginBottom: spacing.xs,
-    },
-    subTabRow: {
-      flexDirection: 'row',
-      backgroundColor: colors.bg.surface,
-      borderRadius: radius.md,
-      padding: 3,
-      borderWidth: 1,
-      borderColor: colors.border.subtle,
-    },
-    subTabBtn: {
-      flex: 1,
-      paddingVertical: 7,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: radius.sm,
-    },
-    subTabBtnActive: {
-      backgroundColor: colors.bg.elevated,
-    },
-    subTabText: {
-      fontFamily: typography.label.fontFamily,
-      fontSize: 11,
-      color: colors.text.muted,
-    },
-    subTabTextActive: {
-      color: colors.text.primary,
-      fontWeight: '700',
-    },
-    filterChipRow: {
+    taskFilterRow: {
       flexDirection: 'row',
       paddingHorizontal: spacing.xl,
       gap: spacing.xs,
       marginBottom: spacing.xs,
     },
     filterChip: {
-      paddingHorizontal: 12,
+      paddingHorizontal: 11,
       paddingVertical: 5,
       borderRadius: radius.full,
       backgroundColor: colors.bg.surface,
@@ -999,11 +1125,11 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
     listContent: {
       paddingHorizontal: spacing.xl,
       paddingTop: spacing.xs,
-      paddingBottom: 120,
+      paddingBottom: 130, // breathing room from bottom nav & floating elements
       gap: spacing.sm,
     },
     focusContainer: {
-      gap: spacing.lg,
+      gap: spacing.md,
     },
     recentSessionsSection: {
       backgroundColor: colors.bg.surface,
@@ -1070,28 +1196,73 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       paddingVertical: spacing.md,
     },
     goalsContainer: {
-      gap: spacing.lg,
+      gap: spacing.md,
     },
-    plannerSection: {
+    goalsSectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: spacing.sm,
+    },
+    miniAddGoalBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: radius.sm,
+      backgroundColor: 'rgba(107, 127, 215, 0.15)',
+    },
+    miniAddGoalText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.brand.primary,
+      fontWeight: '600',
+    },
+    plannerHeroCard: {
       backgroundColor: colors.bg.surface,
       borderRadius: radius.lg,
       padding: spacing.md,
       borderWidth: 1,
       borderColor: colors.border.subtle,
       gap: spacing.sm,
-      marginTop: spacing.md,
     },
-    plannerHeaderRow: {
+    plannerHeroHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+    },
+    plannerHeroTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      flex: 1,
+    },
+    aiSparkleBadge: {
+      width: 28,
+      height: 28,
+      borderRadius: radius.full,
+      backgroundColor: 'rgba(107, 127, 215, 0.2)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    plannerHeroTitle: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 13,
+      color: colors.text.primary,
+    },
+    plannerHeroSubtitle: {
+      fontFamily: typography.bodySmall.fontFamily,
+      fontSize: 11,
+      color: colors.text.muted,
+      marginTop: 1,
     },
     refreshPlannerBtn: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 4,
       backgroundColor: 'rgba(107, 127, 215, 0.15)',
-      paddingHorizontal: 10,
+      paddingHorizontal: 9,
       paddingVertical: 5,
       borderRadius: radius.sm,
     },
@@ -1101,23 +1272,46 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       color: colors.brand.primary,
       fontWeight: '600',
     },
-    plannerDescription: {
-      fontFamily: typography.bodySmall.fontFamily,
-      fontSize: 12,
-      color: colors.text.secondary,
-      lineHeight: 17,
+    plannerCardsList: {
+      gap: spacing.sm,
+      marginTop: spacing.xs,
     },
     plannerEmptyBox: {
       backgroundColor: colors.bg.overlay,
       borderRadius: radius.md,
       padding: spacing.md,
       alignItems: 'center',
+      gap: spacing.xs,
+      marginTop: spacing.xs,
+    },
+    plannerEmptyTitle: {
+      fontFamily: typography.h3.fontFamily,
+      fontSize: 13,
+      color: colors.text.primary,
+      marginTop: 4,
     },
     plannerEmptyText: {
       fontFamily: typography.bodySmall.fontFamily,
-      fontSize: 12,
-      color: colors.text.muted,
+      fontSize: 11,
+      color: colors.text.secondary,
       textAlign: 'center',
+      lineHeight: 16,
+    },
+    generatePlannerBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: colors.brand.primary,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: radius.md,
+      marginTop: 6,
+    },
+    generatePlannerBtnText: {
+      fontFamily: typography.label.fontFamily,
+      fontSize: 11,
+      color: colors.text.inverse,
+      fontWeight: '700',
     },
     modalForm: {
       gap: spacing.md,

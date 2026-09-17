@@ -16,8 +16,12 @@ All contributors are expected to uphold our [CODE_OF_CONDUCT.en.md](CODE_OF_COND
 
 UniDemic follows a feature-branch workflow:
 
-- **`main`**: Stable production branch. Only receives merges from verified official release tags.
+- **`main`**: Stable production branch. Only receives merges from verified official release tags via approved Pull Requests.
 - **`develop`**: Main integration branch (*default development branch*). All feature PRs target this branch.
+- **🔒 Protected Branches Rule (NO Direct Push / NO Local Direct Merge)**:
+  - **Direct push or local merge to `develop` and `main` is strictly prohibited.**
+  - Every new task MUST be developed on an isolated feature branch.
+  - Integration into `develop` MUST go through a **GitHub Pull Request (PR)** to guarantee audit trail, peer reviews, and automated CI checks.
 - **Feature & Fix Branch Naming Pattern**:
   - `feature/backend/<feature-name>` — for backend API development.
   - `feature/mobile/<feature-name>` — for React Native mobile development.
@@ -137,6 +141,18 @@ Before submitting a Pull Request, verify that all local quality gates pass:
    ```
 2. Make your changes, write tests, and update documentation.
 3. Commit with Conventional Commits in English.
-4. Push your branch to GitHub and open a Pull Request targeting `develop`.
-5. Complete the PR template (`.github/pull_request_template.md`).
-6. Await review and verify that GitHub Actions CI checks are green.
+4. Push your feature branch to remote GitHub:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+5. Open a Pull Request targeting `develop`:
+   ```bash
+   gh pr create --base develop --head feature/your-feature-name --title "feat(scope): short description" --body "Overview of changes"
+   ```
+   *Or open the PR through GitHub web UI.*
+6. Ensure all automated quality checks (CI / Tests / Typecheck) pass.
+7. Merge the PR into `develop` via GitHub / GitHub CLI:
+   ```bash
+   gh pr merge --merge --delete-branch
+   ```
+   *(IMPORTANT: Never merge locally and direct push to develop).*

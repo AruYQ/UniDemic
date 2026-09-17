@@ -16,8 +16,12 @@ Seluruh kontributor diharapkan mematuhi [Pedoman Perilaku Komunitas (CODE_OF_CON
 
 UniDemic menggunakan alur kerja cabang berbasis fitur (*feature-branch workflow*):
 
-- **`main`**: Cabang produksi stabil. Hanya menerima penggabungan (*merge*) dari tag rilis resmi yang terverifikasi.
-- **`develop`**: Cabang integrasi utama (*default development branch*). Semua cabang fitur bermuara dan diajukan ke cabang ini.
+- **`main`**: Cabang produksi stabil. Hanya menerima penggabungan (*merge*) dari tag rilis resmi yang diajukan melalui Pull Request yang disetujui.
+- **`develop`**: Cabang integrasi utama (*default development branch*). Semua cabang fitur bermuara dan diajukan ke cabang ini melalui Pull Request.
+- **🔒 Aturan Cabang Terproteksi (DILARANG Direct Push / Direct Merge Lokal)**:
+  - **Dilarang keras melakukan `git push origin develop` atau `git push origin main` secara langsung dari lokal.**
+  - Setiap pekerjaan baru WAJIB dibuat pada cabang fitur terpisah.
+  - Penggabungan ke `develop` WAJIB melalui proses **GitHub Pull Request (PR)** agar tersedia audit trail, tinjauan rekan pengembang, dan pengujian otomatis (CI).
 - **Pola Penamaan Cabang Fitur & Perbaikan**:
   - `feature/backend/<nama-fitur>` — untuk pengerjaan backend API.
   - `feature/mobile/<nama-fitur>` — untuk pengerjaan aplikasi React Native.
@@ -137,6 +141,18 @@ Sebelum membuat Pull Request, pastikan seluruh gerbang kualitas lokal telah terp
    ```
 2. Lakukan perubahan kode, lengkapi pengujian, dan perbarui dokumen terkait.
 3. Komit perubahan menggunakan format Conventional Commits berbahasa Inggris.
-4. Unggah cabang ke GitHub dan buka Pull Request dengan target cabang `develop`.
-5. Lengkapi formulir deskripsi PR sesuai template yang tersedia (`.github/pull_request_template.md`).
-6. Tunggu proses tinjauan kode dan pastikan alur kerja CI GitHub Actions berhasil tanpa galat.
+4. Unggah cabang fitur ke remote GitHub:
+   ```bash
+   git push origin feature/nama-fitur-anda
+   ```
+5. Buka Pull Request dengan target cabang `develop`:
+   ```bash
+   gh pr create --base develop --head feature/nama-fitur-anda --title "feat(scope): short description" --body "Overview of changes"
+   ```
+   *Atau buat PR melalui antarmuka web GitHub.*
+6. Pastikan seluruh automated check (CI / Tests / Typecheck) berwarna hijau.
+7. Gabungkan (Merge) PR ke `develop` melalui GitHub / GitHub CLI:
+   ```bash
+   gh pr merge --merge --delete-branch
+   ```
+   *(PENTING: Dilarang melakukan merge manual lokal dan direct push ke develop).*

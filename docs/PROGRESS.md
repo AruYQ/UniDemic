@@ -176,12 +176,12 @@
 
 | Task | Status | Catatan |
 |------|--------|---------|
-| Task & Subtask management UI | `[ ]` | Pending mobile implementation |
-| Study Session (Focus Timer / Pomodoro) UI | `[ ]` | Pending mobile implementation |
-| Goals tracking UI | `[ ]` | Pending mobile implementation |
-| Smart Study Planner recommendation UI | `[ ]` | Pending mobile implementation |
+| Task & Subtask management UI | `[x]` | `TaskItemCard`, auto progress, inline subtasks, priority badges, swipe delete |
+| Study Session (Focus Timer / Pomodoro) UI | `[x]` | `FocusTimerWidget`, 25m/5m/15m/stopwatch, session summary, course link |
+| Goals tracking UI | `[x]` | `GoalCard`, target vs realisasi, quick increment (+1), modal target |
+| Smart Study Planner recommendation UI | `[x]` | `StudyPlannerCard`, AI recommendation list, slot start action |
 
-### ⏳ Checkpoint 4 Verification
+### ✅ Checkpoint 4 Verification
 
 | Item | Status | Verified by | Tanggal |
 |------|--------|-------------|---------|
@@ -190,7 +190,7 @@
 | Focus Timer & Study Session Aggregation | `[x]` | Dev A (Summary metrics verified) | 2026-09-16 |
 | Goal auto-completion on target reached | `[x]` | Dev A (Goal model hook verified) | 2026-09-16 |
 | Smart Study Planner Conflict Resolution | `[x]` | Dev A (Schedule overlap test verified) | 2026-09-16 |
-| Mobile Productivity Screen & Gestures | `[ ]` | Dev B | - |
+| Mobile Productivity Screen & Gestures | `[x]` | Dev B (React Native + Expo) | 2026-09-17 |
 | User Acceptance & E2E Validation | `[ ]` | User | - |
 
 ---

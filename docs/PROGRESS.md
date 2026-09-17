@@ -10,7 +10,7 @@
 | Info | Detail |
 |------|--------|
 | **Repo** | [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic) |
-| **Phase aktif** | Phase 3 — Academic Tracking (Completed & Verified) |
+| **Phase aktif** | Phase 4 — Productivity (Completed & Verified) |
 | **Dev A (Backend)** | rekis-0103 |
 | **Dev B (Frontend)** | AruYQ |
 | **Mulai** | 2026-09-08 |
@@ -26,7 +26,7 @@
 | 1 | Foundation | `[x]` | `[x]` | `[x]` | `[x]` |
 | 2 | Academic Core | `[x]` | `[x]` | `[x]` | `[x]` |
 | 3 | Academic Tracking | `[x]` | `[x]` | `[x]` | `[x]` |
-| 4 | Productivity | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
+| 4 | Productivity | `[x]` | `[x]` | `[x]` | `[x]` |
 | 5 | Learning | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 6 | Communication | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 7 | Collaboration | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
@@ -191,7 +191,7 @@
 | Goal auto-completion on target reached | `[x]` | Dev A (Goal model hook verified) | 2026-09-16 |
 | Smart Study Planner Conflict Resolution | `[x]` | Dev A (Schedule overlap test verified) | 2026-09-16 |
 | Mobile Productivity Screen & Gestures | `[x]` | Dev B (React Native + Expo) | 2026-09-17 |
-| User Acceptance & E2E Validation | `[ ]` | User | - |
+| User Acceptance & E2E Validation | `[x]` | User & Dev B (Live device test verified) | 2026-09-17 |
 
 ---
 
@@ -225,4 +225,4 @@
 
 ---
 
-*Terakhir diupdate: 2026-09-16 | Updated by: Dev A (rekis-0103)*
+*Terakhir diupdate: 2026-09-17 | Updated by: Dev B (AruYQ)*

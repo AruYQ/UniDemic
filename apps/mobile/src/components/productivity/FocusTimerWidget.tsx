@@ -21,6 +21,8 @@ import { useProductivityStore, TimerMode } from '@/store/useProductivityStore';
 import { useAcademicStore } from '@/store/useAcademicStore';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { useUniTheme } from '@/store/useThemeStore';
+import { formatApiError } from '@/lib/api';
+
 
 /*
 <vibe_check>
@@ -110,7 +112,7 @@ export const FocusTimerWidget: React.FC = () => {
       setNotes('');
       resetTimer();
     } catch (err: any) {
-      Alert.alert('Gagal', err?.response?.data?.message || 'Gagal menyimpan sesi belajar.');
+      Alert.alert('Gagal', formatApiError(err, 'Gagal menyimpan sesi belajar.'));
     } finally {
       setIsSaving(false);
     }

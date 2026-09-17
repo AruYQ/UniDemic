@@ -59,4 +59,25 @@ api.interceptors.response.use(
   }
 );
 
+/**
+ * Format and sanitize API error messages, preventing raw SQL / internal database
+ * exceptions from leaking into user-facing alerts or toasts.
+ */
+export function formatApiError(err: any, fallback = 'Terjadi kesalahan pada sistem. Silakan coba lagi.'): string {
+  const msg = err?.response?.data?.message || err?.message;
+  if (!msg) return fallback;
+  if (
+    typeof msg === 'string' &&
+    (msg.includes('SQLSTATE') ||
+      msg.includes('relation "') ||
+      msg.includes('syntax error') ||
+      msg.includes('Base table or view not found') ||
+      msg.includes('Undefined table'))
+  ) {
+    return 'Terjadi kendala pada sinkronisasi server database. Silakan coba lagi.';
+  }
+  return msg;
+}
+
 export default api;
+

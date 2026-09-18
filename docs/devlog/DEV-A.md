@@ -334,5 +334,56 @@ Setiap entry menggunakan format ini:
 - `php artisan test` (seluruh sistem): 92 passed (334 assertions, 100% Pass).
 - `npx tsc --noEmit` di `apps/mobile`: 0 error (100% Pass).
 
+---
+
+### [2026-09-18] — Phase 5 Learning Backend API Implementation
+
+**Branch**: `feature/backend/learning`
+**Status**: Selesai & Terverifikasi (107 Feature Tests Pass) ✅
+
+**Yang dikerjakan:**
+- **Shared Types ([packages/types/src/index.ts](file:///c:/proj/UniDemic/packages/types/src/index.ts))**:
+  - Menambahkan tipe dan antarmuka TypeScript lengkap untuk modul Pembelajaran (Learning): `MaterialType`, `Material`, `CreateMaterialPayload`, `UpdateMaterialPayload`, `Note`, `CreateNotePayload`, `UpdateNotePayload`, `FlashcardDeck`, `Flashcard`, `CreateFlashcardDeckPayload`, `UpdateFlashcardDeckPayload`, `CreateFlashcardPayload`, `UpdateFlashcardPayload`, `ReviewFlashcardPayload`, `QuizQuestionType`, `QuizQuestion`, `CreateQuizQuestionPayload`, `UpdateQuizQuestionPayload`, `Quiz`, `QuizAttempt`, `CreateQuizPayload`, `UpdateQuizPayload`, `SubmitQuizAttemptPayload`.
+- **Database Migrations (`apps/api/database/migrations/`)**:
+  - `2026_09_18_000001_create_materials_table.php`: tabel `materials` (course_id, title, type, file_path, file_size, url, description).
+  - `2026_09_18_000002_create_notes_table.php`: tabel `notes` (user_id, course_id, title, content, tags, is_pinned, color).
+  - `2026_09_18_000003_create_note_links_table.php`: tabel pivot `note_links` untuk bidirectional/networked notes (note_id, linked_note_id).
+  - `2026_09_18_000004_create_flashcards_tables.php`: tabel `flashcard_decks` dan `flashcards` (deck_id, question, answer, ease_factor, interval, repetitions, next_review_at, last_reviewed_at).
+  - `2026_09_18_000005_create_quizzes_tables.php`: tabel `quizzes`, `quiz_questions`, dan `quiz_attempts` (user_id, quiz_id, score, total_questions, correct_answers, answers, completed_at).
+- **Eloquent Models (`apps/api/app/Models/`)**:
+  - `Material`: relasi ke `Course`.
+  - `Note`: relasi ke `User`, `Course`, `linkedNotes`, dan `backlinks` via pivot `note_links`.
+  - `FlashcardDeck`: relasi ke `User`, `Course`, `cards`, dan query `dueCards`.
+  - `Flashcard`: algoritma Spaced Repetition **SuperMemo SM-2** pada method `applyReview(int $rating)` (Rating 1: Again, 2: Hard, 3: Good, 4: Easy; EF calculation dengan threshold min 1.30; recalculate interval & next review date).
+  - `Quiz`, `QuizQuestion`, `QuizAttempt`: relasi terstruktur untuk bank soal latihan dan riwayat pengerjaan quiz.
+  - Penambahan relasi di `User` (`notes`, `flashcardDecks`, `quizzes`, `quizAttempts`) dan `Course` (`materials`, `notes`, `flashcardDecks`, `quizzes`).
+- **FormRequests & API Resources (`apps/api/app/Http/Requests/Learning/` & `Resources/`)**:
+  - FormRequest: `StoreMaterialRequest`, `UpdateMaterialRequest`, `UploadMaterialFileRequest`, `StoreNoteRequest`, `UpdateNoteRequest`, `StoreFlashcardDeckRequest`, `UpdateFlashcardDeckRequest`, `StoreFlashcardRequest`, `UpdateFlashcardRequest`, `ReviewFlashcardRequest`, `StoreQuizRequest`, `UpdateQuizRequest`, `StoreQuizQuestionRequest`, `UpdateQuizQuestionRequest`, `SubmitQuizAttemptRequest`.
+  - API Resources: `MaterialResource`, `NoteResource`, `FlashcardDeckResource`, `FlashcardResource`, `QuizResource`, `QuizQuestionResource`, `QuizAttemptResource`.
+- **Controllers & API Endpoints (`apps/api/app/Http/Controllers/Api/`)**:
+  - `MaterialController`: Upload materi kuliah, lampiran file mandiri via disk public/MinIO, link referensi eksternal, dan filter mata kuliah.
+  - `NoteController`: Catatan Markdown, filtering tag / status pinned / search keyword, serta endpoint link & unlink antar-catatan (`/notes/{id}/link/{target_id}`).
+  - `FlashcardController`: CRUD deck & cards, endpoint kartu yang jatuh tempo (`/flashcard-decks/{id}/due-cards`), serta pencatatan review SM-2 (`/flashcards/{id}/review`).
+  - `QuizController`: Pembuatan quiz, bank pertanyaan (multiple choice, true/false, short answer), submit pengerjaan dengan auto-grading skor 0-100 (`/quizzes/{id}/attempt`), dan riwayat attempt.
+- **Pendaftaran Rute API ([routes/api.php](file:///c:/proj/UniDemic/apps/api/routes/api.php))**:
+  - Mendaftarkan endpoint Phase 5 di bawah middleware `auth:sanctum` untuk `/api/...` dan `/api/v1/...`.
+- **Feature Test Suite (`apps/api/tests/Feature/Learning/`)**:
+  - `MaterialTest.php`: 5 tests pass (upload file, link resource, CRUD, tenant isolation).
+  - `NoteTest.php`: 4 tests pass (Markdown note creation, keyword search, tag filtering, note linking/unlinking).
+  - `FlashcardTest.php`: 3 tests pass (deck creation, SuperMemo SM-2 interval progression & repetition reset).
+  - `QuizTest.php`: 3 tests pass (quiz & questions creation, attempt grading, score percentage calculation).
+  - Total test suite backend: 107 tests pass (503 assertions, 100% Pass).
+
+**Keputusan teknis:**
+- **SM-2 Algorithm Integration**: Mengimplementasikan formula resmi SuperMemo SM-2 langsung pada level model (`Flashcard::applyReview`), memetakan rating 1-4 ke kualitas respon 1-5, dan menghitung ease factor serta penjadwalan tanggal `next_review_at` secara akurat.
+- **Bidirectional Note Linking**: Menggunakan pivot `note_links` berorientasi graf sehingga sebuah catatan dapat memuat relasi catatan keluar (`linkedNotes`) dan catatan masuk (`backlinks`) untuk fondasi visualisasi knowledge graph.
+- **Strict Multi-Tenancy**: Seluruh akses ke materi, catatan, dek flashcard, dan kuis diproteksi dan diverifikasi kepemilikan tokennya terhadap user yang sedang login.
+
+**Test results:**
+- `php artisan test --filter=Learning`: 15 passed (73 assertions, 100% Pass).
+- `php artisan test` (seluruh sistem): 107 passed (503 assertions, 100% Pass).
+- `npx tsc --noEmit` di `apps/mobile`: 0 error (100% Pass).
+
+
 
 

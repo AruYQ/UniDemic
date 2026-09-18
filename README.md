@@ -48,8 +48,8 @@ Status pengerjaan detail dan riwayat pengerjaan dapat dilihat di [docs/PROGRESS.
 | **1** | **Fondasi** (Autentikasi Sanctum, Penyiapan Dasar, CI/CD, Navigasi) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **2** | **Inti Akademik** (Semester, Mata Kuliah, Jadwal, Tugas, Ujian) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **3** | **Pelacakan Akademik** (Presensi, Komponen Nilai, IPS/IPK, Simulator) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
-| **4** | **Produktivitas** (Tugas, Sasaran Belajar, Sesi Fokus, Perencana Cerdas) | 🔄 Sedang Berjalan | ✅ Selesai (`develop`) | ⏳ Siap Dikerjakan |
-| **5** | **Pembelajaran** (Materi, Catatan, Kartu Flash, Kuis) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
+| **4** | **Produktivitas** (Tugas, Sasaran Belajar, Sesi Fokus, Perencana Cerdas) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
+| **5** | **Pembelajaran** (Materi, Catatan, Kartu Flash, Kuis) | 🔄 Sedang Berjalan | ✅ Selesai (`backend`) | ⏳ Dalam Antrean |
 | **6** | **Komunikasi** (Obrolan, Pesan Langsung, Diskusi Kuliah) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **7** | **Kolaborasi** (Kelompok Belajar, Proyek Tim, Papan Kanban) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **8** | **Kecerdasan AI** (Asisten AI, RAG Ringkasan, Generator Kuis) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |

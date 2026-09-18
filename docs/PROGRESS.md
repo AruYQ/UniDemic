@@ -197,7 +197,41 @@
 
 ## Phase 5 — Learning
 
-> Akan diisi setelah Checkpoint 4 selesai.
+> **Status Terkini**: Backend API telah selesai 100% (15 Feature Tests, 73 assertions; total suite 107 tests 100% pass) pada branch `feature/backend/learning`. Modul antarmuka mobile siap dikerjakan oleh Dev B.
+
+### Dev A (Backend / rekis-0103)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Shared TypeScript types (`packages/types`) | `[x]` | Materials, Notes, Flashcards, Quizzes, SM-2 Review contracts |
+| Database migrations | `[x]` | `materials`, `notes`, `note_links`, `flashcard_decks`, `flashcards`, `quizzes`, `quiz_questions`, `quiz_attempts` |
+| Eloquent Models & SM-2 algorithm | `[x]` | Material, Note (bidirectional graph links), FlashcardDeck, Flashcard (SuperMemo SM-2), Quiz, QuizQuestion, QuizAttempt |
+| API Resources & FormRequests | `[x]` | Strict FormRequest validation & JSON Resources for all Learning entities |
+| Material endpoints (`/materials`, `/materials/upload`) | `[x]` | Course materials repository, file upload to public/MinIO, links & docs |
+| Note endpoints (`/notes`, `/notes/{id}/link/{target_id}`) | `[x]` | Markdown notes, tag & keyword search, bidirectional note linking & backlinks |
+| Flashcard endpoints (`/flashcard-decks`, `/flashcards/{id}/review`) | `[x]` | Decks, cards, due cards calculation, SuperMemo SM-2 spaced repetition review |
+| Quiz endpoints (`/quizzes`, `/quizzes/{id}/attempt`) | `[x]` | Quiz creation, question bank (MC, T/F, Short answer), auto-graded attempt & history |
+| Feature Test Suite (Learning) | `[x]` | 15 tests passed, 73 assertions (107 total tests suite passed) |
+
+### Dev B (Frontend / AruYQ)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Course Materials screen & attachment viewer | `[ ]` | PDF/file preview, link opener, course filter |
+| Markdown & Networked Notes UI | `[ ]` | Markdown editor & preview, tag pills, note linking graph list |
+| Flashcard & Spaced Repetition study mode | `[ ]` | Card flip animation, rating buttons (Again, Hard, Good, Easy), due counter |
+| Interactive Quiz practice mode | `[ ]` | Question stepper, timer countdown, score summary & explanation review |
+
+### ⏳ Checkpoint 5 Verification
+
+| Item | Status | Verified by | Tanggal |
+|------|--------|-------------|---------|
+| Backend Learning API Suite 100% Pass | `[x]` | Dev A (Test Suite: 15 tests, 73 assertions) | 2026-09-18 |
+| SuperMemo SM-2 Interval Calculation | `[x]` | Dev A (Feature Tests & Model Logic) | 2026-09-18 |
+| Bidirectional Note Linking Network | `[x]` | Dev A (Pivot relation & eager load) | 2026-09-18 |
+| Quiz Auto-Grading & Scoring Algorithm | `[x]` | Dev A (Attempt calculation verified) | 2026-09-18 |
+| Mobile Learning Screen & Study Modes | `[ ]` | Dev B (React Native + Expo) | - |
+| User Acceptance & E2E Validation | `[ ]` | User & Dev B | - |
 
 ---
 

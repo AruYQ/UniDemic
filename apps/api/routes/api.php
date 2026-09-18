@@ -6,10 +6,14 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CourseScheduleController;
 use App\Http\Controllers\Api\ExamController;
+use App\Http\Controllers\Api\FlashcardController;
 use App\Http\Controllers\Api\GoalController;
 use App\Http\Controllers\Api\GpaController;
 use App\Http\Controllers\Api\GradeController;
+use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\SemesterController;
 use App\Http\Controllers\Api\StudyPlannerController;
 use App\Http\Controllers\Api\StudySessionController;
@@ -144,6 +148,50 @@ $registerApiRoutes = function () {
 
         // Productivity: Smart Study Planner
         Route::post('/study-planner/suggest', [StudyPlannerController::class, 'suggest']);
+
+        // Phase 5: Learning — Course Materials & File Uploads
+        Route::get('/courses/{course_id}/materials', [MaterialController::class, 'index']);
+        Route::post('/courses/{course_id}/materials', [MaterialController::class, 'store']);
+        Route::get('/materials', [MaterialController::class, 'index']);
+        Route::post('/materials', [MaterialController::class, 'store']);
+        Route::post('/materials/upload', [MaterialController::class, 'uploadFile']);
+        Route::get('/materials/{id}', [MaterialController::class, 'show']);
+        Route::put('/materials/{id}', [MaterialController::class, 'update']);
+        Route::delete('/materials/{id}', [MaterialController::class, 'destroy']);
+
+        // Phase 5: Learning — Markdown & Linked Notes
+        Route::get('/notes', [NoteController::class, 'index']);
+        Route::post('/notes', [NoteController::class, 'store']);
+        Route::get('/notes/{id}', [NoteController::class, 'show']);
+        Route::put('/notes/{id}', [NoteController::class, 'update']);
+        Route::delete('/notes/{id}', [NoteController::class, 'destroy']);
+        Route::post('/notes/{id}/link/{target_id}', [NoteController::class, 'linkNote']);
+        Route::delete('/notes/{id}/link/{target_id}', [NoteController::class, 'unlinkNote']);
+
+        // Phase 5: Learning — Spaced Repetition Flashcards (SuperMemo SM-2)
+        Route::get('/flashcard-decks', [FlashcardController::class, 'index']);
+        Route::post('/flashcard-decks', [FlashcardController::class, 'store']);
+        Route::get('/flashcard-decks/{id}', [FlashcardController::class, 'show']);
+        Route::put('/flashcard-decks/{id}', [FlashcardController::class, 'update']);
+        Route::delete('/flashcard-decks/{id}', [FlashcardController::class, 'destroy']);
+        Route::get('/flashcard-decks/{id}/due-cards', [FlashcardController::class, 'dueCards']);
+        Route::post('/flashcard-decks/{deck_id}/cards', [FlashcardController::class, 'storeCard']);
+        Route::put('/flashcards/{id}', [FlashcardController::class, 'updateCard']);
+        Route::delete('/flashcards/{id}', [FlashcardController::class, 'destroyCard']);
+        Route::post('/flashcards/{id}/review', [FlashcardController::class, 'review']);
+
+        // Phase 5: Learning — Interactive Quizzes & Practice Tests
+        Route::get('/quizzes', [QuizController::class, 'index']);
+        Route::post('/quizzes', [QuizController::class, 'store']);
+        Route::get('/quizzes/{id}', [QuizController::class, 'show']);
+        Route::put('/quizzes/{id}', [QuizController::class, 'update']);
+        Route::delete('/quizzes/{id}', [QuizController::class, 'destroy']);
+        Route::post('/quizzes/{quiz_id}/questions', [QuizController::class, 'storeQuestion']);
+        Route::put('/quiz-questions/{id}', [QuizController::class, 'updateQuestion']);
+        Route::delete('/quiz-questions/{id}', [QuizController::class, 'destroyQuestion']);
+        Route::post('/quizzes/{id}/attempt', [QuizController::class, 'submitAttempt']);
+        Route::get('/quizzes/{id}/attempts', [QuizController::class, 'attempts']);
+        Route::get('/quizzes/{id}/attempts/{attempt_id}', [QuizController::class, 'attemptShow']);
 
         // Backward compatibility
         Route::get('/user', function (Request $request) {

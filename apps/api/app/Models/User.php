@@ -95,5 +95,37 @@ class User extends Authenticatable
     {
         return $this->hasMany(Goal::class);
     }
+
+    /**
+     * Get all learning notes belonging to the user.
+     */
+    public function notes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Note::class);
+    }
+
+    /**
+     * Get all flashcard decks belonging to the user.
+     */
+    public function flashcardDecks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(FlashcardDeck::class);
+    }
+
+    /**
+     * Get all quizzes belonging to the user.
+     */
+    public function quizzes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Quiz::class);
+    }
+
+    /**
+     * Get all quiz attempts made by the user.
+     */
+    public function quizAttempts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
 }
 

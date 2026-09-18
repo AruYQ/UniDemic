@@ -93,5 +93,37 @@ class Course extends Model
     {
         return $this->hasMany(Grade::class);
     }
+
+    /**
+     * Get all learning materials for this course.
+     */
+    public function materials(): HasMany
+    {
+        return $this->hasMany(Material::class);
+    }
+
+    /**
+     * Get all notes associated with this course.
+     */
+    public function notes(): HasMany
+    {
+        return $this->hasMany(Note::class);
+    }
+
+    /**
+     * Get all flashcard decks associated with this course.
+     */
+    public function flashcardDecks(): HasMany
+    {
+        return $this->hasMany(FlashcardDeck::class);
+    }
+
+    /**
+     * Get all quizzes associated with this course.
+     */
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class);
+    }
 }
 

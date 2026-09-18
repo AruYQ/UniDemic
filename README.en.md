@@ -48,8 +48,8 @@ For detailed task tracking and commit history, visit [docs/PROGRESS.md](docs/PRO
 | **1** | **Foundation** (Sanctum Auth, Base Setup, CI/CD, Navigation) | ✅ Completed | ✅ Completed | ✅ Completed |
 | **2** | **Academic Core** (Semesters, Courses, Schedules, Tasks, Exams) | ✅ Completed | ✅ Completed | ✅ Completed |
 | **3** | **Academic Tracking** (Attendance, Grades, GPA/CGPA, Simulator) | ✅ Completed | ✅ Completed | ✅ Completed |
-| **4** | **Productivity** (Tasks, Goals, Study Sessions, Study Planner) | 🔄 In Progress | ✅ Completed (`develop`) | ⏳ Queued |
-| **5** | **Learning** (Materials, Notes, Flashcards, Quiz) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |
+| **4** | **Productivity** (Tasks, Goals, Study Sessions, Study Planner) | ✅ Completed | ✅ Completed | ✅ Completed |
+| **5** | **Learning** (Materials, Notes, Flashcards, Quiz) | 🔄 In Progress | ✅ Completed (`backend`) | ⏳ Queued |
 | **6** | **Communication** (Chat, Direct Messages, Course Discussion) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |
 | **7** | **Collaboration** (Study Groups, Projects, Kanban Board) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |
 | **8** | **Intelligence (AI)** (AI Assistant, RAG Summarization, Quiz Gen) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |

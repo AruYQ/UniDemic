@@ -244,6 +244,65 @@ Sebelumnya, penggabungan kode ke branch integrasi (`develop`) terkadang dilakuka
 
 ---
 
+## ADR-0009 — Dynamic Fisher-Yates Quiz Randomization & Dual-Layer Answer Normalization
+
+**Tanggal**: 2026-09-18
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent (Dev B)
+
+### Konteks
+Pada modul pembelajaran (Phase 5 - Learning), fitur kuis latihan membutuhkan variabilitas tinggi agar mahasiswa dapat berlatih berulang kali tanpa menghafal pola urutan opsi atau urutan soal. Pengacakan tidak boleh memutasi data master di database (karena kuis bersifat reusable). Selain itu, pengacakan opsi (A, B, C, D) berpotensi merusak validasi penilaian jika sistem lama hanya membandingkan indeks huruf abjad atau raw string yang kaku terhadap database.
+
+### Keputusan
+1. **Client-Side Dynamic Fisher-Yates (Knuth) Shuffle**:
+   - Pengacakan dijalankan pada sisi mobile client di `QuizPlayModal.tsx` menggunakan algoritma Fisher-Yates $O(n)$ dengan probabilitas permutasi seragam.
+   - Dilakukan setiap kali sesi kuis dimulai (`visible === true` & `!hasInitializedRef.current`).
+   - Mengacak **urutan butir soal** dan mengacak **posisi opsi pilihan ganda** secara dinamis per sesi pengerjaan.
+2. **Text-Decoupled Answer Selection**:
+   - State jawaban pengguna merekam isi teks opsi yang dipilih (`user_answer: optText`), bukan huruf visual (`A, B, C, D`) yang teracak.
+3. **Backend Answer Normalization Engine (`QuizController.php`)**:
+   - Menambahkan method `checkAnswerCorrectness()` yang memetakan secara dua arah format huruf (A-D) terhadap teks opsi array, serta menormalisasi format kebenaran (`true/benar/ya/1` vs `false/salah/tidak/0`).
+4. **Nested Batch Question Transaction**:
+   - Pembuatan kuis dengan daftar pertanyaan bersarang (`StoreQuizRequest`) disimpan dalam `DB::transaction` sehingga seluruh butir soal terjamin tersimpan bersamaan dengan kuis induknya.
+
+### Konsekuensi
+- ✅ Replayability kuis tinggi — mahasiswa selalu mendapat tantangan baru setiap kali mengulang latihan.
+- ✅ Akurasi penilaian 100% — tidak terpengaruh oleh perpindahan posisi opsi visual.
+- ✅ Data master kuis di database tetap bersih dan konsisten.
+- ⚠️ Membutuhkan state terpisah `sessionQuestions` di mobile agar pengacakan tidak terulang di tengah-tengah pengerjaan jika komponen re-render.
+
+---
+
+## ADR-0010 — Backend Automated Testing Environment Isolation (SQLite In-Memory)
+
+**Tanggal**: 2026-09-18
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+Di lingkungan Docker Compose, variabel environment sistem operasi seperti `DB_CONNECTION=pgsql` dan `DB_DATABASE=unidemic` diinjeksi ke dalam container `unidemic-api`. Ketika developer menjalankan `php artisan test`, trait `RefreshDatabase` Laravel secara default membaca variabel environment container tersebut dan mengeksekusi `migrate:fresh` terhadap database PostgreSQL utama (database development), menyebabkan seluruh data pengguna dan seeding terhapus.
+
+### Keputusan
+1. **Paksa SQLite In-Memory pada Base Test Case**:
+   - Mengoverride `createApplication()` pada `apps/api/tests/TestCase.php`:
+     ```php
+     putenv('DB_CONNECTION=sqlite');
+     putenv('DB_DATABASE=:memory:');
+     $_ENV['DB_CONNECTION'] = 'sqlite';
+     $_ENV['DB_DATABASE'] = ':memory:';
+     $_SERVER['DB_CONNECTION'] = 'sqlite';
+     $_SERVER['DB_DATABASE'] = ':memory:';
+     ```
+2. **Konfigurasi `phpunit.xml`**:
+   - Menambahkan atribut `force="true"` pada `<env name="DB_CONNECTION" value="sqlite" force="true"/>` dan `<env name="DB_DATABASE" value=":memory:" force="true"/>`.
+
+### Konsekuensi
+- ✅ Zero Database Pollution: Eksekusi automated test tidak akan pernah menyentuh, merusak, atau mereset database PostgreSQL pengembangan.
+- ✅ Eksekusi test jauh lebih cepat karena seluruh transaksi dan migrasi berjalan di memori RAM (SQLite `:memory:`).
+- ⚠️ Fitur SQL yang sangat spesifik untuk PostgreSQL (seperti `pgvector` atau custom Postgres syntax) harus disimulasikan atau menggunakan koneksi testing terpisah jika diperlukan di masa mendatang.
+
+---
+
 > ⬇️ ADR berikutnya ditambahkan di bawah saat ada keputusan arsitektur baru
 
 

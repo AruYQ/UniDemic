@@ -35,6 +35,7 @@ UniDemic adalah platform produktivitas akademik dan kolaborasi open-source yang 
 - 📊 **Pelacakan Akademik (Academic Tracking)**: Pencatatan presensi dengan gestur geser-hapus otomatis & peringatan batas toleransi alpa, kalkulasi komponen nilai berbobot, nilai akhir mata kuliah, Indeks Prestasi Kumulatif (IPK), dan simulator target IPK interaktif.
 - 🎨 **Sistem Tema Dinamis**: Dukungan penuh Mode Gelap (Dark Mode), Mode Terang (Light Mode), dan mode otomatis mengikuti sistem operasi dengan palet warna terstandarisasi.
 - ⏱️ **Produktivitas & Fokus**: Manajemen tugas berprioritas & sub-tugas dengan kalkulasi progres otomatis, sesi fokus belajar (Pomodoro, Kustom, Stopwatch) dengan rekap analitik harian/mingguan, target capaian belajar (Goals), dan algoritma perencana jadwal belajar cerdas yang bebas bentrok jadwal kuliah.
+- 📖 **Pembelajaran & Retensi Mandiri (Learning)**: Repositori berkas materi kuliah, catatan markdown dengan jaringan penautan dua arah (*bi-directional links*), kartu flash hafalan berbasis algoritma *SuperMemo SM-2* dengan animasi balik 3D, dan kuis latihan interaktif dengan sistem pengacakan dinamis *Fisher-Yates* per sesi.
 - 🤖 **Kecerdasan Akademik AI** *(Direncanakan)*: Ringkasan materi bertenaga Google Gemini, pembuat kuis otomatis, dan asisten riset akademik.
 
 ---
@@ -49,7 +50,7 @@ Status pengerjaan detail dan riwayat pengerjaan dapat dilihat di [docs/PROGRESS.
 | **2** | **Inti Akademik** (Semester, Mata Kuliah, Jadwal, Tugas, Ujian) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **3** | **Pelacakan Akademik** (Presensi, Komponen Nilai, IPS/IPK, Simulator) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **4** | **Produktivitas** (Tugas, Sasaran Belajar, Sesi Fokus, Perencana Cerdas) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
-| **5** | **Pembelajaran** (Materi, Catatan, Kartu Flash, Kuis) | 🔄 Sedang Berjalan | ✅ Selesai (`backend`) | ⏳ Dalam Antrean |
+| **5** | **Pembelajaran** (Materi, Catatan, Kartu Flash, Kuis) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **6** | **Komunikasi** (Obrolan, Pesan Langsung, Diskusi Kuliah) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **7** | **Kolaborasi** (Kelompok Belajar, Proyek Tim, Papan Kanban) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **8** | **Kecerdasan AI** (Asisten AI, RAG Ringkasan, Generator Kuis) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |

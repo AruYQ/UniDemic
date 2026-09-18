@@ -21,6 +21,7 @@ import {
   MoonStars,
   SunDim,
   Medal,
+  BookOpen,
 } from 'phosphor-react-native';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { UniBadge } from '@/components/ui/UniBadge';
@@ -305,6 +306,35 @@ export default function DashboardScreen() {
                   </View>
                   <View style={styles.gpaBentoArrow}>
                     <ArrowRight size={18} color={themeColors.brand.primary} weight="bold" />
+                  </View>
+                </Pressable>
+              </Animated.View>
+
+              {/* Card 4: Learning Hub & Flashcards */}
+              <Animated.View
+                entering={FadeInDown.delay(270)
+                  .duration(300)
+                  .easing(Easing.out(Easing.cubic))}
+                style={[styles.bentoCard, styles.bentoCardFull]}
+              >
+                <Pressable
+                  onPress={() => router.push('/learning' as any)}
+                  style={styles.gpaBentoPressable}
+                >
+                  <View style={styles.gpaBentoLeft}>
+                    <View style={styles.bentoHeader}>
+                      <BookOpen size={20} color={themeColors.brand.secondary} weight="duotone" />
+                      <UniBadge label="PUSAT BELAJAR" variant="success" size="sm" />
+                    </View>
+                    <Text style={styles.gpaBentoTitle}>
+                      Materi, Catatan & Flashcard SM-2
+                    </Text>
+                    <Text style={styles.bentoLabel}>
+                      Akses repositori berkas bahan ajar, catatan terhubung, dan kuis latihan mandiri
+                    </Text>
+                  </View>
+                  <View style={styles.gpaBentoArrow}>
+                    <ArrowRight size={18} color={themeColors.brand.secondary} weight="bold" />
                   </View>
                 </Pressable>
               </Animated.View>

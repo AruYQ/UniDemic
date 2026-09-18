@@ -401,3 +401,160 @@ Setiap entry menggunakan format ini:
 - PHPUnit backend tests: 22 passed, 203 assertions (`docker exec unidemic-api php artisan test --filter Productivity`).
 - TypeScript compiler: `npx tsc --noEmit` lolos 0 errors.
 - Live device testing: Teruji dan disetujui langsung oleh user pada perangkat fisik via Expo Metro.
+
+---
+
+### [2026-09-18] — Phase 5: Mobile Learning Module (Materials, Networked Notes, Flashcards SM-2, Quizzes)
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai diimplementasikan & Siap Pengujian Perangkat (Pre-PR Verification Gate)
+
+**Yang dikerjakan:**
+- **Foundation & Services**:
+  - `apps/mobile/src/types/learning.ts`: Kontrak TypeScript lengkap untuk Materials, Notes, NoteLinks, FlashcardDecks, Flashcards, Quizzes, QuizQuestions, QuizAttempts, dan SM-2 Review payloads.
+  - `apps/mobile/src/services/learningService.ts`: Axios client service untuk semua 17 endpoint API Phase 5 (Materials CRUD & Upload, Notes CRUD & Linking, Flashcard Decks/Cards & Review SM-2, Quizzes CRUD & Attempt).
+  - `apps/mobile/src/store/useLearningStore.ts`: Zustand store dengan smart cache TTL 3 menit, study session state untuk flashcard SM-2, active quiz session state dengan timer hitung mundur, sanitasi error database via `formatApiError()`.
+- **Modul 1: Materi Kuliah (Course Materials)**:
+  - `MaterialCard.tsx`: Kartu materi dengan badge tipe berkas duotone (PDF, Slide, Dokumen, Tautan), tag mata kuliah, pembuka tautan/berkas eksternal otomatis via `Linking.openURL()`, dan swipe-to-delete.
+  - `CreateMaterialModal.tsx`: Modal tambah materi lengkap dengan pemilih matkul horizontal, grid tipe format berkas, input URL/tautan berkas, dan deskripsi opsional.
+- **Modul 2: Catatan Terhubung (Networked Markdown Notes)**:
+  - `NoteCard.tsx`: Kartu catatan dengan indikator pin, tag matkul, cuplikan ringkasan Markdown, badge jumlah tautan timbal balik (backlinks), dan badge tag horizontal.
+  - `NoteEditorModal.tsx`: Editor catatan komprehensif dua mode (Editor & Live Preview), toolbar Markdown instan (`#`, `##`, `-`, `**`, `""`), toggle pin, penambahan tag dinamis dengan chip pill, serta pemilih relasi catatan timbal balik (bidirectional networked notes).
+- **Modul 3: Spaced Repetition Flashcards (SuperMemo SM-2)**:
+  - `FlashcardDeckCard.tsx`: Kartu dek dengan penghitung total kartu, indikator jatuh tempo review (due cards), tombol kelola kartu, dan tombol aksi "Mulai Belajar".
+  - `CreateDeckModal.tsx`: Modal pembuatan dek dengan pengait mata kuliah.
+  - `ManageCardsModal.tsx`: Modal manajemen kartu dek dengan formulir tambah kartu instan (Tanya/Jawab) dan daftar kartu dengan tombol hapus.
+  - `FlashcardStudyModal.tsx`: Mode belajar interaktif dengan animasi flip 3D pada sumbu Y (Reanimated), progress bar, kartu pertanyaan depan/belakang, dan 4 tombol rating algoritma SuperMemo SM-2 (Ulangi - rating 1, Sulit - rating 2, Bagus - rating 4, Mudah - rating 5) serta perayaan penyelesaian sesi.
+- **Modul 4: Kuis Latihan Mandiri (Interactive Quizzes)**:
+  - `QuizCard.tsx`: Kartu kuis dengan metrik durasi waktu, jumlah soal, skor tertinggi pengguna, dan tombol mulai kuis.
+  - `CreateQuizModal.tsx`: Modal pembuat kuis dinamis dengan pembangun soal bertingkat: Pilihan Ganda (Multiple Choice), Benar/Salah (True/False), dan Isian Singkat (Short Answer) beserta kunci jawaban dan pembahasan.
+  - `QuizPlayModal.tsx`: Mode pengerjaan kuis interaktif dengan timer hitung mundur kritis otomatis, stepper soal responsif, seleksi jawaban intuitif, auto-submit saat waktu habis, dan tombol navigasi Soal Berikutnya/Selesai.
+  - `QuizResultModal.tsx`: Layar hasil pengerjaan kuis dengan kalkulasi skor (0-100), headline apresiatif, rincian jawaban pengguna vs kunci jawaban yang benar, dan box penjelasan kunci jawaban.
+- **Layar Utama & Navigasi**:
+  - `apps/mobile/src/app/learning.tsx`: Hub komprehensif pembelajaran dengan filter mata kuliah horizontal, Full-Width 4-Segment responsive bar (`Materi`, `Catatan`, `Flashcard`, `Kuis`), contextual Floating Action Button, EmptyState estetik berikon duotone Phosphor, dan bottom sheet modals.
+  - `apps/mobile/src/components/ui/BottomNav.tsx`: Menambahkan tab kelima "Belajar" (`/learning`) dengan ikon `BookOpen` duotone.
+  - `apps/mobile/src/app/index.tsx`: Menambahkan kartu bento pintasan cepat "Pusat Belajar".
+
+**Keputusan UI/UX & Desain**:
+- Selaras dengan `unidemic-ui-ux` Design System & 30 Anti-Slop Rules:
+  - Warna token `useUniTheme()` dinamis (Dark mode deep navy-slate `#0F1117`/`#171B26`/`#1E2333` dan Light mode warm slate `#F4F5F9`/`#FFFFFF`).
+  - Tipografi: Syne_700Bold untuk judul hero display, SpaceGrotesk untuk headings & body, JetBrainsMono untuk timer, skor, dan angka metrik.
+  - Ikonografi: Phosphor Icons berbobot `duotone` tanpa icon mismatch.
+  - Animasi: `FadeInRight` dan `FadeInDown` terukur 220-240ms, rotasi 3D Reanimated card flip 300ms tanpa jank.
+  - Sentuhan: Minimum 44x44 dp touch targets, spring tap feedback.
+
+**Verifikasi Teknis**:
+- `npx tsc --noEmit` di `apps/mobile`: **100% Lolos tanpa error (0 errors)**.
+- PHPUnit backend tests: **15 tests passed, 73 assertions (100% Pass)** (`docker exec unidemic-api php artisan test --filter Learning`).
+- Docker containers: `unidemic-api`, `unidemic-db`, `unidemic-redis`, `unidemic-minio` seluruhnya berstatus UP & Healthy.
+
+---
+
+### [2026-09-18] — Comprehensive Full-Stack Database Seeding
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai di-seed & Terverifikasi
+
+**Yang dikerjakan:**
+- Membuat seeder universal komprehensif di `apps/api/database/seeders/DatabaseSeeder.php` yang mengisi seluruh data aplikasi secara otomatis untuk pengujian mobile tanpa repot input manual.
+- Data yang di-seed mencakup:
+  - **Akun Demo**: `test@example.com` / `password` dan `budi@unidemic.id` / `password123`.
+  - **Akademik**: Semester Ganjil 2026/2027, 4 Mata Kuliah (Algoritma, OS, Basis Data, Jaringan Komputer), Jadwal Kuliah lengkap, Catatan Kehadiran, Komponen Nilai & Nilai (UTS, UAS, Tugas), Ujian UTS, dan Tugas Kuliah (Assignments).
+  - **Produktivitas**: Tasks dengan Subtasks bertingkat, Target Nilai & Jam Belajar Mingguan (Goals), dan Riwayat Sesi Belajar (Pomodoro & Stopwatch).
+  - **Phase 5 Pembelajaran**: 5 Berkas Materi Kuliah multi-format (Slide, PDF, Doc, Link), 3 Catatan Terhubung Markdown dengan relasi timbal balik (Note Links), 2 Dek Flashcard dengan 8 Kartu siap review (SM-2 spaced repetition), dan 2 Kuis Latihan Interaktif (Pilihan Ganda, Benar/Salah, Isian Singkat) beserta riwayat attempt skor 100%.
+
+**Verifikasi:**
+- Eksekusi `docker exec unidemic-api php artisan db:seed`: Exit code 0 (Berhasil).
+- Verifikasi tabel PostgreSQL via Tinker:
+  - Users: 2
+  - Semesters: 2
+  - Courses: 8
+  - Schedules: 8
+  - Attendances: 10
+  - Grades: 6
+  - Exams: 4
+  - Assignments: 6
+  - Tasks: 6
+  - Subtasks: 6
+  - Goals: 4
+  - Sessions: 6
+  - Materials: 10
+  - Notes: 6
+  - Decks: 4
+  - Cards: 16
+  - Quizzes: 4
+  - Questions: 12
+  - Attempts: 2
+
+---
+
+### [2026-09-18] — Bugfix: Quiz Play Payload Format & Auto-Submit Stabilization
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai Diperbaiki & Terverifikasi
+
+**Masalah yang Ditemukan:**
+1. **Ghost Click pada Mulai Kuis**: `QuizController@index` tidak mengeager load `questions`, menyebabkan `QuizPlayModal` me-return `null` karena `quiz.questions` undefined.
+2. **Prematur Auto-Submit Timer**: `useEffect([timeRemaining, visible])` di `QuizPlayModal` mengeksekusi saat `timeRemaining === 0` pada initial render sebelum batas waktu kuis diset, memunculkan alert *"Waktu Habis!"* dan *"Gagal"*.
+3. **Payload Mismatch pada Pengumpulan Kuis**: Saat submit kuis, mobile mengirim dictionary `{ [questionId]: answer }`, sedangkan FormRequest Laravel `SubmitQuizAttemptRequest` mewajibkan array of objects `[ { question_id, user_answer } ]`. Menimbulkan error `the answers.4.question_id field is required`.
+
+**Solusi & Perbaikan:**
+- Backend: Eager load `with(['course', 'questions'])` pada `QuizController@index`.
+- Frontend:
+  - `handleOpenQuizPlay` di `learning.tsx` memastikan data pertanyaan termuat lengkap via `learningService.getQuiz(quiz.id)`.
+  - Menghapus pemantau `timeRemaining === 0` prematur di `QuizPlayModal`, hitung mundur murni ditangani interval `setInterval` saat mencapai 0.
+  - Memetakan jawaban kuis menjadi array `QuizAnswerSubmission[]` (`[ { question_id, user_answer } ]`) sebelum dikirim via `onSubmit`.
+  - Memperbarui `QuizResultModal` untuk membaca struktur ulasan jawaban array dari backend (`answerDetail.is_correct`, `user_answer`, `explanation`).
+- Verifikasi: `npx tsc --noEmit` lolos 0 error.
+
+---
+
+### [2026-09-18] — Bugfix: Answer Normalization, Nested Quiz Creation & Test DB Isolation
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai Diperbaiki & Terverifikasi (Unit Test & TypeScript 100% Pass)
+
+**Masalah yang Ditemukan:**
+1. **Penyalahan Jawaban Kuis (Script Issue)**:
+   - User memilih opsi pilihan ganda "C" ("Merge Sort"), tetapi script lama membandingkan string mentah teks `"merge sort"` dengan kunci huruf `"c"`.
+   - Pada soal True/False, mobile mengirim `"true"`, sementara seeder menyimpan `"Benar"`. Script lama membandingkan `"true" === "benar"`. Keduanya disalahkan oleh backend.
+2. **Kuis Baru Memiliki "Jumlah Soal 0"**:
+   - `StoreQuizRequest` menerima array `questions`, namun `QuizController@store` hanya menjalankan `Quiz::create($validated)` yang mengabaikan relasi `questions`. Butir soal tidak pernah disimpan ke tabel `quiz_questions`.
+3. **Database Test Reset Side-Effect**:
+   - Menjalankan `php artisan test` di Docker mengeksekusi `RefreshDatabase` ke database utama PostgreSQL karena env OS Docker mendahului `phpunit.xml`, mereset tabel `users`.
+
+**Solusi & Perbaikan:**
+- **Answer Normalization Engine (`QuizController.php`)**:
+  - Mengimplementasikan `checkAnswerCorrectness()` dengan pemetaan dua arah antara huruf opsi (`A, B, C, D`) dan teks opsi, serta pemetaan seragam truthy/falsy (`true/benar/ya/1` vs `false/salah/tidak/0`).
+  - Memperbarui `QuizResultModal.tsx` dengan helper `formatAnswerDisplay()` agar menampilkan `C. Merge Sort` dan label seragam `BENAR / SALAH`.
+- **Nested Quiz Creation (`QuizController.php` & `CreateQuizModal.tsx`)**:
+  - Memperbarui `QuizController@store` dengan `DB::transaction` untuk menyimpan seluruh butir soal (`$quiz->questions()->create($qData)`) dan eager load `questions_count`.
+  - Menambahkan automated test `test_user_can_create_quiz_with_nested_questions()` di `QuizTest.php`.
+  - Mereset form state di `CreateQuizModal.tsx` saat kuis berhasil dibuat.
+- **Isolasi Database Testing (`TestCase.php` & `phpunit.xml`)**:
+  - Mengoverride `createApplication()` di `tests/TestCase.php` untuk memaksakan SQLite in-memory (`:memory:`) sehingga test runner tidak pernah menyentuh PostgreSQL.
+- **Verifikasi**:
+  - `QuizTest`: 4 passed (21 assertions) — 100% Pass.
+  - `npx tsc --noEmit`: 0 errors — 100% Clean.
+
+---
+
+### [2026-09-18] — Feature: Dynamic Fisher-Yates Shuffle on Quiz Session Start
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai Diimplementasikan & Terverifikasi (TypeScript 0 error)
+
+**Fitur & Implementasi:**
+1. **True Fisher-Yates (Knuth) Shuffle Algorithm**:
+   - Menambahkan algoritma pengacakan `shuffleArray<T>()` berbasis Fisher-Yates dengan probabilitas seragam dan kompleksitas efisien $O(n)$.
+2. **Pengacakan Dinamis Setiap Kuis Dimulai (Bukan Saat Dibuat)**:
+   - Data master di database tetap tersimpan rapi dan tidak dimutasi secara permanen.
+   - Setiap kali `QuizPlayModal` dibuka (`visible === true`), sistem secara otomatis:
+     - Mengacak **urutan butir soal** (`shuffleArray(quiz.questions)`).
+     - Mengacak **urutan pilihan ganda** (opsi A, B, C, D diacak posisinya untuk setiap butir soal pilihan ganda).
+   - Pengacakan berlangsung per sesi pengerjaan kuis (saat kuis ditutup dan dimulai kembali, permutasi baru akan otomatis terbentuk).
+3. **Integritas Penilaian Backend**:
+   - Pemilihan jawaban tetap mengacu pada isi teks opsi (`user_answer: opt`), sehingga meskipun posisi opsi teracak (misal opsi C bergeser ke posisi A), mesin penilaian backend tetap mencocokkan jawaban dengan 100% akurat.
+4. **UI & Vibe**:
+   - Menambahkan visual badge dinamis `<Shuffle /> ACAK` di stepper indicator header kuis untuk memberikan kepastian visual kepada pengguna bahwa soal dan opsi sedang dalam mode acak.
+- **Verifikasi**: `npx tsc --noEmit` lolos 0 error.

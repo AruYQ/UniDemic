@@ -10,7 +10,7 @@
 | Info | Detail |
 |------|--------|
 | **Repo** | [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic) |
-| **Phase aktif** | Phase 4 — Productivity (Completed & Verified) |
+| **Phase aktif** | Phase 5 — Learning (Completed & Verified) |
 | **Dev A (Backend)** | rekis-0103 |
 | **Dev B (Frontend)** | AruYQ |
 | **Mulai** | 2026-09-08 |
@@ -27,7 +27,7 @@
 | 2 | Academic Core | `[x]` | `[x]` | `[x]` | `[x]` |
 | 3 | Academic Tracking | `[x]` | `[x]` | `[x]` | `[x]` |
 | 4 | Productivity | `[x]` | `[x]` | `[x]` | `[x]` |
-| 5 | Learning | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
+| 5 | Learning | `[x]` | `[x]` | `[x]` | `[x]` |
 | 6 | Communication | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 7 | Collaboration | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 8 | Intelligence (AI) | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
@@ -217,10 +217,10 @@
 
 | Task | Status | Catatan |
 |------|--------|---------|
-| Course Materials screen & attachment viewer | `[ ]` | PDF/file preview, link opener, course filter |
-| Markdown & Networked Notes UI | `[ ]` | Markdown editor & preview, tag pills, note linking graph list |
-| Flashcard & Spaced Repetition study mode | `[ ]` | Card flip animation, rating buttons (Again, Hard, Good, Easy), due counter |
-| Interactive Quiz practice mode | `[ ]` | Question stepper, timer countdown, score summary & explanation review |
+| Course Materials screen & attachment viewer | `[x]` | `MaterialCard`, `CreateMaterialModal`, PDF/file preview & external link opener via `Linking.openURL()` |
+| Markdown & Networked Notes UI | `[x]` | `NoteCard`, `NoteEditorModal`, Markdown syntax quick tools, live preview, tag pills, bidirectional note linking picker |
+| Flashcard & Spaced Repetition study mode | `[x]` | `FlashcardDeckCard`, `CreateDeckModal`, `ManageCardsModal`, `FlashcardStudyModal` with 3D Y-axis card flip animation, 4 SM-2 rating buttons |
+| Interactive Quiz practice mode | `[x]` | `QuizCard`, `CreateQuizModal` (MC/TF/Short answer), `QuizPlayModal` with countdown timer & progress stepper, `QuizResultModal` score & review |
 
 ### ⏳ Checkpoint 5 Verification
 
@@ -230,8 +230,8 @@
 | SuperMemo SM-2 Interval Calculation | `[x]` | Dev A (Feature Tests & Model Logic) | 2026-09-18 |
 | Bidirectional Note Linking Network | `[x]` | Dev A (Pivot relation & eager load) | 2026-09-18 |
 | Quiz Auto-Grading & Scoring Algorithm | `[x]` | Dev A (Attempt calculation verified) | 2026-09-18 |
-| Mobile Learning Screen & Study Modes | `[ ]` | Dev B (React Native + Expo) | - |
-| User Acceptance & E2E Validation | `[ ]` | User & Dev B | - |
+| Mobile Learning Screen & Study Modes | `[x]` | Dev B (React Native + Expo, 0 TS errors) | 2026-09-18 |
+| User Acceptance & E2E Validation | `[x]` | User & Dev B (Terverifikasi di perangkat mobile) | 2026-09-18 |
 
 ---
 
@@ -259,4 +259,4 @@
 
 ---
 
-*Terakhir diupdate: 2026-09-17 | Updated by: Dev B (AruYQ)*
+*Terakhir diupdate: 2026-09-18 | Updated by: Dev B (AruYQ)*

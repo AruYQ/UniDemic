@@ -558,3 +558,7 @@ Setiap entry menggunakan format ini:
 4. **UI & Vibe**:
    - Menambahkan visual badge dinamis `<Shuffle /> ACAK` di stepper indicator header kuis untuk memberikan kepastian visual kepada pengguna bahwa soal dan opsi sedang dalam mode acak.
 - **Verifikasi**: `npx tsc --noEmit` lolos 0 error.
+- **Referensi**:
+  - Pull Request: [#7](https://github.com/AruYQ/UniDemic/pull/7) (Merged to `develop`)
+  - ADR: [ADR-0009](../decisions/ADR.md#adr-0009--dynamic-fisher-yates-quiz-randomization--dual-layer-answer-normalization), [ADR-0010](../decisions/ADR.md#adr-0010--backend-automated-testing-environment-isolation-sqlite-in-memory)
+

@@ -35,6 +35,7 @@ UniDemic is an open-source academic productivity and collaboration platform desi
 - 📊 **Academic Tracking**: Attendance logging with automatic swipe-to-delete confirmation & threshold warning alerts, weighted grade components, course GPAs, cumulative GPA calculation, and interactive target GPA simulator.
 - 🎨 **Dynamic Theme System**: Full support for Dark Mode, Light Mode, and system-adaptive modes with consistent color token palettes.
 - ⏱️ **Productivity & Focus**: Priority tasks & subtasks with reactive auto-progress, focus timer sessions (Pomodoro, Custom, Stopwatch) with daily/weekly analytics summary, milestone goals, and smart study planner algorithm with class schedule conflict detection.
+- 📖 **Self-Directed Learning (Learning Module)**: Course materials repository, markdown notes with bi-directional linking network, spaced repetition flashcards powered by the *SuperMemo SM-2* algorithm with 3D flip card animations, and interactive practice quizzes with dynamic *Fisher-Yates* session randomization.
 - 🤖 **AI Academic Intelligence** *(Planned)*: Automated lecture notes summarization powered by Google Gemini, smart quiz generator, and academic research assistant.
 
 ---
@@ -49,7 +50,7 @@ For detailed task tracking and commit history, visit [docs/PROGRESS.md](docs/PRO
 | **2** | **Academic Core** (Semesters, Courses, Schedules, Tasks, Exams) | ✅ Completed | ✅ Completed | ✅ Completed |
 | **3** | **Academic Tracking** (Attendance, Grades, GPA/CGPA, Simulator) | ✅ Completed | ✅ Completed | ✅ Completed |
 | **4** | **Productivity** (Tasks, Goals, Study Sessions, Study Planner) | ✅ Completed | ✅ Completed | ✅ Completed |
-| **5** | **Learning** (Materials, Notes, Flashcards, Quiz) | 🔄 In Progress | ✅ Completed (`backend`) | ⏳ Queued |
+| **5** | **Learning** (Materials, Notes, Flashcards, Quiz) | ✅ Completed | ✅ Completed | ✅ Completed |
 | **6** | **Communication** (Chat, Direct Messages, Course Discussion) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |
 | **7** | **Collaboration** (Study Groups, Projects, Kanban Board) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |
 | **8** | **Intelligence (AI)** (AI Assistant, RAG Summarization, Quiz Gen) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |

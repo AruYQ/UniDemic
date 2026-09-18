@@ -122,4 +122,47 @@ class QuizTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_user_can_create_quiz_with_nested_questions(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->postJson('/api/quizzes', [
+                'title' => 'Network Fundamentals',
+                'description' => 'OSI model and protocols',
+                'time_limit_minutes' => 20,
+                'questions' => [
+                    [
+                        'type' => 'multiple_choice',
+                        'question' => 'Which layer is HTTP?',
+                        'options' => ['Application', 'Transport', 'Network', 'Data Link'],
+                        'correct_answer' => 'Application',
+                    ],
+                    [
+                        'type' => 'true_false',
+                        'question' => 'TCP is a connectionless protocol.',
+                        'correct_answer' => 'false',
+                    ],
+                ],
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.title', 'Network Fundamentals')
+            ->assertJsonPath('data.questions_count', 2)
+            ->assertJsonCount(2, 'data.questions');
+
+        $quizId = $response->json('data.id');
+        $this->assertDatabaseHas('quiz_questions', [
+            'quiz_id' => $quizId,
+            'question' => 'Which layer is HTTP?',
+            'correct_answer' => 'Application',
+        ]);
+        $this->assertDatabaseHas('quiz_questions', [
+            'quiz_id' => $quizId,
+            'question' => 'TCP is a connectionless protocol.',
+            'correct_answer' => 'false',
+        ]);
+    }
 }

@@ -17,6 +17,7 @@ use App\Models\QuizAttempt;
 use App\Models\QuizQuestion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class QuizController extends Controller
 {
@@ -47,7 +48,7 @@ class QuizController extends Controller
     {
         $user = $request->user();
         $query = Quiz::where('user_id', $user->id)
-            ->with('course')
+            ->with(['course', 'questions'])
             ->withCount(['questions', 'attempts']);
 
         if ($request->has('course_id')) {
@@ -82,9 +83,28 @@ class QuizController extends Controller
             }
         }
 
+        $questionsData = $validated['questions'] ?? [];
+        unset($validated['questions']);
+
         $validated['user_id'] = $user->id;
-        $quiz = Quiz::create($validated);
-        $quiz->load('course');
+
+        $quiz = DB::transaction(function () use ($validated, $questionsData) {
+            $quiz = Quiz::create($validated);
+
+            if (!empty($questionsData)) {
+                foreach ($questionsData as $index => $qData) {
+                    if (!isset($qData['order'])) {
+                        $qData['order'] = $index + 1;
+                    }
+                    $quiz->questions()->create($qData);
+                }
+            }
+
+            return $quiz;
+        });
+
+        $quiz->load(['course', 'questions']);
+        $quiz->loadCount(['questions', 'attempts']);
 
         return response()->json([
             'success' => true,
@@ -222,7 +242,7 @@ class QuizController extends Controller
 
             if ($questions->has($questionId)) {
                 $question = $questions->get($questionId);
-                $isCorrect = trim(strtolower((string) $userAns)) === trim(strtolower((string) $question->correct_answer));
+                $isCorrect = $this->checkAnswerCorrectness($question, $userAns);
 
                 if ($isCorrect) {
                     $correctCount++;
@@ -286,5 +306,89 @@ class QuizController extends Controller
             'success' => true,
             'data' => new QuizAttemptResource($attempt),
         ]);
+    }
+
+    /**
+     * Determine if a user's answer matches the correct answer intelligently.
+     */
+    protected function checkAnswerCorrectness(QuizQuestion $question, ?string $userAnswer): bool
+    {
+        if ($userAnswer === null || trim($userAnswer) === '') {
+            return false;
+        }
+
+        $userStr = trim(strtolower($userAnswer));
+        $correctStr = trim(strtolower((string) $question->correct_answer));
+
+        // Direct equality
+        if ($userStr === $correctStr) {
+            return true;
+        }
+
+        // True / False normalization
+        if ($question->type === 'true_false') {
+            $truthy = ['true', 'benar', 'ya', '1', 't', 'b'];
+            $falsy = ['false', 'salah', 'tidak', '0', 'f', 's'];
+
+            $userIsTruthy = in_array($userStr, $truthy, true);
+            $userIsFalsy = in_array($userStr, $falsy, true);
+            $correctIsTruthy = in_array($correctStr, $truthy, true);
+            $correctIsFalsy = in_array($correctStr, $falsy, true);
+
+            if ($userIsTruthy && $correctIsTruthy) {
+                return true;
+            }
+            if ($userIsFalsy && $correctIsFalsy) {
+                return true;
+            }
+
+            return false;
+        }
+
+        // Multiple Choice resolution (letter index vs option text)
+        if ($question->type === 'multiple_choice' && is_array($question->options)) {
+            $options = array_values($question->options);
+            $letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+            // Find letter or text for correct answer
+            $correctLetter = null;
+            $correctText = null;
+
+            $cIndex = array_search($correctStr, array_map('strtolower', array_map('trim', $options)), true);
+            if ($cIndex !== false) {
+                $correctText = strtolower(trim($options[$cIndex]));
+                $correctLetter = $letters[$cIndex] ?? null;
+            } elseif (in_array($correctStr, $letters, true)) {
+                $cIdx = array_search($correctStr, $letters, true);
+                $correctLetter = $correctStr;
+                $correctText = isset($options[$cIdx]) ? strtolower(trim($options[$cIdx])) : null;
+            }
+
+            // Find letter or text for user answer
+            $userLetter = null;
+            $userText = null;
+
+            $uIndex = array_search($userStr, array_map('strtolower', array_map('trim', $options)), true);
+            if ($uIndex !== false) {
+                $userText = strtolower(trim($options[$uIndex]));
+                $userLetter = $letters[$uIndex] ?? null;
+            } elseif (in_array($userStr, $letters, true)) {
+                $uIdx = array_search($userStr, $letters, true);
+                $userLetter = $userStr;
+                $userText = isset($options[$uIdx]) ? strtolower(trim($options[$uIdx])) : null;
+            }
+
+            // If user's letter matches correct letter
+            if ($userLetter && $correctLetter && $userLetter === $correctLetter) {
+                return true;
+            }
+
+            // If user's text matches correct text
+            if ($userText && $correctText && $userText === $correctText) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

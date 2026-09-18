@@ -12,6 +12,7 @@ import {
   CalendarDots,
   GraduationCap,
   CheckSquareOffset,
+  BookOpen,
 } from 'phosphor-react-native';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { useUniTheme } from '@/store/useThemeStore';
@@ -123,6 +124,12 @@ export const BottomNav: React.FC = () => {
       route: '/tasks',
       label: 'Tugas',
       icon: (color) => <CheckSquareOffset size={22} color={color} weight="duotone" />,
+    },
+    {
+      name: 'learning',
+      route: '/learning',
+      label: 'Belajar',
+      icon: (color) => <BookOpen size={22} color={color} weight="duotone" />,
     },
   ];
 

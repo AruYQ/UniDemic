@@ -46,15 +46,16 @@ class MessageController extends Controller
         $conversation = $this->getConversation($request, $conversation_id);
         $user = $request->user();
 
-        $query = $conversation->messages()
+        $limit = $request->query('limit', 50);
+
+        $messages = $conversation->messages()
+            ->withTrashed()
             ->with(['user', 'replyTo.user', 'attachments', 'reactions.user'])
-            ->orderBy('created_at', 'asc');
-
-        if ($request->has('limit')) {
-            $query->limit((int) $request->query('limit'));
-        }
-
-        $messages = $query->get();
+            ->latest()
+            ->take((int) $limit)
+            ->get()
+            ->reverse()
+            ->values();
 
         // Update read status for the user
         $conversation->participants()

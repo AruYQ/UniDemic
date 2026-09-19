@@ -22,7 +22,7 @@ class StoreConversationRequest extends FormRequest
             'participant_ids.*' => ['integer', 'exists:users,id'],
             'name' => ['nullable', 'string', 'max:255', 'required_if:type,group,course'],
             'description' => ['nullable', 'string'],
-            'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            'course_id' => ['nullable', 'required_if:type,course', 'integer', 'exists:courses,id'],
         ];
     }
 }

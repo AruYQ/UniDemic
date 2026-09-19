@@ -395,8 +395,8 @@ Setiap entry menggunakan format ini:
 - **Shared Types ([packages/types/src/index.ts](file:///c:/proj/UniDemic/packages/types/src/index.ts))**:
   - Menambahkan tipe & antarmuka TypeScript untuk komunikasi perkuliahan: `ConversationType`, `ParticipantRole`, `MessageType`, `AcademicReferenceType`, `ConversationParticipant`, `MessageAttachment`, `MessageReaction`, `AcademicReference`, `Message`, `Conversation`, `CreateConversationPayload`, `UpdateConversationPayload`, `AddParticipantPayload`, `SendMessagePayload`, `UpdateMessagePayload`, `ToggleReactionPayload`, `CreateCourseChannelPayload`.
 - **Database Migrations (`apps/api/database/migrations/`)**:
-  - `2026_09_19_000001_create_conversations_table.php`: tabel `conversations` (type, title, description, course_id, channel_name, created_by, is_archived, last_message_at) dan `conversation_participants` (conversation_id, user_id, role, last_read_at, is_muted).
-  - `2026_09_19_000002_create_messages_table.php`: tabel `messages` (conversation_id, user_id, reply_to_id, type, body, academic_reference_type, academic_reference_id, is_edited, deleted_at), `message_attachments` (message_id, file_name, file_path, file_type, file_size), dan `message_reactions` (message_id, user_id, emoji).
+  - `2026_09_19_000001_create_conversations_table.php`: tabel `conversations` (type, name, description, course_id, avatar_url, created_by, last_message_at) dan `conversation_participants` (conversation_id, user_id, role, last_read_at, joined_at).
+  - `2026_09_19_000002_create_messages_table.php`: tabel `messages` (conversation_id, user_id, content, type, reply_to_id, reference_type, reference_id, deleted_at), `message_attachments` (message_id, file_path, file_name, file_size, file_type), dan `message_reactions` (message_id, user_id, emoji).
 - **Eloquent Models (`apps/api/app/Models/`)**:
   - `Conversation`: method pembantu `isParticipant($userId)`, `unreadCountFor($userId)`, relasi ke `course`, `creator`, `participants`, `users`, `messages`, `lastMessage`.
   - `ConversationParticipant`: relasi ke `conversation` dan `user`.

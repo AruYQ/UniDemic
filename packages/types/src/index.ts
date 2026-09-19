@@ -642,7 +642,7 @@ export interface SubmitQuizAttemptPayload {
 export type ConversationType = 'direct' | 'group' | 'course';
 export type ParticipantRole = 'admin' | 'member';
 export type MessageType = 'text' | 'image' | 'file' | 'academic_ref' | 'system';
-export type AcademicReferenceType = 'course' | 'assignment' | 'exam' | 'material' | 'note' | 'task';
+export type AcademicReferenceType = 'course' | 'assignment' | 'exam' | 'material' | 'note' | 'task' | 'quiz';
 
 export interface ConversationParticipant {
   id: number;
@@ -737,6 +737,10 @@ export interface SendMessagePayload {
   reply_to_id?: number | null;
   reference_type?: AcademicReferenceType | null;
   reference_id?: number | null;
+}
+
+export interface UpdateMessagePayload {
+  content: string;
 }
 
 export interface ToggleReactionPayload {

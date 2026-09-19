@@ -18,7 +18,8 @@ class MessageResource extends JsonResource
             'id' => $this->id,
             'conversation_id' => $this->conversation_id,
             'user_id' => $this->user_id,
-            'content' => $this->content,
+            'content' => $this->deleted_at ? 'Pesan ini telah dihapus' : $this->content,
+            'is_deleted' => !is_null($this->deleted_at),
             'type' => $this->type,
             'reply_to_id' => $this->reply_to_id,
             'reply_to' => $this->whenLoaded('replyTo', function () {
@@ -26,7 +27,8 @@ class MessageResource extends JsonResource
                 return [
                     'id' => $this->replyTo->id,
                     'user_id' => $this->replyTo->user_id,
-                    'content' => $this->replyTo->content,
+                    'content' => $this->replyTo->deleted_at ? 'Pesan ini telah dihapus' : $this->replyTo->content,
+                    'is_deleted' => !is_null($this->replyTo->deleted_at),
                     'user' => [
                         'id' => $this->replyTo->user?->id,
                         'name' => $this->replyTo->user?->name,

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('reply_to_id')->nullable()->constrained('messages')->nullOnDelete();
             $table->string('reference_type', 30)->nullable(); // course, assignment, exam, material, note, task
             $table->unsignedBigInteger('reference_id')->nullable();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['conversation_id', 'created_at']);

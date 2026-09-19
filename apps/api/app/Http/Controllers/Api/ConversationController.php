@@ -203,11 +203,25 @@ class ConversationController extends Controller
     {
         $conversation = $this->getUserConversation($request, $id);
 
+        $user = $request->user();
+
         if ($conversation->type === 'direct') {
             return response()->json([
                 'success' => false,
                 'message' => 'Cannot add participants to a direct message',
             ], 422);
+        }
+
+        $isAdmin = $conversation->participants()
+            ->where('user_id', $user->id)
+            ->where('role', 'admin')
+            ->exists();
+
+        if (!$isAdmin && $conversation->created_by !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized to add participants',
+            ], 403);
         }
 
         $userIds = $request->validated('user_ids');

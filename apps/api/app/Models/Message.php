@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Message extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The table associated with the model.
@@ -97,6 +98,7 @@ class Message extends Model
             'material' => ($m = Material::find($this->reference_id)) ? ['id' => $m->id, 'title' => $m->title, 'type' => $m->type] : null,
             'note' => ($n = Note::find($this->reference_id)) ? ['id' => $n->id, 'title' => $n->title] : null,
             'task' => ($t = Task::find($this->reference_id)) ? ['id' => $t->id, 'title' => $t->title, 'priority' => $t->priority] : null,
+            'quiz' => ($q = Quiz::find($this->reference_id)) ? ['id' => $q->id, 'title' => $q->title] : null,
             default => null,
         };
     }

@@ -20,7 +20,7 @@ class SendMessageRequest extends FormRequest
             'content' => ['required', 'string'],
             'type' => ['nullable', 'string', 'in:text,image,file,academic_ref,system'],
             'reply_to_id' => ['nullable', 'integer', 'exists:messages,id'],
-            'reference_type' => ['nullable', 'string', 'in:course,assignment,exam,material,note,task'],
+            'reference_type' => ['nullable', 'string', 'in:course,assignment,exam,material,note,task,quiz'],
             'reference_id' => ['nullable', 'integer'],
             'files' => ['nullable', 'array'],
             'files.*' => ['file', 'max:25600'], // max 25MB per file

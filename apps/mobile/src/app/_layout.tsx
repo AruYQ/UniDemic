@@ -92,6 +92,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="tasks" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="learning" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>
     </GestureHandlerRootView>

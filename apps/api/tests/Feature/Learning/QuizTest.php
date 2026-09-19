@@ -165,4 +165,56 @@ class QuizTest extends TestCase
             'correct_answer' => 'false',
         ]);
     }
+
+    public function test_quiz_attempt_normalizes_answer_representations(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
+
+        $quiz = $user->quizzes()->create([
+            'title' => 'Normalization Test Quiz',
+            'time_limit_minutes' => 10,
+        ]);
+
+        // Question 1: correct_answer is 'C' (letter), user submits option text 'Merge Sort'
+        $q1 = $quiz->questions()->create([
+            'type' => 'multiple_choice',
+            'question' => 'Which sort is O(N log N)?',
+            'options' => ['Bubble Sort', 'Selection Sort', 'Merge Sort', 'Insertion Sort'],
+            'correct_answer' => 'C',
+            'order' => 1,
+        ]);
+
+        // Question 2: correct_answer is 'true', user submits 'Benar' (Indonesian truthy)
+        $q2 = $quiz->questions()->create([
+            'type' => 'true_false',
+            'question' => 'Array index lookup is O(1).',
+            'options' => ['Benar', 'Salah'],
+            'correct_answer' => 'true',
+            'order' => 2,
+        ]);
+
+        // Question 3: correct_answer is option text 'Dijkstra', user submits letter 'A'
+        $q3 = $quiz->questions()->create([
+            'type' => 'multiple_choice',
+            'question' => 'Shortest path algorithm?',
+            'options' => ['Dijkstra', 'Kruskal', 'Prim', 'Floyd'],
+            'correct_answer' => 'Dijkstra',
+            'order' => 3,
+        ]);
+
+        $res = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->postJson("/api/quizzes/{$quiz->id}/attempt", [
+                'answers' => [
+                    ['question_id' => $q1->id, 'user_answer' => 'Merge Sort'],
+                    ['question_id' => $q2->id, 'user_answer' => 'Benar'],
+                    ['question_id' => $q3->id, 'user_answer' => 'A'],
+                ],
+            ]);
+
+        $res->assertStatus(201)
+            ->assertJsonPath('data.total_questions', 3)
+            ->assertJsonPath('data.correct_answers', 3)
+            ->assertJsonPath('data.score', 100);
+    }
 }

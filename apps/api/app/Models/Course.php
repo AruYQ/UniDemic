@@ -125,5 +125,13 @@ class Course extends Model
     {
         return $this->hasMany(Quiz::class);
     }
+
+    /**
+     * Get all discussion channels associated with this course.
+     */
+    public function discussions(): HasMany
+    {
+        return $this->hasMany(Conversation::class)->where('type', 'course');
+    }
 }
 

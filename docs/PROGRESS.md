@@ -237,7 +237,39 @@
 
 ## Phase 6 — Communication
 
-> Akan diisi setelah Checkpoint 5 selesai.
+> **Status Terkini**: Backend API telah selesai 100% (15 Feature Tests, 57 assertions; total suite 124 tests 100% pass) pada branch `feature/backend/communication`. Modul antarmuka mobile siap dikerjakan oleh Dev B.
+
+### Dev A (Backend / rekis-0103)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Shared TypeScript types (`packages/types`) | `[x]` | Conversation, Message, Reaction, Attachment, Academic Reference contracts |
+| Database migrations | `[x]` | `conversations`, `conversation_participants`, `messages`, `message_attachments`, `message_reactions` |
+| Eloquent Models & Relations | `[x]` | Conversation, ConversationParticipant, Message, MessageAttachment, MessageReaction with user & course relations |
+| API Resources & FormRequests | `[x]` | Strict FormRequest validation & JSON Resources for all Communication entities |
+| Conversation endpoints (`/conversations`, `/participants`) | `[x]` | Direct message deduplication, group chat, participant management & unread counters |
+| Message endpoints (`/conversations/{id}/messages`, `/reactions`) | `[x]` | Message sending, replies, attachments, soft deletion, and emoji reactions |
+| Course Discussion endpoints (`/courses/{id}/discussions`) | `[x]` | Auto-provisioning default channels (`#general`, `#tugas`, `#ujian`, `#resources`) & custom channels |
+| Feature Test Suite (Communication) | `[x]` | 15 tests passed, 57 assertions (124 total tests suite passed) |
+
+### Dev B (Frontend / AruYQ)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Inbox & Conversation list UI | `[ ]` | Chat tab, conversation search, unread badge, direct & group creation |
+| Chat Room & Real-time Messaging UI | `[ ]` | Message bubbles, replies, attachment preview, reactions picker |
+| Course Discussion Channels UI | `[ ]` | Course channel switcher (`#general`, `#tugas`, etc.) & discussion threads |
+
+### ⏳ Checkpoint 6 Verification
+
+| Item | Status | Verified by | Tanggal |
+|------|--------|-------------|---------|
+| Backend Communication API Suite 100% Pass | `[x]` | Dev A (Test Suite: 15 tests, 57 assertions) | 2026-09-19 |
+| Direct Conversation Deduplication Logic | `[x]` | Dev A (Feature Tests & Unique Pair Check) | 2026-09-19 |
+| Course Channel Auto-Provisioning | `[x]` | Dev A (CourseDiscussionController verified) | 2026-09-19 |
+| Message Emoji Reaction Toggle | `[x]` | Dev A (MessageTest verified) | 2026-09-19 |
+| Mobile Communication Screen & Chat Flow | `[ ]` | Dev B (React Native + Expo) | - |
+| User Acceptance & E2E Validation | `[ ]` | User & Dev B | - |
 
 ---
 
@@ -259,4 +291,4 @@
 
 ---
 
-*Terakhir diupdate: 2026-09-18 | Updated by: Dev B (AruYQ)*
+*Terakhir diupdate: 2026-09-19 | Updated by: Dev A (rekis-0103)*

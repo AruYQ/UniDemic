@@ -3,7 +3,9 @@
 use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\CourseDiscussionController;
 use App\Http\Controllers\Api\CourseScheduleController;
 use App\Http\Controllers\Api\ExamController;
 use App\Http\Controllers\Api\FlashcardController;
@@ -11,6 +13,7 @@ use App\Http\Controllers\Api\GoalController;
 use App\Http\Controllers\Api\GpaController;
 use App\Http\Controllers\Api\GradeController;
 use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\QuizController;
@@ -192,6 +195,28 @@ $registerApiRoutes = function () {
         Route::post('/quizzes/{id}/attempt', [QuizController::class, 'submitAttempt']);
         Route::get('/quizzes/{id}/attempts', [QuizController::class, 'attempts']);
         Route::get('/quizzes/{id}/attempts/{attempt_id}', [QuizController::class, 'attemptShow']);
+
+        // Phase 6: Communication — Conversations & Direct/Group Messaging
+        Route::get('/conversations', [ConversationController::class, 'index']);
+        Route::post('/conversations', [ConversationController::class, 'store']);
+        Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+        Route::put('/conversations/{id}', [ConversationController::class, 'update']);
+        Route::delete('/conversations/{id}', [ConversationController::class, 'destroy']);
+        Route::post('/conversations/{id}/participants', [ConversationController::class, 'addParticipants']);
+        Route::delete('/conversations/{id}/participants/{user_id}', [ConversationController::class, 'removeParticipant']);
+        Route::post('/conversations/{id}/read', [ConversationController::class, 'markAsRead']);
+
+        // Phase 6: Communication — Messages, Reactions & Attachments
+        Route::get('/conversations/{conversation_id}/messages', [MessageController::class, 'index']);
+        Route::post('/conversations/{conversation_id}/messages', [MessageController::class, 'store']);
+        Route::get('/messages/{id}', [MessageController::class, 'show']);
+        Route::put('/messages/{id}', [MessageController::class, 'update']);
+        Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
+        Route::post('/messages/{id}/reactions', [MessageController::class, 'toggleReaction']);
+
+        // Phase 6: Communication — Course Discussion Channels
+        Route::get('/courses/{course_id}/discussions', [CourseDiscussionController::class, 'index']);
+        Route::post('/courses/{course_id}/discussions', [CourseDiscussionController::class, 'store']);
 
         // Backward compatibility
         Route::get('/user', function (Request $request) {

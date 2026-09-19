@@ -51,7 +51,7 @@ Status pengerjaan detail dan riwayat pengerjaan dapat dilihat di [docs/PROGRESS.
 | **3** | **Pelacakan Akademik** (Presensi, Komponen Nilai, IPS/IPK, Simulator) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **4** | **Produktivitas** (Tugas, Sasaran Belajar, Sesi Fokus, Perencana Cerdas) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
 | **5** | **Pembelajaran** (Materi, Catatan, Kartu Flash, Kuis) | ✅ Selesai | ✅ Selesai | ✅ Selesai |
-| **6** | **Komunikasi** (Obrolan, Pesan Langsung, Diskusi Kuliah) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
+| **6** | **Komunikasi** (Obrolan, Pesan Langsung, Diskusi Kuliah) | ⏳ Dalam Pengerjaan | ✅ Selesai | ⏳ Terjadwal |
 | **7** | **Kolaborasi** (Kelompok Belajar, Proyek Tim, Papan Kanban) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **8** | **Kecerdasan AI** (Asisten AI, RAG Ringkasan, Generator Kuis) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
 | **9** | **Aplikasi Web** (Dasbor Desktop/Tablet Next.js) | ⏳ Terjadwal | ⏳ Terjadwal | ⏳ Terjadwal |
@@ -124,7 +124,7 @@ Sebelum mengajukan integrasi fitur baru, seluruh rangkaian pengujian wajib lulus
   cd apps/api
   php artisan test
   ```
-  *(92 pengujian lulus, 334 asersi mencakup modul Autentikasi, Inti Akademik, Pelacakan Nilai, dan Produktivitas).*
+  *(124 pengujian lulus, 570 asersi mencakup modul Autentikasi, Inti Akademik, Pelacakan Nilai, Produktivitas, Pembelajaran, dan Komunikasi).*
 
 - **Pemeriksaan Tipe Statis Mobile**:
   ```bash

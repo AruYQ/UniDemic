@@ -384,6 +384,56 @@ Setiap entry menggunakan format ini:
 - `php artisan test` (seluruh sistem): 107 passed (503 assertions, 100% Pass).
 - `npx tsc --noEmit` di `apps/mobile`: 0 error (100% Pass).
 
+---
+
+### [2026-09-19] — Phase 6 Communication Backend API Implementation
+
+**Branch**: `feature/backend/communication`
+**Status**: Selesai & Terverifikasi (124 Feature Tests Pass) ✅
+
+**Yang dikerjakan:**
+- **Shared Types ([packages/types/src/index.ts](file:///c:/proj/UniDemic/packages/types/src/index.ts))**:
+  - Menambahkan tipe & antarmuka TypeScript untuk komunikasi perkuliahan: `ConversationType`, `ParticipantRole`, `MessageType`, `AcademicReferenceType`, `ConversationParticipant`, `MessageAttachment`, `MessageReaction`, `AcademicReference`, `Message`, `Conversation`, `CreateConversationPayload`, `UpdateConversationPayload`, `AddParticipantPayload`, `SendMessagePayload`, `UpdateMessagePayload`, `ToggleReactionPayload`, `CreateCourseChannelPayload`.
+- **Database Migrations (`apps/api/database/migrations/`)**:
+  - `2026_09_19_000001_create_conversations_table.php`: tabel `conversations` (type, title, description, course_id, channel_name, created_by, is_archived, last_message_at) dan `conversation_participants` (conversation_id, user_id, role, last_read_at, is_muted).
+  - `2026_09_19_000002_create_messages_table.php`: tabel `messages` (conversation_id, user_id, reply_to_id, type, body, academic_reference_type, academic_reference_id, is_edited, deleted_at), `message_attachments` (message_id, file_name, file_path, file_type, file_size), dan `message_reactions` (message_id, user_id, emoji).
+- **Eloquent Models (`apps/api/app/Models/`)**:
+  - `Conversation`: method pembantu `isParticipant($userId)`, `unreadCountFor($userId)`, relasi ke `course`, `creator`, `participants`, `users`, `messages`, `lastMessage`.
+  - `ConversationParticipant`: relasi ke `conversation` dan `user`.
+  - `Message`: relasi ke `conversation`, `user`, `replyTo`, `replies`, `attachments`, `reactions`, accessor `academic_reference_data` (resolusi dinamis ke assignment, exam, material, note, quiz).
+  - `MessageAttachment`: accessor `file_url` (Storage URL).
+  - `MessageReaction`: relasi ke `message` dan `user`.
+  - Penambahan relasi di `User` (`conversations`, `participations`, `messages`) dan `Course` (`discussions`).
+- **Events & Broadcasting (`apps/api/app/Events/`)**:
+  - `MessageSent`: implements `ShouldBroadcast` pada channel privat `conversation.{id}`.
+  - `MessageReactionUpdated`: implements `ShouldBroadcast` pada channel privat `conversation.{id}`.
+- **FormRequests & API Resources (`apps/api/app/Http/Requests/Communication/` & `Resources/`)**:
+  - FormRequest: `StoreConversationRequest`, `UpdateConversationRequest`, `AddParticipantRequest`, `SendMessageRequest`, `UpdateMessageRequest`, `ToggleReactionRequest`, `StoreCourseChannelRequest`.
+  - API Resources: `ConversationResource`, `ConversationParticipantResource`, `MessageResource`, `MessageAttachmentResource`, `MessageReactionResource`.
+- **Controllers & API Endpoints (`apps/api/app/Http/Controllers/Api/`)**:
+  - `ConversationController`: CRUD percakapan, deduplikasi pesan langsung (DM), manajemen partisipan (tambah/hapus), serta penandaan pesan telah dibaca (`/conversations/{id}/read`).
+  - `MessageController`: Pagination pesan (50 pesan terbaru), pengiriman pesan teks & lampiran file, reply thread, update/delete pesan (soft delete), serta toggle reaksi emoji (`/messages/{id}/reactions`).
+  - `CourseDiscussionController`: Auto-provisioning kanal diskusi default kelas (`#general`, `#tugas`, `#ujian`, `#resources`) untuk setiap mata kuliah, serta pembuatan custom channel.
+- **Pendaftaran Rute API ([routes/api.php](file:///c:/proj/UniDemic/apps/api/routes/api.php))**:
+  - Mendaftarkan 20 endpoint komunikasi di bawah middleware `auth:sanctum` untuk `/api/...` dan `/api/v1/...`.
+- **Feature Test Suite (`apps/api/tests/Feature/Communication/`)**:
+  - `ConversationTest.php`: 6 tests pass (create direct message, deduplicate DM, group conversation, unread count & mark read, add participant, access control).
+  - `MessageTest.php`: 6 tests pass (send message, reply to message, upload attachment, toggle emoji reaction, soft delete message, access control).
+  - `CourseDiscussionTest.php`: 3 tests pass (auto-provision default course channels, create custom channel, post message to course channel).
+  - Total test suite backend: 124 tests pass (570 assertions, 100% Pass).
+
+**Keputusan teknis:**
+- **Direct Message (DM) Deduplication**: Sebelum membuat percakapan `direct`, backend memeriksa apakah sudah ada percakapan direct antara 2 user tersebut. Jika sudah ada, sistem mengembalikan percakapan yang sudah ada daripada membuat duplikat baru.
+- **Course Channel Auto-Provisioning**: Setiap mata kuliah secara cerdas otomatis dilengkapi dengan 4 kanal diskusi baku (`#general`, `#tugas`, `#ujian`, `#resources`) saat endpoint diskusi pertama kali diakses, memastikan mahasiswa langsung memiliki ruang diskusi yang terstruktur.
+- **Real-time Event Broadcasting**: Event `MessageSent` dan `MessageReactionUpdated` disiapkan dengan kontrak `ShouldBroadcast` pada `PrivateChannel('conversation.{id}')` untuk mendukung integrasi WebSocket (Laravel Reverb / Pusher / Soketi) di masa mendatang tanpa breaking changes.
+- **Soft Message Deletion**: Pesan yang dihapus menggunakan soft-delete sehingga status pesan tetap tercatat di database (`deleted_at`), dan konten digantikan dengan teks penanda ("Pesan ini telah dihapus") pada respons JSON untuk menjaga integritas alur thread/balasan.
+
+**Test results:**
+- `php artisan test --filter=Communication`: 15 passed (57 assertions, 100% Pass).
+- `php artisan test` (seluruh sistem): 124 passed (570 assertions, 100% Pass).
+- `npx tsc --noEmit` di `apps/mobile`: 0 error (100% Pass).
+
+
 
 
 

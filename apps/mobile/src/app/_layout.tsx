@@ -93,6 +93,22 @@ export default function RootLayout() {
         />
         <Stack.Screen name="tasks" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="learning" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen
+          name="chat/index"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 240,
+          }}
+        />
+        <Stack.Screen
+          name="chat/[id]"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 240,
+          }}
+        />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>
     </GestureHandlerRootView>

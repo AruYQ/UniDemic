@@ -562,3 +562,45 @@ Setiap entry menggunakan format ini:
   - Pull Request: [#7](https://github.com/AruYQ/UniDemic/pull/7) (Merged to `develop`)
   - ADR: [ADR-0009](../decisions/ADR.md#adr-0009--dynamic-fisher-yates-quiz-randomization--dual-layer-answer-normalization), [ADR-0010](../decisions/ADR.md#adr-0010--backend-automated-testing-environment-isolation-sqlite-in-memory)
 
+---
+
+### [2026-09-23] — Phase 6: Academic Communication & Discussion Channels Mobile Implementation
+
+**Branch**: `feature/mobile/communication`
+**Status**: Selesai Diimplementasikan & Terverifikasi (TypeScript 0 Error, Siap Testing Device)
+
+**Yang dikerjakan:**
+1. **Shared Types & API Service Layer**:
+   - `types/communication.ts`: Kontrak TypeScript lengkap untuk `Conversation`, `Message`, `MessageReaction`, `MessageAttachment`, `AcademicReference`, dan payload request DTOs.
+   - `services/communicationService.ts`: Axios client wrapper untuk 16 endpoint komunikasi (DMs, group chats, course discussion channels, replies, reactions, dan academic references).
+2. **State Management (Zustand)**:
+   - `store/useCommunicationStore.ts`: Central state untuk cache percakapan, channel per mata kuliah, unread count global, live message updates, reply thread composer, dan optimistic message sending dengan auto-rollback on error.
+3. **Komponen Desain Premium (`components/communication/`)**:
+   - `AcademicRefPreview.tsx`: Interactive preview card untuk referensi tugas, ujian, materi kuliah, catatan, dan kuis yang disematkan dalam pesan obrolan.
+   - `MessageBubble.tsx`: Asymmetrical chat layout (pengirim di kanan dengan indigo tint, lawan bicara di kiri dengan surface card & initial avatar real), strip quote reply, badge reaksi emoji dinamis, status soft-delete, dan timestamp JetBrains Mono.
+   - `ChatInputBar.tsx`: Auto-growing composer input dengan safe keyboard avoidance, quick emoji reaction selector, banner reply yang dapat dibatalkan, dan tombol kirim tactile spring.
+   - `ConversationCard.tsx`: Inbox card dengan inisial avatar real, snippet pesan terakhir cerdas (mendeteksi lampiran & referensi), timestamp adaptif (jam / kemarin / tanggal), unread count pill badge, dan gesture swipe-to-delete.
+   - `CourseChannelCard.tsx`: Kartu saluran kuliah bernomor tag `#` tematik (`#general`, `#tugas`, `#ujian`, `#resources`) dengan unread badge.
+   - `NewChatModal.tsx`: Modal sheet untuk memulai pesan langsung dengan kontak teman/dosen terverifikasi atau membuat grup belajar baru dengan multi-selection anggota.
+   - `AcademicAttachmentPickerModal.tsx`: Bottom sheet picker untuk menyematkan tugas, ujian, materi, catatan, atau kuis langsung ke composer obrolan.
+4. **Halaman & Integrasi Aplikasi**:
+   - `app/chat/index.tsx`: Inbox screen dengan header title Syne Bold, search bar real-time, category filter pills (Semua, Pesan Langsung, Grup Belajar, Saluran Kuliah), skeleton shimmer loading, empty state ilustratif, dan natural-zone FAB.
+   - `app/chat/[id].tsx`: Interactive chat room dengan inverted message flow, auto-scroll to bottom, date badges, long-press action menu (balas, reaksi, hapus), live polling sync (4s), dan safe keyboard vertical offset.
+   - `app/_layout.tsx`: Registrasi stack screens `chat/index` dan `chat/[id]` dengan smooth slide animations.
+   - `app/index.tsx`: Shortcut tombol obrolan di top header bar dengan live dynamic unread badge (`ChatCircleDots`).
+   - `app/course/[id].tsx`: Penambahan tab ke-6 "Diskusi" pada detail mata kuliah yang terhubung langsung ke saluran diskusi `#general`, `#tugas`, `#ujian`, `#resources`.
+5. **Database Seeding (`DatabaseSeeder.php`)**:
+   - Seeding data komunikasi realistis antara akun demo Budi Mahasiswa dan Aru Mahasiswa (Direct message seputar algoritma graf & pohon AVL, Group project chat, serta saluran diskusi matkul IF3101).
+
+**Vibe Check & Anti-Slop Compliance**:
+- **Design Tokens**: Menggunakan ketat palette `#0F1117`, `#171B26`, `#1E2333`, `#6B7FD7`, `#4ECDC4`, `#F7B731` tanpa hardcoded hex arbitrary.
+- **Typography**: Space Grotesk (headings & body), Syne Bold (display), JetBrains Mono (timestamps, channel tags `#`, NIM).
+- **Icons**: Phosphor Icons Duotone (`phosphor-react-native`).
+- **Loading State**: Shimmer skeleton cards (`ShimmerBox`) alih-alih ActivityIndicator spinner generik.
+- **Thumb Zone**: FAB obrolan dan tombol kirim diposisikan di 40% area bawah layar (Natural Zone).
+
+**Verifikasi & Quality Gate**:
+- `npx tsc --noEmit`: 0 error (100% clean build).
+- Testing lokal dan device live siap diverifikasi pengguna sebelum merge/PR.
+
+

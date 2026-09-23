@@ -256,9 +256,9 @@
 
 | Task | Status | Catatan |
 |------|--------|---------|
-| Inbox & Conversation list UI | `[ ]` | Chat tab, conversation search, unread badge, direct & group creation |
-| Chat Room & Real-time Messaging UI | `[ ]` | Message bubbles, replies, attachment preview, reactions picker |
-| Course Discussion Channels UI | `[ ]` | Course channel switcher (`#general`, `#tugas`, etc.) & discussion threads |
+| Inbox & Conversation list UI | `[x]` | `ChatInboxScreen` (`app/chat/index.tsx`), search filter, unread badge, filter tabs (Semua, Langsung, Grup, Saluran), `ConversationCard`, `NewChatModal` |
+| Chat Room & Real-time Messaging UI | `[x]` | `ChatRoomScreen` (`app/chat/[id].tsx`), `MessageBubble`, thread reply quote, emoji reaction pills, context actions modal, `ChatInputBar`, `AcademicAttachmentPickerModal`, live polling |
+| Course Discussion Channels UI | `[x]` | `CourseChannelCard`, 6th tab "Diskusi" on Course Detail (`app/course/[id].tsx`), `#general`, `#tugas`, `#ujian`, `#resources` integration |
 
 ### ⏳ Checkpoint 6 Verification
 
@@ -268,8 +268,8 @@
 | Direct Conversation Deduplication Logic | `[x]` | Dev A (Feature Tests & Unique Pair Check) | 2026-09-19 |
 | Course Channel Auto-Provisioning | `[x]` | Dev A (CourseDiscussionController verified) | 2026-09-19 |
 | Message Emoji Reaction Toggle | `[x]` | Dev A (MessageTest verified) | 2026-09-19 |
-| Mobile Communication Screen & Chat Flow | `[ ]` | Dev B (React Native + Expo) | - |
-| User Acceptance & E2E Validation | `[ ]` | User & Dev B | - |
+| Mobile Communication Screen & Chat Flow | `[x]` | Dev B (React Native + Expo, 0 TS errors) | 2026-09-23 |
+| User Acceptance & E2E Validation | `[ ]` | User & Dev B (Testing sebelum PR) | - |
 
 ---
 

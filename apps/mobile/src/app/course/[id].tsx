@@ -23,6 +23,7 @@ import {
   ClockCounterClockwise,
   Medal,
   SlidersHorizontal,
+  ChatsCircle,
 } from 'phosphor-react-native';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { Course } from '@/types/academic';
@@ -50,7 +51,9 @@ import { UniButton } from '@/components/ui/UniButton';
 import { CourseDetailSkeleton } from '@/components/ui/UniSkeleton';
 import { useAcademicStore } from '@/store/useAcademicStore';
 import { useTrackingStore } from '@/store/useTrackingStore';
+import { useCommunicationStore } from '@/store/useCommunicationStore';
 import { useUniTheme } from '@/store/useThemeStore';
+import { CourseChannelCard } from '@/components/communication/CourseChannelCard';
 
 /*
 <vibe_check>
@@ -64,7 +67,7 @@ Anti-slop check  : Rule #1 (tokens), Rule #2 (Phosphor duotone), Rule #4 (dynami
 </vibe_check>
 */
 
-type TabType = 'schedules' | 'assignments' | 'exams' | 'attendance' | 'grades';
+type TabType = 'schedules' | 'assignments' | 'exams' | 'attendance' | 'grades' | 'discussions';
 
 export default function CourseDetailScreen() {
   const router = useRouter();
@@ -98,6 +101,8 @@ export default function CourseDetailScreen() {
     createGrade,
     deleteGrade,
   } = useTrackingStore();
+
+  const { courseDiscussions, fetchCourseDiscussions } = useCommunicationStore();
 
   const { colors: themeColors, shadows: themeShadows } = useUniTheme();
   const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
@@ -135,6 +140,8 @@ export default function CourseDetailScreen() {
       fetchCourseAttendance(courseId, force);
     } else if (activeTab === 'grades') {
       fetchCourseGrades(courseId, force);
+    } else if (activeTab === 'discussions') {
+      fetchCourseDiscussions(courseId, force);
     }
   };
 
@@ -148,6 +155,8 @@ export default function CourseDetailScreen() {
       fetchCourseAttendance(courseId);
     } else if (activeTab === 'grades') {
       fetchCourseGrades(courseId);
+    } else if (activeTab === 'discussions') {
+      fetchCourseDiscussions(courseId);
     }
   }, [activeTab, courseId]);
 
@@ -356,6 +365,7 @@ export default function CourseDetailScreen() {
   const courseComponents = gradeComponents[courseId] || [];
   const courseGradesList = grades[courseId] || [];
   const courseGpa = courseGpas[courseId];
+  const courseChannels = courseDiscussions[courseId] || [];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -486,6 +496,17 @@ export default function CourseDetailScreen() {
               style={[styles.tabText, activeTab === 'grades' && styles.tabTextActive]}
             >
               Nilai ({courseGradesList.length})
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setActiveTab('discussions')}
+            style={[styles.tabItem, activeTab === 'discussions' && styles.tabItemActive]}
+          >
+            <Text
+              style={[styles.tabText, activeTab === 'discussions' && styles.tabTextActive]}
+            >
+              Diskusi ({courseChannels.length})
             </Text>
           </Pressable>
         </ScrollView>
@@ -694,6 +715,35 @@ export default function CourseDetailScreen() {
                 description="Atur komponen penilaian berbobot lalu masukkan nilai untuk kalkulasi IPK otomatis."
                 actionLabel="Tambah Nilai"
                 onAction={() => setIsAddGradeModalOpen(true)}
+              />
+            )}
+          </View>
+        )}
+
+        {activeTab === 'discussions' && (
+          <View style={{ gap: spacing.xs }}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionHeading}>
+                Saluran Diskusi Kuliah ({courseChannels.length})
+              </Text>
+            </View>
+
+            {courseChannels.length > 0 ? (
+              courseChannels.map((channel, index) => (
+                <CourseChannelCard
+                  key={channel.id}
+                  channel={channel}
+                  index={index}
+                  onPress={() => router.push(`/chat/${channel.id}` as any)}
+                />
+              ))
+            ) : (
+              <EmptyState
+                icon={<ChatsCircle size={32} color={themeColors.brand.primary} weight="duotone" />}
+                title="Saluran Belum Ada"
+                description="Buka tab ini untuk membuat saluran diskusi otomatis seputar kuliah, tugas, dan ujian."
+                actionLabel="Muat Saluran"
+                onAction={() => fetchCourseDiscussions(courseId, true)}
               />
             )}
           </View>

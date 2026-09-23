@@ -303,6 +303,37 @@ Di lingkungan Docker Compose, variabel environment sistem operasi seperti `DB_CO
 
 ---
 
-> ⬇️ ADR berikutnya ditambahkan di bawah saat ada keputusan arsitektur baru
+## ADR-0011 — Unified Communication Architecture & Academic Reference System for Mobile
+
+**Tanggal**: 2026-09-23
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent (Dev B)
+
+### Konteks
+Platform UniDemic membutuhkan modul komunikasi (Phase 6) yang tidak sekadar berfungsi sebagai instant messaging biasa (seperti WhatsApp/Telegram klon), melainkan terintegrasi mendalam dengan siklus akademik mahasiswa:
+1. Mahasiswa perlu berdiskusi seputar mata kuliah spesifik dalam saluran tematik (`#general`, `#tugas`, `#ujian`, `#resources`).
+2. Pesan sering kali membahas tugas, ujian, catatan, kuis, atau materi perkuliahan tertentu. Menuliskan link manual atau teks statis rentan membingungkan dan tidak efisien.
+3. Desain harus memfasilitasi komunikasi pesan langsung (1-on-1 DM) dan kelompok belajar (Grup Proyek) dengan pengelolaan unread status yang akurat.
+
+### Keputusan
+1. **Unified Polymorphic Conversation Entity**:
+   - Baik percakapan langsung (`direct`), grup belajar (`group`), maupun saluran kuliah (`course`) diperlakukan sebagai instance dari model `Conversation` tunggal.
+   - Hal ini memungkinkan satu set komponen UI (`MessageBubble`, `ChatInputBar`, `useCommunicationStore`) melayani seluruh jenis interaksi pesan tanpa duplikasi logika.
+2. **Contextual Academic Reference System**:
+   - Pesan mendukung sematan entitas akademik polimorfik melalui field `reference_type` (`course`, `assignment`, `exam`, `material`, `note`, `quiz`) dan `reference_id`.
+   - Di sisi mobile, komponen `AcademicRefPreview` me-render kartu preview interaktif lengkap dengan icon duotone, judul entitas, dan kemampuan navigasi langsung (deep-link) ke layar terkait.
+   - Komponen `AcademicAttachmentPickerModal` memungkinkan mahasiswa melampirkan entitas akademik langsung dari composer tanpa perlu keluar dari ruang obrolan.
+3. **Optimistic Message Sending & Resilience**:
+   - Saat pengguna mengirim pesan, `useCommunicationStore` segera menghasilkan ID negatif temporer (`-Date.now()`) dan menyisipkannya ke stream pesan lokal.
+   - Indikator inbox dan ordering percakapan langsung diperbarui seketika. Jika transmisi server berhasil, ID temporer digantikan oleh data asli dari backend; jika gagal, pesan temporer dibatalkan secara otomatis dengan notifikasi kesalahan.
+4. **Adaptive Mobile Ergonomics & Keyboard Pinning**:
+   - Menggunakan `KeyboardAvoidingView` adaptif (`Platform.OS === 'ios' ? 'padding' : undefined`) dengan offset yang dikalibrasi agar composer input tetap melayang persis di atas keyboard virtual di zona jangkauan ibu jari (Natural Thumb Zone).
+
+### Konsekuensi
+- ✅ Interaksi obrolan terasa sangat responsif dan kontekstual secara akademis.
+- ✅ Komponen UI obrolan dapat dipakai ulang untuk diskusi mata kuliah maupun pesan pribadi.
+- ✅ Mengurangi visual clutter dengan preview badge terstandar alih-alih tautan teks sembarangan.
+- ⚠️ Memerlukan polling live interval ringan (4 detik) di layar obrolan aktif untuk mensimulasikan real-time feed sebelum koneksi WebSocket/Pusher resmi dipasang di production.
+
 
 

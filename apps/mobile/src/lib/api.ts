@@ -5,11 +5,19 @@ import { getAuthToken, removeAuthToken } from '../utils/secureStore';
 
 // Auto-detect host IP for Expo Go, Emulator, and Web
 const getDefaultApiUrl = () => {
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+
+  // On Web, localhost works directly
   if (Platform.OS === 'web') {
-    return 'http://localhost:8000/api';
+    return envUrl || 'http://localhost:8000/api';
   }
 
-  // When running via Expo Go on physical device, hostUri contains the PC's Wi-Fi IP (e.g. "192.168.1.39:8081")
+  // If explicitly configured with a non-localhost IP (e.g. 192.168.x.x or public domain), honor it
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl;
+  }
+
+  // When running via Expo Go on a physical device, hostUri dynamically contains the PC's current Wi-Fi IP
   const hostUri = Constants.expoConfig?.hostUri;
   if (hostUri) {
     const ip = hostUri.split(':')[0];
@@ -22,10 +30,10 @@ const getDefaultApiUrl = () => {
   }
 
   // Fallback for physical device on local Wi-Fi
-  return 'http://192.168.1.39:8000/api';
+  return 'http://192.168.1.25:8000/api';
 };
 
-export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || getDefaultApiUrl();
+export const BASE_URL = getDefaultApiUrl();
 
 export const api = axios.create({
   baseURL: BASE_URL,

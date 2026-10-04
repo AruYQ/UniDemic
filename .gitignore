@@ -28,6 +28,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Mobile (Expo / React Native)
+.expo/
 apps/mobile/.expo/
 apps/mobile/node_modules/
 apps/mobile/web-build/

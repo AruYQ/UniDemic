@@ -22,6 +22,7 @@ import {
   SunDim,
   Medal,
   BookOpen,
+  ChatCircleDots,
 } from 'phosphor-react-native';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { UniBadge } from '@/components/ui/UniBadge';
@@ -31,6 +32,7 @@ import { AppearanceModal } from '@/components/ui/AppearanceModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAcademicStore } from '@/store/useAcademicStore';
 import { useTrackingStore } from '@/store/useTrackingStore';
+import { useCommunicationStore } from '@/store/useCommunicationStore';
 import { useUniTheme } from '@/store/useThemeStore';
 import { DayOfWeek } from '@/types/academic';
 
@@ -59,6 +61,7 @@ export default function DashboardScreen() {
     fetchDashboard,
   } = useAcademicStore();
   const { cumulativeGpa, fetchGpaData } = useTrackingStore();
+  const { totalUnreadCount, fetchConversations } = useCommunicationStore();
   const { colors: themeColors, shadows: themeShadows, resolvedTheme } = useUniTheme();
   const styles = useMemo(() => createStyles(themeColors, themeShadows), [themeColors, themeShadows]);
   const [showAppearanceModal, setShowAppearanceModal] = useState(false);
@@ -67,6 +70,7 @@ export default function DashboardScreen() {
     // On-demand fetch khusus beranda
     fetchDashboard();
     fetchGpaData();
+    fetchConversations();
   }, []);
 
   const getGreeting = () => {
@@ -151,6 +155,21 @@ export default function DashboardScreen() {
           </View>
 
           <View style={styles.topActions}>
+            <Pressable
+              onPress={() => router.push('/chat' as any)}
+              style={styles.iconButton}
+              hitSlop={8}
+            >
+              <ChatCircleDots size={20} color={themeColors.brand.primary} weight="duotone" />
+              {totalUnreadCount > 0 && (
+                <View style={styles.chatBadge}>
+                  <Text style={styles.chatBadgeText}>
+                    {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+                  </Text>
+                </View>
+              )}
+            </Pressable>
+
             <Pressable
               onPress={() => setShowAppearanceModal(true)}
               style={styles.iconButton}
@@ -466,6 +485,26 @@ const createStyles = (colors: ThemeColors, shadows: ThemeShadows) =>
       borderColor: colors.border.subtle,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    chatBadge: {
+      position: 'absolute',
+      top: -4,
+      right: -4,
+      backgroundColor: colors.brand.primary,
+      borderRadius: radius.full,
+      minWidth: 18,
+      height: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 4,
+      borderWidth: 1.5,
+      borderColor: colors.bg.base,
+    },
+    chatBadgeText: {
+      fontFamily: typography.mono.fontFamily,
+      fontSize: 9,
+      color: '#FFFFFF',
+      fontWeight: '700',
     },
     heroCard: {
       backgroundColor: colors.bg.surface,

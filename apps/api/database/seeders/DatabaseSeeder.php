@@ -22,6 +22,10 @@ use App\Models\Flashcard;
 use App\Models\Quiz;
 use App\Models\QuizQuestion;
 use App\Models\QuizAttempt;
+use App\Models\Conversation;
+use App\Models\ConversationParticipant;
+use App\Models\Message;
+use App\Models\MessageReaction;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +60,7 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
+        $seededUsers = [];
         foreach ($demoUsers as $userData) {
             $user = User::firstOrCreate(
                 ['email' => $userData['email']],
@@ -63,6 +68,11 @@ class DatabaseSeeder extends Seeder
             );
 
             $this->seedUserData($user);
+            $seededUsers[] = $user;
+        }
+
+        if (count($seededUsers) >= 2) {
+            $this->seedCommunicationData($seededUsers[0], $seededUsers[1]);
         }
 
         $this->command->info('Database UniDemic berhasil di-seed lengkap untuk seluruh modul!');
@@ -640,6 +650,156 @@ class DatabaseSeeder extends Seeder
                 ['quiz_id' => $quiz2->id, 'question' => $q['question']],
                 $q
             );
+        }
+    }
+
+    private function seedCommunicationData(User $budi, User $aru): void
+    {
+        // 1. Direct Conversation antara Budi dan Aru
+        $directConv = Conversation::firstOrCreate(
+            [
+                'type' => 'direct',
+                'created_by' => $budi->id,
+            ],
+            [
+                'last_message_at' => Carbon::now()->subMinutes(12),
+            ]
+        );
+
+        ConversationParticipant::firstOrCreate(
+            ['conversation_id' => $directConv->id, 'user_id' => $budi->id],
+            ['role' => 'admin', 'joined_at' => Carbon::now()->subDays(5), 'last_read_at' => Carbon::now()]
+        );
+        ConversationParticipant::firstOrCreate(
+            ['conversation_id' => $directConv->id, 'user_id' => $aru->id],
+            ['role' => 'member', 'joined_at' => Carbon::now()->subDays(5), 'last_read_at' => Carbon::now()->subMinutes(10)]
+        );
+
+        $msg1 = Message::firstOrCreate(
+            ['conversation_id' => $directConv->id, 'content' => 'Halo Budi! Apakah kamu sudah selesai implementasi rotasi pohon AVL untuk tugas Struktur Data?'],
+            [
+                'user_id' => $aru->id,
+                'type' => 'text',
+                'created_at' => Carbon::now()->subHours(2),
+                'updated_at' => Carbon::now()->subHours(2),
+            ]
+        );
+
+        $msg2 = Message::firstOrCreate(
+            ['conversation_id' => $directConv->id, 'content' => 'Halo Aru! Sudah, double rotation (RL dan LR) sudah berhasil balance. Nanti sore mau diskusi bareng di perpustakaan?'],
+            [
+                'user_id' => $budi->id,
+                'type' => 'text',
+                'reply_to_id' => $msg1->id,
+                'created_at' => Carbon::now()->subHours(1),
+                'updated_at' => Carbon::now()->subHours(1),
+            ]
+        );
+
+        $msg3 = Message::firstOrCreate(
+            ['conversation_id' => $directConv->id, 'content' => 'Boleh banget! Aku bawa catatan algoritma graf juga sekalian review kuis minggu depan.'],
+            [
+                'user_id' => $aru->id,
+                'type' => 'text',
+                'created_at' => Carbon::now()->subMinutes(12),
+                'updated_at' => Carbon::now()->subMinutes(12),
+            ]
+        );
+
+        // Reactions
+        MessageReaction::firstOrCreate(
+            ['message_id' => $msg2->id, 'user_id' => $aru->id, 'emoji' => '👍']
+        );
+        MessageReaction::firstOrCreate(
+            ['message_id' => $msg3->id, 'user_id' => $budi->id, 'emoji' => '🔥']
+        );
+
+        // 2. Group Conversation: Kelompok Proyek Pemrograman Web
+        $groupConv = Conversation::firstOrCreate(
+            [
+                'type' => 'group',
+                'name' => 'Kelompok Proyek Pemrograman Web',
+            ],
+            [
+                'description' => 'Koordinasi sprint mingguan pengerjaan proyek akhir portal akademik UniDemic',
+                'created_by' => $budi->id,
+                'last_message_at' => Carbon::now()->subMinutes(35),
+            ]
+        );
+
+        ConversationParticipant::firstOrCreate(
+            ['conversation_id' => $groupConv->id, 'user_id' => $budi->id],
+            ['role' => 'admin', 'joined_at' => Carbon::now()->subDays(7), 'last_read_at' => Carbon::now()]
+        );
+        ConversationParticipant::firstOrCreate(
+            ['conversation_id' => $groupConv->id, 'user_id' => $aru->id],
+            ['role' => 'member', 'joined_at' => Carbon::now()->subDays(7), 'last_read_at' => Carbon::now()->subHours(1)]
+        );
+
+        $gMsg1 = Message::firstOrCreate(
+            ['conversation_id' => $groupConv->id, 'content' => 'Halo tim! Desain skema REST API authentication dan modul akademik sudah ready di develop.'],
+            [
+                'user_id' => $budi->id,
+                'type' => 'text',
+                'created_at' => Carbon::now()->subHours(3),
+                'updated_at' => Carbon::now()->subHours(3),
+            ]
+        );
+
+        Message::firstOrCreate(
+            ['conversation_id' => $groupConv->id, 'content' => 'Keren! Aku segera sambungkan antarmuka React Native client-nya sore ini.'],
+            [
+                'user_id' => $aru->id,
+                'type' => 'text',
+                'reply_to_id' => $gMsg1->id,
+                'created_at' => Carbon::now()->subMinutes(35),
+                'updated_at' => Carbon::now()->subMinutes(35),
+            ]
+        );
+
+        // 3. Course Channels for IF3101 (Struktur Data & Algoritma)
+        $course = Course::where('code', 'IF3101')->whereHas('semester', fn($q) => $q->where('user_id', $budi->id))->first();
+        if ($course) {
+            $defaultChannels = [
+                ['name' => '#general', 'description' => 'Diskusi umum seputar perkuliahan ' . $course->name],
+                ['name' => '#tugas', 'description' => 'Tanya jawab dan koordinasi tugas perkuliahan'],
+                ['name' => '#ujian', 'description' => 'Persiapan, kisi-kisi, dan review UTS/UAS'],
+                ['name' => '#resources', 'description' => 'Bahan referensi, buku, dan materi pendukung'],
+            ];
+
+            foreach ($defaultChannels as $ch) {
+                $chConv = Conversation::firstOrCreate(
+                    [
+                        'type' => 'course',
+                        'course_id' => $course->id,
+                        'name' => $ch['name'],
+                    ],
+                    [
+                        'description' => $ch['description'],
+                        'created_by' => $budi->id,
+                        'last_message_at' => Carbon::now()->subDays(1),
+                    ]
+                );
+
+                ConversationParticipant::firstOrCreate(
+                    ['conversation_id' => $chConv->id, 'user_id' => $budi->id],
+                    ['role' => 'admin', 'joined_at' => Carbon::now()->subDays(14), 'last_read_at' => Carbon::now()]
+                );
+                ConversationParticipant::firstOrCreate(
+                    ['conversation_id' => $chConv->id, 'user_id' => $aru->id],
+                    ['role' => 'member', 'joined_at' => Carbon::now()->subDays(14), 'last_read_at' => Carbon::now()]
+                );
+
+                Message::firstOrCreate(
+                    ['conversation_id' => $chConv->id, 'content' => 'Selamat datang di saluran ' . $ch['name'] . ' untuk mata kuliah ' . $course->name . '! Gunakan saluran ini untuk berdiskusi secara produktif.'],
+                    [
+                        'user_id' => $budi->id,
+                        'type' => 'text',
+                        'created_at' => Carbon::now()->subDays(3),
+                        'updated_at' => Carbon::now()->subDays(3),
+                    ]
+                );
+            }
         }
     }
 }

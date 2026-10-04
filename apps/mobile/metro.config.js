@@ -9,4 +9,7 @@ gracefulFs.gracefulify(fs);
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
+// Limit worker processes on Windows multi-core to prevent V8 heap/Zone memory exhaustion
+config.maxWorkers = 2;
+
 module.exports = config;

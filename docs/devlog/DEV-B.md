@@ -603,4 +603,25 @@ Setiap entry menggunakan format ini:
 - `npx tsc --noEmit`: 0 error (100% clean build).
 - Testing lokal dan device live siap diverifikasi pengguna sebelum merge/PR.
 
+---
+
+### [2026-10-04] — Phase 6: Refinement & Attachment Feature Postponement
+
+**Branch**: `feature/mobile/communication`
+**Status**: Selesai, Teruji di Device, & PR Siap Merge
+
+**Yang diperbarui:**
+- **Penonaktifan Fitur Lampiran (Attachment) Sementara**:
+  - Tombol lampiran (`+`) di `ChatInputBar.tsx` dan chip lampiran di `MessageBubble.tsx` kini memicu dialog informasi `Alert.alert('Fitur Belum Tersedia', 'Fitur lampiran dan berkas akademik saat ini belum tersedia dan akan hadir pada pembaruan mendatang.')`.
+  - Pipa berkas lampiran dan modal pemilih disederhanakan dan dijadwalkan ulang ke akhir roadmap (Phase 9 — Web Companion & Advanced Integration).
+- **Perbaikan Konektivitas Fisik & Metro Bundler**:
+  - Menghapus `"reactCompiler": true` dari `app.json` dan membatasi worker Metro `maxWorkers = 2` di `metro.config.js` untuk mencegah crash V8 Out-Of-Memory di Windows.
+  - Memperbarui `api.ts` agar otomatis mendeteksi IP Wi-Fi host (`Constants.expoConfig?.hostUri`) sehingga Expo Go di smartphone fisik langsung terhubung ke backend tanpa konfigurasi manual.
+  - Mengonfigurasi `php artisan serve --host=0.0.0.0 --port=8000`.
+- **Verifikasi**:
+  - `npx tsc --noEmit`: 0 errors (100% Clean).
+  - `php artisan test`: 124 passed (570 assertions) — 100% Pass.
+- **Referensi**:
+  - Pull Request: [#11](https://github.com/AruYQ/UniDemic/pull/11) (Base: `develop`)
+
 

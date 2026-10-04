@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   Platform,
+  Alert,
 } from 'react-native';
 import {
   PaperPlaneRight,
@@ -130,18 +131,24 @@ export const ChatInputBar: React.FC<ChatInputBarProps> = ({
 
       {/* Main Composer Row */}
       <View style={styles.inputRow}>
-        {/* Attachment Button */}
-        {onOpenAcademicPicker && (
-          <Pressable
-            onPress={onOpenAcademicPicker}
-            style={({ pressed }) => [
-              styles.iconButton,
-              pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] },
-            ]}
-          >
-            <Plus size={20} weight="bold" color={themeColors.brand.primary} />
-          </Pressable>
-        )}
+        {/* Attachment Button (Fitur Ditangguhkan Sementara) */}
+        <Pressable
+          onPress={() => {
+            Alert.alert(
+              'Fitur Belum Tersedia',
+              'Fitur lampiran dan berkas akademik saat ini belum tersedia dan akan hadir pada pembaruan mendatang.',
+              [{ text: 'Mengerti', style: 'default' }]
+            );
+          }}
+          style={({ pressed }) => [
+            styles.iconButton,
+            pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] },
+          ]}
+          hitSlop={8}
+          accessibilityLabel="Lampiran belum tersedia"
+        >
+          <Plus size={20} weight="bold" color={themeColors.text.muted} />
+        </Pressable>
 
         {/* Text Input Container */}
         <View style={styles.textInputWrapper}>

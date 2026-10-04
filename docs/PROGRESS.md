@@ -28,7 +28,7 @@
 | 3 | Academic Tracking | `[x]` | `[x]` | `[x]` | `[x]` |
 | 4 | Productivity | `[x]` | `[x]` | `[x]` | `[x]` |
 | 5 | Learning | `[x]` | `[x]` | `[x]` | `[x]` |
-| 6 | Communication | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
+| 6 | Communication | `[x]` | `[x]` | `[x]` | `[x]` |
 | 7 | Collaboration | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 8 | Intelligence (AI) | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 9 | Web Companion | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
@@ -257,10 +257,11 @@
 | Task | Status | Catatan |
 |------|--------|---------|
 | Inbox & Conversation list UI | `[x]` | `ChatInboxScreen` (`app/chat/index.tsx`), search filter, unread badge, filter tabs (Semua, Langsung, Grup, Saluran), `ConversationCard`, `NewChatModal` |
-| Chat Room & Real-time Messaging UI | `[x]` | `ChatRoomScreen` (`app/chat/[id].tsx`), `MessageBubble`, thread reply quote, emoji reaction pills, context actions modal, `ChatInputBar`, `AcademicAttachmentPickerModal`, live polling |
+| Chat Room & Real-time Messaging UI | `[x]` | `ChatRoomScreen` (`app/chat/[id].tsx`), `MessageBubble`, thread reply quote, emoji reaction pills, context actions modal, `ChatInputBar`, live polling |
 | Course Discussion Channels UI | `[x]` | `CourseChannelCard`, 6th tab "Diskusi" on Course Detail (`app/course/[id].tsx`), `#general`, `#tugas`, `#ujian`, `#resources` integration |
+| Academic Attachments & File Uploads | `[~]` | Ditangguhkan ke akhir roadmap (Phase 9). Tombol lampiran (+) menampilkan popup "Fitur Belum Tersedia" |
 
-### ⏳ Checkpoint 6 Verification
+### ✅ Checkpoint 6 Verification
 
 | Item | Status | Verified by | Tanggal |
 |------|--------|-------------|---------|
@@ -268,8 +269,8 @@
 | Direct Conversation Deduplication Logic | `[x]` | Dev A (Feature Tests & Unique Pair Check) | 2026-09-19 |
 | Course Channel Auto-Provisioning | `[x]` | Dev A (CourseDiscussionController verified) | 2026-09-19 |
 | Message Emoji Reaction Toggle | `[x]` | Dev A (MessageTest verified) | 2026-09-19 |
-| Mobile Communication Screen & Chat Flow | `[x]` | Dev B (React Native + Expo, 0 TS errors) | 2026-09-23 |
-| User Acceptance & E2E Validation | `[ ]` | User & Dev B (Testing sebelum PR) | - |
+| Mobile Communication Screen & Chat Flow | `[x]` | Dev B (React Native + Expo, 0 TS errors) | 2026-10-04 |
+| User Acceptance & E2E Validation | `[x]` | User & Dev B (Testing berhasil & terverifikasi) | 2026-10-04 |
 
 ---
 
@@ -285,10 +286,10 @@
 
 ---
 
-## Phase 9 — Web Companion
+## Phase 9 — Web Companion & Advanced Integration
 
-> Akan diisi setelah Checkpoint 8 selesai.
+> Termasuk integrasi penuh Academic File Attachments & Upload Pipeline yang dijadwalkan ulang dari Phase 6.
 
 ---
 
-*Terakhir diupdate: 2026-09-19 | Updated by: Dev A (rekis-0103)*
+*Terakhir diupdate: 2026-10-04 | Updated by: Dev B (AruYQ)*

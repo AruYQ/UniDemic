@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import Animated, { FadeInUp, Easing } from 'react-native-reanimated';
 import {
   ArrowBendUpLeft,
@@ -165,7 +165,18 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           {message.attachments && message.attachments.length > 0 && !isDeleted && (
             <View style={styles.attachmentsContainer}>
               {message.attachments.map((att) => (
-                <View key={att.id} style={styles.attachmentChip}>
+                <Pressable
+                  key={att.id}
+                  style={styles.attachmentChip}
+                  onPress={() => {
+                    Alert.alert(
+                      'Fitur Belum Tersedia',
+                      'Fitur unduh dan pratinjau berkas lampiran saat ini belum tersedia dan akan hadir pada pembaruan mendatang.',
+                      [{ text: 'Mengerti', style: 'default' }]
+                    );
+                  }}
+                  hitSlop={6}
+                >
                   {att.file_type?.startsWith('image') ? (
                     <ImageIcon size={16} weight="duotone" color={themeColors.brand.secondary} />
                   ) : (
@@ -177,7 +188,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                   <Text style={styles.attachmentSize}>
                     {(att.file_size / 1024).toFixed(0)} KB
                   </Text>
-                </View>
+                </Pressable>
               ))}
             </View>
           )}

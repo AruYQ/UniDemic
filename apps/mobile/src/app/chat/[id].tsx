@@ -287,14 +287,6 @@ export default function ChatRoomScreen() {
           onSend={handleSendMessage}
           onCancelReply={() => setReplyingTo(null)}
           onRemoveAcademicRef={() => setAttachedAcademicRef(null)}
-          onOpenAcademicPicker={() => setIsAttachmentPickerVisible(true)}
-        />
-
-        {/* Academic Attachment Picker Modal */}
-        <AcademicAttachmentPickerModal
-          visible={isAttachmentPickerVisible}
-          onClose={() => setIsAttachmentPickerVisible(false)}
-          onSelect={(ref) => setAttachedAcademicRef(ref)}
         />
 
         {/* Message Actions Context Modal */}

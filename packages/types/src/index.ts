@@ -757,5 +757,242 @@ export interface CreateCourseChannelPayload {
   description?: string | null;
 }
 
+/**
+ * ==========================================
+ * Phase 7: Collaboration Types (Study Groups, Projects, Kanban, GitHub)
+ * ==========================================
+ */
+
+export type StudyGroupRole = 'admin' | 'moderator' | 'member';
+export type ProjectStatus = 'planning' | 'active' | 'completed' | 'archived';
+export type ProjectMemberRole = 'owner' | 'editor' | 'viewer';
+export type KanbanTaskStatus = 'todo' | 'in_progress' | 'done';
+export type ProjectTaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type GithubActivityType = 'commit' | 'pull_request' | 'issue' | 'release';
+
+export interface StudyGroupMember {
+  id: number;
+  study_group_id: number;
+  user_id: number;
+  role: StudyGroupRole;
+  joined_at: string;
+  user?: User;
+}
+
+export interface StudyGroup {
+  id: number;
+  name: string;
+  description?: string | null;
+  subject?: string | null;
+  course_id?: number | null;
+  conversation_id?: number | null;
+  creator_id: number;
+  invite_code: string;
+  is_public: boolean;
+  max_members?: number | null;
+  avatar_url?: string | null;
+  members_count?: number;
+  projects_count?: number;
+  course?: Course | null;
+  members?: StudyGroupMember[];
+  shared_notes?: Note[];
+  shared_materials?: Material[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectMember {
+  id: number;
+  project_id: number;
+  user_id: number;
+  role: ProjectMemberRole;
+  joined_at: string;
+  user?: User;
+}
+
+export interface ProjectMilestone {
+  id: number;
+  project_id: number;
+  title: string;
+  description?: string | null;
+  due_date?: string | null;
+  is_completed: boolean;
+  completed_at?: string | null;
+  order: number;
+  tasks_count?: number;
+  completed_tasks_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectTask {
+  id: number;
+  project_id: number;
+  milestone_id?: number | null;
+  creator_id: number;
+  assignee_id?: number | null;
+  title: string;
+  description?: string | null;
+  status: KanbanTaskStatus;
+  priority: ProjectTaskPriority;
+  position: number;
+  due_date?: string | null;
+  labels?: string[] | null;
+  assignee?: User | null;
+  creator?: User | null;
+  milestone?: ProjectMilestone | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectGithubActivity {
+  id: number;
+  project_github_repo_id: number;
+  type: GithubActivityType;
+  external_id: string;
+  title: string;
+  author_name?: string | null;
+  author_avatar?: string | null;
+  url?: string | null;
+  state?: string | null;
+  occurred_at?: string | null;
+  created_at: string;
+}
+
+export interface ProjectGithubRepo {
+  id: number;
+  project_id: number;
+  repo_owner: string;
+  repo_name: string;
+  full_name: string;
+  default_branch: string;
+  html_url: string;
+  has_webhook_secret: boolean;
+  has_access_token: boolean;
+  last_synced_at?: string | null;
+  activities?: ProjectGithubActivity[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Project {
+  id: number;
+  study_group_id?: number | null;
+  course_id?: number | null;
+  creator_id: number;
+  name: string;
+  description?: string | null;
+  status: ProjectStatus;
+  due_date?: string | null;
+  tasks_count?: number;
+  milestones_count?: number;
+  study_group?: StudyGroup | null;
+  course?: Course | null;
+  members?: ProjectMember[];
+  milestones?: ProjectMilestone[];
+  tasks?: ProjectTask[];
+  github_repo?: ProjectGithubRepo | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateStudyGroupPayload {
+  name: string;
+  description?: string | null;
+  subject?: string | null;
+  course_id?: number | null;
+  is_public?: boolean;
+  max_members?: number | null;
+}
+
+export interface UpdateStudyGroupPayload {
+  name?: string;
+  description?: string | null;
+  subject?: string | null;
+  course_id?: number | null;
+  is_public?: boolean;
+  max_members?: number | null;
+}
+
+export interface JoinStudyGroupPayload {
+  invite_code?: string;
+  study_group_id?: number;
+}
+
+export interface CreateProjectPayload {
+  name: string;
+  description?: string | null;
+  study_group_id?: number | null;
+  course_id?: number | null;
+  status?: ProjectStatus;
+  due_date?: string | null;
+}
+
+export interface UpdateProjectPayload {
+  name?: string;
+  description?: string | null;
+  status?: ProjectStatus;
+  due_date?: string | null;
+}
+
+export interface CreateMilestonePayload {
+  title: string;
+  description?: string | null;
+  due_date?: string | null;
+  order?: number;
+}
+
+export interface UpdateMilestonePayload {
+  title?: string;
+  description?: string | null;
+  due_date?: string | null;
+  is_completed?: boolean;
+  order?: number;
+}
+
+export interface CreateProjectTaskPayload {
+  title: string;
+  description?: string | null;
+  milestone_id?: number | null;
+  assignee_id?: number | null;
+  status?: KanbanTaskStatus;
+  priority?: ProjectTaskPriority;
+  due_date?: string | null;
+  labels?: string[] | null;
+}
+
+export interface UpdateProjectTaskPayload {
+  title?: string;
+  description?: string | null;
+  milestone_id?: number | null;
+  assignee_id?: number | null;
+  status?: KanbanTaskStatus;
+  priority?: ProjectTaskPriority;
+  position?: number;
+  due_date?: string | null;
+  labels?: string[] | null;
+}
+
+export interface MoveProjectTaskPayload {
+  status: KanbanTaskStatus;
+  position: number;
+}
+
+export interface ReorderProjectTasksPayload {
+  tasks: Array<{
+    id: number;
+    status: KanbanTaskStatus;
+    position: number;
+  }>;
+}
+
+export interface ConnectGithubRepoPayload {
+  repo_owner: string;
+  repo_name: string;
+  default_branch?: string;
+  access_token?: string | null;
+  webhook_secret?: string | null;
+}
+
 
 

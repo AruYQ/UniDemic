@@ -433,6 +433,49 @@ Setiap entry menggunakan format ini:
 - `php artisan test` (seluruh sistem): 124 passed (570 assertions, 100% Pass).
 - `npx tsc --noEmit` di `apps/mobile`: 0 error (100% Pass).
 
+---
+
+### [2026-11-17] — Phase 7 Collaboration Backend API Implementation
+
+**Branch**: `feature/backend/collaboration`
+**Status**: Selesai & Terverifikasi Lokal (137 Feature Tests Pass — Belum Di-push) ✅
+
+**Yang dikerjakan:**
+- **Shared Types ([packages/types/src/index.ts](file:///c:/proj/UniDemic/packages/types/src/index.ts))**:
+  - Menambahkan kontrak TypeScript untuk modul Kolaborasi (Phase 7): `StudyGroupRole`, `ProjectStatus`, `ProjectMemberRole`, `KanbanTaskStatus`, `ProjectTaskPriority`, `GithubActivityType`, `StudyGroupMember`, `StudyGroup`, `ProjectMember`, `ProjectMilestone`, `ProjectTask`, `ProjectGithubActivity`, `ProjectGithubRepo`, `Project`, beserta seluruh payload DTO (`CreateStudyGroupPayload`, `UpdateStudyGroupPayload`, `JoinStudyGroupPayload`, `CreateProjectPayload`, `UpdateProjectPayload`, `CreateMilestonePayload`, `UpdateMilestonePayload`, `CreateProjectTaskPayload`, `UpdateProjectTaskPayload`, `MoveProjectTaskPayload`, `ReorderProjectTasksPayload`, `ConnectGithubRepoPayload`).
+- **Database Migrations (`apps/api/database/migrations/`)**:
+  - `2026_11_17_000001_create_study_groups_tables.php`: tabel `study_groups` (name, description, subject, course_id, conversation_id, creator_id, invite_code, is_public, max_members, avatar_url), `study_group_members`, `study_group_notes`, dan `study_group_materials`.
+  - `2026_11_17_000002_create_projects_tables.php`: tabel `projects` (study_group_id, course_id, creator_id, name, description, status, due_date), `project_members`, `project_milestones`, dan `project_tasks` (Kanban: status, priority, position, labels, assignee_id).
+  - `2026_11_17_000003_create_project_github_tables.php`: tabel `project_github_repos` (repo_owner, repo_name, full_name, default_branch, html_url, webhook_secret, access_token, last_synced_at) dan `project_github_activities` (type, external_id, title, author_name, author_avatar, url, state, occurred_at).
+- **Eloquent Models & Relations (`apps/api/app/Models/`)**:
+  - `StudyGroup`, `StudyGroupMember`, `Project`, `ProjectMember`, `ProjectMilestone`, `ProjectTask`, `ProjectGithubRepo` (token & webhook secret dienkripsi via cast `encrypted` dan disembunyikan dari serialisasi), serta `ProjectGithubActivity`.
+  - Menambahkan relasi di `User` (`studyGroups`, `projects`, `assignedProjectTasks`) dan `Course` (`studyGroups`, `projects`).
+- **FormRequests, Traits & API Resources**:
+  - Trait `AuthorizesProjectAccess` untuk konsistensi otorisasi proyek across-controllers tanpa duplikasi query.
+  - 13 FormRequest classes di `apps/api/app/Http/Requests/Collaboration/`.
+  - 8 API Resources di `apps/api/app/Http/Resources/` (`StudyGroupResource`, `StudyGroupMemberResource`, `ProjectResource`, `ProjectMemberResource`, `ProjectMilestoneResource`, `ProjectTaskResource`, `ProjectGithubRepoResource`, `ProjectGithubActivityResource`).
+- **Controllers & Routes (`apps/api/app/Http/Controllers/Api/` & `routes/api.php`)**:
+  - `StudyGroupController`: Manajemen grup belajar lintas kampus, auto-provision group chat (`Conversation`), invite code generator & join, manajemen role anggota, serta share/unshare notes dan materials.
+  - `ProjectController`: Manajemen project workspace (standalone maupun terhubung ke study group/course) dan kolaborator.
+  - `ProjectMilestoneController`: CRUD milestones dan toggle completion tracking.
+  - `ProjectTaskController`: Papan Kanban (`todo`, `in_progress`, `done`), single-card move (`/project-tasks/{id}/move`) dengan re-indexing posisi otomatis, batch reorder (`/projects/{id}/tasks/reorder`), serta pembatasan akses read-only `viewer`.
+  - `ProjectGithubController`: Koneksi repositori GitHub, sinkronisasi commits/PR/issues via GitHub REST API (`Http`), serta endpoint webhook publik (`/webhooks/github/{project_id}`) dengan verifikasi signature HMAC-SHA256 (`X-Hub-Signature-256`).
+- **Feature Test Suite (`apps/api/tests/Feature/Collaboration/`)**:
+  - `StudyGroupTest.php`: 5 tests (create group + linked chat, invite code join + capacity guard, member role management + non-admin 403, share notes/materials + ownership isolation, outsider access block).
+  - `ProjectTest.php`: 2 tests (create group-linked project + member access + non-manager 403 + outsider 404, add/remove project members).
+  - `KanbanAndMilestoneTest.php`: 3 tests (milestones CRUD & toggle complete, Kanban creation + move re-indexing + batch reorder, viewer write restriction 403).
+  - `GithubIntegrationTest.php`: 3 tests (connect repo without exposing secrets, idempotent GitHub API sync via `Http::fake()`, HMAC-SHA256 webhook verification).
+
+**Keputusan teknis:**
+- **Table Isolation (`project_tasks` vs `productivity_tasks`)**: Memisahkan `project_tasks` untuk Kanban kolaborasi tim agar tidak berbenturan dengan tabel `productivity_tasks` milik individu pada Phase 4.
+- **Encrypted GitHub Secrets**: `access_token` dan `webhook_secret` pada `ProjectGithubRepo` menggunakan cast `'encrypted'` dan `$hidden`, sementara resource hanya mengekspos boolean `has_access_token` / `has_webhook_secret`.
+- **Idempotent GitHub Sync & Webhook Verification**: Aktivitas GitHub disimpan menggunakan `updateOrCreate` dengan unique constraint `['project_github_repo_id', 'type', 'external_id']`, dan webhook memverifikasi `X-Hub-Signature-256` menggunakan `hash_equals()`.
+
+**Test results:**
+- `php artisan test --filter=Collaboration`: 13 passed (77 assertions, 100% Pass).
+- `php artisan test` (seluruh sistem): 137 passed (647 assertions, 100% Pass).
+- `npx tsc --noEmit` di `apps/mobile`: 0 error (100% Pass).
+
 
 
 

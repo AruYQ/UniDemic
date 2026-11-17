@@ -51,8 +51,8 @@ For detailed task tracking and commit history, visit [docs/PROGRESS.md](docs/PRO
 | **3** | **Academic Tracking** (Attendance, Grades, GPA/CGPA, Simulator) | ✅ Completed | ✅ Completed | ✅ Completed |
 | **4** | **Productivity** (Tasks, Goals, Study Sessions, Study Planner) | ✅ Completed | ✅ Completed | ✅ Completed |
 | **5** | **Learning** (Materials, Notes, Flashcards, Quiz) | ✅ Completed | ✅ Completed | ✅ Completed |
-| **6** | **Communication** (Chat, Direct Messages, Course Discussion) | ⏳ In Progress | ✅ Completed | ⏳ Scheduled |
-| **7** | **Collaboration** (Study Groups, Projects, Kanban Board) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |
+| **6** | **Communication** (Chat, Direct Messages, Course Discussion) | ✅ Completed | ✅ Completed | ✅ Completed |
+| **7** | **Collaboration** (Study Groups, Projects, Kanban Board) | ⏳ In Progress | ✅ Completed | ⏳ Scheduled |
 | **8** | **Intelligence (AI)** (AI Assistant, RAG Summarization, Quiz Gen) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |
 | **9** | **Web Companion** (Next.js Desktop/Tablet Dashboard) | ⏳ Scheduled | ⏳ Scheduled | ⏳ Scheduled |
 
@@ -124,7 +124,7 @@ All automated test suites must pass before integration:
   cd apps/api
   php artisan test
   ```
-  *(124 tests passing, 570 assertions across Auth, Academic Core, Academic Tracking, Productivity, Learning, and Communication modules).*
+  *(137 tests passing, 647 assertions across Auth, Academic Core, Academic Tracking, Productivity, Learning, Communication, and Collaboration modules).*
 
 - **Mobile TypeScript Verification**:
   ```bash

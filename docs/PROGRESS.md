@@ -10,7 +10,7 @@
 | Info | Detail |
 |------|--------|
 | **Repo** | [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic) |
-| **Phase aktif** | Phase 5 — Learning (Completed & Verified) |
+| **Phase aktif** | Phase 7 — Collaboration (Backend Complete, Mobile Queued) |
 | **Dev A (Backend)** | rekis-0103 |
 | **Dev B (Frontend)** | AruYQ |
 | **Mulai** | 2026-09-08 |
@@ -29,7 +29,7 @@
 | 4 | Productivity | `[x]` | `[x]` | `[x]` | `[x]` |
 | 5 | Learning | `[x]` | `[x]` | `[x]` | `[x]` |
 | 6 | Communication | `[x]` | `[x]` | `[x]` | `[x]` |
-| 7 | Collaboration | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
+| 7 | Collaboration | `[/]` | `[x]` | `[ ]` | `[ ]` |
 | 8 | Intelligence (AI) | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 9 | Web Companion | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 
@@ -276,7 +276,41 @@
 
 ## Phase 7 — Collaboration
 
-> Akan diisi setelah Checkpoint 6 selesai.
+> **Status Terkini**: Backend API telah selesai 100% (13 Feature Tests, 77 assertions; total suite 137 tests 100% pass) pada branch `feature/backend/collaboration`. Modul antarmuka mobile siap dikerjakan oleh Dev B.
+
+### Dev A (Backend / rekis-0103)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Shared TypeScript types (`packages/types`) | `[x]` | StudyGroup, StudyGroupMember, Project, ProjectTask (Kanban), ProjectMilestone, GitHub integration contracts |
+| Database migrations | `[x]` | `study_groups`, `study_group_members`, `study_group_notes`, `study_group_materials`, `projects`, `project_members`, `project_milestones`, `project_tasks`, `project_github_repos`, `project_github_activities` |
+| Eloquent Models & Relations | `[x]` | StudyGroup, StudyGroupMember, Project, ProjectMember, ProjectMilestone, ProjectTask, ProjectGithubRepo, ProjectGithubActivity |
+| API Resources & FormRequests | `[x]` | Strict FormRequest validation & JSON Resources (encrypted GitHub token/secret hidden from responses) |
+| Study Group endpoints (`/study-groups`, `/join`, `/members`, `/share-*`) | `[x]` | Cross-university study groups, invite code join, role management (`admin`/`moderator`/`member`), linked group chat, shared notes & materials |
+| Project Workspace & Milestone endpoints (`/projects`, `/milestones`) | `[x]` | Group/standalone academic project workspaces, member collaboration, milestone completion tracking |
+| Kanban Task endpoints (`/projects/{id}/tasks`, `/move`, `/reorder`) | `[x]` | Kanban board (`todo`, `in_progress`, `done`), position re-indexing on move & batch reorder, assignee & priority |
+| GitHub Integration endpoints (`/projects/{id}/github/*`, `/webhooks/github/{project_id}`) | `[x]` | Repo linking, commit/PR/issue sync via GitHub REST API (`Http`), HMAC-SHA256 webhook signature verification |
+| Feature Test Suite (Collaboration) | `[x]` | 13 tests passed, 77 assertions (`StudyGroupTest`, `ProjectTest`, `KanbanAndMilestoneTest`, `GithubIntegrationTest`) |
+
+### Dev B (Frontend / AruYQ)
+
+| Task | Status | Catatan |
+|------|--------|---------|
+| Study Group list, detail & member management UI | `[ ]` | - |
+| Project Workspace & Milestone tracker UI | `[ ]` | - |
+| Kanban Board (drag & drop tasks) UI | `[ ]` | - |
+| GitHub Activity feed UI | `[ ]` | - |
+
+### ⏳ Checkpoint 7 Verification
+
+| Item | Status | Verified by | Tanggal |
+|------|--------|-------------|---------|
+| Backend Collaboration API Suite 100% Pass | `[x]` | Dev A (Test Suite: 13 tests, 77 assertions) | 2026-11-17 |
+| Study Group Invite Join & Shared Notes/Materials | `[x]` | Dev A (`StudyGroupTest` verified) | 2026-11-17 |
+| Kanban Move & Batch Reorder Indexing | `[x]` | Dev A (`KanbanAndMilestoneTest` verified) | 2026-11-17 |
+| GitHub API Sync & Webhook HMAC-SHA256 Verification | `[x]` | Dev A (`GithubIntegrationTest` verified) | 2026-11-17 |
+| Mobile Collaboration Screens & Kanban Drag-and-Drop | `[ ]` | Dev B (React Native + Expo) | - |
+| User Acceptance & E2E Validation | `[ ]` | User & Dev B | - |
 
 ---
 
@@ -292,4 +326,4 @@
 
 ---
 
-*Terakhir diupdate: 2026-10-04 | Updated by: Dev B (AruYQ)*
+*Terakhir diupdate: 2026-11-17 | Updated by: Dev A (rekis-0103)*

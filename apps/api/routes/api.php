@@ -16,8 +16,13 @@ use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\ProjectGithubController;
+use App\Http\Controllers\Api\ProjectMilestoneController;
+use App\Http\Controllers\Api\ProjectTaskController;
 use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\SemesterController;
+use App\Http\Controllers\Api\StudyGroupController;
 use App\Http\Controllers\Api\StudyPlannerController;
 use App\Http\Controllers\Api\StudySessionController;
 use App\Http\Controllers\Api\TaskController;
@@ -48,6 +53,9 @@ $registerApiRoutes = function () {
         Route::post('/login', [AuthController::class, 'login'])
             ->middleware('throttle:10,1');
     });
+
+    // Public GitHub webhook receiver (protected via HMAC-SHA256 X-Hub-Signature-256)
+    Route::post('/webhooks/github/{project_id}', [ProjectGithubController::class, 'webhook']);
 
     // Authenticated routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -217,6 +225,52 @@ $registerApiRoutes = function () {
         // Phase 6: Communication — Course Discussion Channels
         Route::get('/courses/{course_id}/discussions', [CourseDiscussionController::class, 'index']);
         Route::post('/courses/{course_id}/discussions', [CourseDiscussionController::class, 'store']);
+
+        // Phase 7: Collaboration — Study Groups & Shared Resources
+        Route::get('/study-groups', [StudyGroupController::class, 'index']);
+        Route::post('/study-groups', [StudyGroupController::class, 'store']);
+        Route::post('/study-groups/join', [StudyGroupController::class, 'join']);
+        Route::get('/study-groups/{id}', [StudyGroupController::class, 'show']);
+        Route::put('/study-groups/{id}', [StudyGroupController::class, 'update']);
+        Route::delete('/study-groups/{id}', [StudyGroupController::class, 'destroy']);
+        Route::post('/study-groups/{id}/regenerate-invite', [StudyGroupController::class, 'regenerateInvite']);
+        Route::post('/study-groups/{id}/members', [StudyGroupController::class, 'addMember']);
+        Route::put('/study-groups/{id}/members/{user_id}', [StudyGroupController::class, 'updateMemberRole']);
+        Route::delete('/study-groups/{id}/members/{user_id}', [StudyGroupController::class, 'removeMember']);
+        Route::post('/study-groups/{id}/share-note', [StudyGroupController::class, 'shareNote']);
+        Route::delete('/study-groups/{id}/notes/{note_id}', [StudyGroupController::class, 'unshareNote']);
+        Route::post('/study-groups/{id}/share-material', [StudyGroupController::class, 'shareMaterial']);
+        Route::delete('/study-groups/{id}/materials/{material_id}', [StudyGroupController::class, 'unshareMaterial']);
+
+        // Phase 7: Collaboration — Project Workspaces & Members
+        Route::get('/projects', [ProjectController::class, 'index']);
+        Route::post('/projects', [ProjectController::class, 'store']);
+        Route::get('/projects/{id}', [ProjectController::class, 'show']);
+        Route::put('/projects/{id}', [ProjectController::class, 'update']);
+        Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+        Route::post('/projects/{id}/members', [ProjectController::class, 'addMember']);
+        Route::delete('/projects/{id}/members/{user_id}', [ProjectController::class, 'removeMember']);
+
+        // Phase 7: Collaboration — Project Milestones
+        Route::get('/projects/{project_id}/milestones', [ProjectMilestoneController::class, 'index']);
+        Route::post('/projects/{project_id}/milestones', [ProjectMilestoneController::class, 'store']);
+        Route::put('/milestones/{id}', [ProjectMilestoneController::class, 'update']);
+        Route::patch('/milestones/{id}/toggle-complete', [ProjectMilestoneController::class, 'toggleComplete']);
+        Route::delete('/milestones/{id}', [ProjectMilestoneController::class, 'destroy']);
+
+        // Phase 7: Collaboration — Kanban Project Tasks
+        Route::get('/projects/{project_id}/tasks', [ProjectTaskController::class, 'index']);
+        Route::post('/projects/{project_id}/tasks', [ProjectTaskController::class, 'store']);
+        Route::post('/projects/{project_id}/tasks/reorder', [ProjectTaskController::class, 'reorder']);
+        Route::put('/project-tasks/{id}', [ProjectTaskController::class, 'update']);
+        Route::patch('/project-tasks/{id}/move', [ProjectTaskController::class, 'move']);
+        Route::delete('/project-tasks/{id}', [ProjectTaskController::class, 'destroy']);
+
+        // Phase 7: Collaboration — GitHub Repository Integration
+        Route::post('/projects/{project_id}/github/connect', [ProjectGithubController::class, 'connect']);
+        Route::delete('/projects/{project_id}/github/disconnect', [ProjectGithubController::class, 'disconnect']);
+        Route::get('/projects/{project_id}/github/activities', [ProjectGithubController::class, 'activities']);
+        Route::post('/projects/{project_id}/github/sync', [ProjectGithubController::class, 'sync']);
 
         // Backward compatibility
         Route::get('/user', function (Request $request) {

@@ -133,5 +133,21 @@ class Course extends Model
     {
         return $this->hasMany(Conversation::class)->where('type', 'course');
     }
+
+    /**
+     * Get all study groups associated with this course.
+     */
+    public function studyGroups(): HasMany
+    {
+        return $this->hasMany(StudyGroup::class);
+    }
+
+    /**
+     * Get all projects associated with this course.
+     */
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
 }
 

@@ -624,4 +624,43 @@ Setiap entry menggunakan format ini:
 - **Referensi**:
   - Pull Request: [#11](https://github.com/AruYQ/UniDemic/pull/11) (Base: `develop`)
 
+---
+
+### [2026-11-19] — Phase 7: Mobile Collaboration Hub (Study Groups, Kanban Projects, Milestones & GitHub Integration)
+
+**Branch**: working tree lokal (belum di-commit sesuai instruksi)
+**Status**: Selesai Diimplementasikan & Terverifikasi Statis/Kontrak (Menunggu UAT Perangkat)
+
+**Yang dikerjakan:**
+1. **Types, Validation & API Service Layer**:
+   - `apps/mobile/src/types/collaboration.ts`: Kontrak TypeScript lengkap untuk `StudyGroup`, `StudyGroupMember`, `Project`, `ProjectMember`, `ProjectMilestone`, `ProjectTask`, `ProjectGithubRepo`, `ProjectGithubActivity`, beserta Zod validation schemas (`createStudyGroupSchema`, `joinStudyGroupSchema`, `createProjectSchema`, `createMilestoneSchema`, `createProjectTaskSchema`, `connectGithubSchema`).
+   - `apps/mobile/src/services/collaborationService.ts`: Client wrapper untuk seluruh endpoint Phase 7 (`/study-groups`, `/projects`, `/milestones`, `/project-tasks`, `/github/*`).
+   - `apps/mobile/src/store/useCollaborationStore.ts`: Zustand store dengan smart cache 2 menit, optimistic Kanban `moveProjectTask` dengan re-indexing kolom & rollback otomatis, optimistic milestone toggle, serta sanitasi error via `formatApiError()`.
+2. **Komponen Kolaborasi (`apps/mobile/src/components/collaboration/`)**:
+   - `StudyGroupCard.tsx`, `CreateStudyGroupModal.tsx`, `JoinStudyGroupModal.tsx`: Manajemen daftar grup belajar, pencarian grup publik, gabung via kode undangan, dan tautan mata kuliah.
+   - `ProjectCard.tsx`, `CreateProjectModal.tsx`: Kartu proyek tim dan modal pembuatan workspace proyek dengan `UniDatePicker`.
+   - `KanbanBoard.tsx`, `ProjectTaskModal.tsx`: Papan Kanban 3 kolom (`TODO`, `PROSES`, `SELESAI`) dengan gestur geser `Gesture.Pan()` + tombol pindah kolom & reorder posisi, prioritas `UniBadge`, labels, assignee avatar, dan milestone tag.
+   - `MilestoneListPanel.tsx`: Pelacakan target milestone dengan progress bar teranimasi (`withTiming`), toggle selesai, `UniSwipeable` delete, dan modal tambah milestone dengan `UniDatePicker`.
+   - `GithubActivityPanel.tsx`: Koneksi repo GitHub (`secureTextEntry` untuk token & webhook secret), tombol sinkronisasi, filter tipe (`Commit`, `Pull Request`, `Issue`), dan `FlashList` feed aktivitas yang dapat dibuka ke browser.
+3. **Layar & Navigasi (`apps/mobile/src/app/`)**:
+   - `collaboration.tsx`: Hub utama kolaborasi dengan segment bar `Grup Belajar` | `Proyek Tim`, filter & pencarian debounced 300ms, `ShimmerBox` skeleton, dan FAB Natural Thumb Zone.
+   - `collaboration/groups/[id].tsx`: Detail grup belajar lengkap dengan kode undangan & acak ulang kode, shortcut langsung "Buka Obrolan Grup" (`/chat/[conversation_id]`), manajemen anggota & peran, proyek grup, dan berbagi catatan/materi.
+   - `collaboration/projects/[id].tsx`: Ruang kerja proyek 4 segmen (`Kanban`, `Milestone`, `GitHub`, `Tim`).
+   - `_layout.tsx` & `index.tsx`: Registrasi stack screen baru dan kartu Bento pintasan "Kolaborasi Tim" + ikon pintasan bar atas di Beranda.
+
+**Vibe Check & Anti-Slop Compliance:**
+- Mengikuti `unidemic-ui-ux/SKILL.md`: `useUniTheme()` tokens, Syne + Space Grotesk + JetBrains Mono, Phosphor Icons `duotone`, `ShimmerBox` skeleton loading (tanpa `ActivityIndicator` konten), `UniDatePicker` untuk semua tanggal, `FlashList` virtualisasi list, `secureTextEntry` untuk field token/secret, serta spring feedback `withSpring(0.97)`.
+
+**API yang diintegrasikan:**
+- `GET/POST/PUT/DELETE /study-groups`, `POST /study-groups/join`, `POST /study-groups/{id}/regenerate-invite`, `POST/PUT/DELETE /study-groups/{id}/members`, `POST/DELETE /study-groups/{id}/share-note|material`
+- `GET/POST/PUT/DELETE /projects`, `POST/DELETE /projects/{id}/members`
+- `GET/POST /projects/{id}/milestones`, `PUT/PATCH/DELETE /milestones/{id}`
+- `GET/POST /projects/{id}/tasks`, `PUT/PATCH/DELETE /project-tasks/{id}`, `POST /projects/{id}/tasks/reorder`
+- `POST/DELETE /projects/{id}/github/connect|disconnect`, `GET /projects/{id}/github/activities`, `POST /projects/{id}/github/sync`
+
+**Verifikasi:**
+- `npx tsc --noEmit` di `apps/mobile`: **0 errors** (100% Clean).
+- `npx tsx scripts/verify-collaboration.ts` di `apps/mobile`: **20/20 passed** (Zod validation, API contract alignment, optimistic Kanban move + rollback, GitHub sanitized flags).
+- `php artisan test` di `apps/api`: **137 passed (647 assertions)** — 100% Pass.
+
 

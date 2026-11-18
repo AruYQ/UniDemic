@@ -1,0 +1,290 @@
+<?php
+
+use App\Http\Controllers\Api\AssignmentController;
+use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\CourseDiscussionController;
+use App\Http\Controllers\Api\CourseScheduleController;
+use App\Http\Controllers\Api\ExamController;
+use App\Http\Controllers\Api\FlashcardController;
+use App\Http\Controllers\Api\GoalController;
+use App\Http\Controllers\Api\GpaController;
+use App\Http\Controllers\Api\GradeController;
+use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\NoteController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\ProjectGithubController;
+use App\Http\Controllers\Api\ProjectMilestoneController;
+use App\Http\Controllers\Api\ProjectTaskController;
+use App\Http\Controllers\Api\QuizController;
+use App\Http\Controllers\Api\SemesterController;
+use App\Http\Controllers\Api\StudyGroupController;
+use App\Http\Controllers\Api\StudyPlannerController;
+use App\Http\Controllers\Api\StudySessionController;
+use App\Http\Controllers\Api\TaskController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes — UniDemic Platform
+|--------------------------------------------------------------------------
+*/
+
+// Health check endpoint
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'service' => 'UniDemic API',
+        'timestamp' => now()->toIso8601String(),
+    ]);
+});
+
+// Common API registration callback
+$registerApiRoutes = function () {
+    // Public authentication routes (throttled against brute force)
+    Route::prefix('auth')->group(function () {
+        Route::post('/register', [AuthController::class, 'register'])
+            ->middleware('throttle:10,1');
+        Route::post('/login', [AuthController::class, 'login'])
+            ->middleware('throttle:10,1');
+    });
+
+    // Public GitHub webhook receiver (protected via HMAC-SHA256 X-Hub-Signature-256)
+    Route::post('/webhooks/github/{project_id}', [ProjectGithubController::class, 'webhook']);
+
+    // Authenticated routes
+    Route::middleware('auth:sanctum')->group(function () {
+        // Auth session & token management
+        Route::prefix('auth')->group(function () {
+            Route::post('/logout', [AuthController::class, 'logout']);
+            Route::get('/tokens', [AuthController::class, 'tokens']);
+            Route::delete('/tokens/{id}', [AuthController::class, 'revokeToken']);
+        });
+
+        // User profile endpoints
+        Route::get('/profile', [ProfileController::class, 'show']);
+        Route::put('/profile', [ProfileController::class, 'update']);
+        Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+
+        // Academic Core: Semesters
+        Route::get('/semesters/active', [SemesterController::class, 'active']);
+        Route::post('/semesters/{id}/activate', [SemesterController::class, 'activate']);
+        Route::apiResource('semesters', SemesterController::class);
+
+        // Academic Core: Courses
+        Route::apiResource('courses', CourseController::class);
+
+        // Course Schedules
+        Route::get('/courses/{course_id}/schedules', [CourseScheduleController::class, 'index']);
+        Route::post('/courses/{course_id}/schedules', [CourseScheduleController::class, 'store']);
+        Route::get('/schedules', [CourseScheduleController::class, 'index']);
+        Route::put('/schedules/{id}', [CourseScheduleController::class, 'update']);
+        Route::delete('/schedules/{id}', [CourseScheduleController::class, 'destroy']);
+
+        // Course Assignments
+        Route::get('/courses/{course_id}/assignments', [AssignmentController::class, 'index']);
+        Route::post('/courses/{course_id}/assignments', [AssignmentController::class, 'store']);
+        Route::get('/assignments', [AssignmentController::class, 'index']);
+        Route::get('/assignments/{id}', [AssignmentController::class, 'show']);
+        Route::put('/assignments/{id}', [AssignmentController::class, 'update']);
+        Route::delete('/assignments/{id}', [AssignmentController::class, 'destroy']);
+
+        // Course Exams
+        Route::get('/courses/{course_id}/exams', [ExamController::class, 'index']);
+        Route::post('/courses/{course_id}/exams', [ExamController::class, 'store']);
+        Route::get('/exams', [ExamController::class, 'index']);
+        Route::get('/exams/{id}', [ExamController::class, 'show']);
+        Route::put('/exams/{id}', [ExamController::class, 'update']);
+        Route::delete('/exams/{id}', [ExamController::class, 'destroy']);
+
+        // Academic Tracking: Attendance
+        Route::get('/courses/{course_id}/attendances', [AttendanceController::class, 'index']);
+        Route::post('/courses/{course_id}/attendances', [AttendanceController::class, 'store']);
+        Route::get('/courses/{course_id}/attendance-summary', [AttendanceController::class, 'summary']);
+        Route::get('/attendances', [AttendanceController::class, 'index']);
+        Route::get('/attendances/{id}', [AttendanceController::class, 'show']);
+        Route::put('/attendances/{id}', [AttendanceController::class, 'update']);
+        Route::delete('/attendances/{id}', [AttendanceController::class, 'destroy']);
+
+        // Academic Tracking: Grade Components
+        Route::get('/courses/{course_id}/grade-components', [GradeController::class, 'components']);
+        Route::post('/courses/{course_id}/grade-components', [GradeController::class, 'storeComponent']);
+        Route::put('/grade-components/{id}', [GradeController::class, 'updateComponent']);
+        Route::delete('/grade-components/{id}', [GradeController::class, 'destroyComponent']);
+
+        // Academic Tracking: Grades
+        Route::get('/courses/{course_id}/grades', [GradeController::class, 'index']);
+        Route::post('/courses/{course_id}/grades', [GradeController::class, 'store']);
+        Route::get('/grades', [GradeController::class, 'index']);
+        Route::get('/grades/{id}', [GradeController::class, 'show']);
+        Route::put('/grades/{id}', [GradeController::class, 'update']);
+        Route::delete('/grades/{id}', [GradeController::class, 'destroy']);
+
+        // Academic Tracking: GPA & Simulation
+        Route::get('/courses/{id}/gpa', [GpaController::class, 'courseGpa']);
+        Route::get('/semesters/{id}/gpa', [GpaController::class, 'semesterGpa']);
+        Route::get('/profile/cumulative-gpa', [GpaController::class, 'cumulativeGpa']);
+        Route::get('/gpa/cumulative', [GpaController::class, 'cumulativeGpa']);
+        Route::post('/gpa-simulator', [GpaController::class, 'simulate']);
+
+        // Productivity: Tasks & Subtasks
+        Route::get('/tasks', [TaskController::class, 'index']);
+        Route::post('/tasks', [TaskController::class, 'store']);
+        Route::get('/tasks/{id}', [TaskController::class, 'show']);
+        Route::put('/tasks/{id}', [TaskController::class, 'update']);
+        Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
+        Route::patch('/tasks/{id}/toggle-complete', [TaskController::class, 'toggleComplete']);
+        Route::post('/tasks/{task_id}/subtasks', [TaskController::class, 'storeSubtask']);
+        Route::put('/subtasks/{id}', [TaskController::class, 'updateSubtask']);
+        Route::delete('/subtasks/{id}', [TaskController::class, 'destroySubtask']);
+
+        // Productivity: Study Sessions (Focus Timer)
+        Route::get('/study-sessions', [StudySessionController::class, 'index']);
+        Route::post('/study-sessions', [StudySessionController::class, 'store']);
+        Route::get('/study-sessions/summary', [StudySessionController::class, 'summary']);
+        Route::delete('/study-sessions/{id}', [StudySessionController::class, 'destroy']);
+
+        // Productivity: Goals
+        Route::get('/goals', [GoalController::class, 'index']);
+        Route::post('/goals', [GoalController::class, 'store']);
+        Route::get('/goals/{id}', [GoalController::class, 'show']);
+        Route::put('/goals/{id}', [GoalController::class, 'update']);
+        Route::patch('/goals/{id}/progress', [GoalController::class, 'updateProgress']);
+        Route::delete('/goals/{id}', [GoalController::class, 'destroy']);
+
+        // Productivity: Smart Study Planner
+        Route::post('/study-planner/suggest', [StudyPlannerController::class, 'suggest']);
+
+        // Phase 5: Learning — Course Materials & File Uploads
+        Route::get('/courses/{course_id}/materials', [MaterialController::class, 'index']);
+        Route::post('/courses/{course_id}/materials', [MaterialController::class, 'store']);
+        Route::get('/materials', [MaterialController::class, 'index']);
+        Route::post('/materials', [MaterialController::class, 'store']);
+        Route::post('/materials/upload', [MaterialController::class, 'uploadFile']);
+        Route::get('/materials/{id}', [MaterialController::class, 'show']);
+        Route::put('/materials/{id}', [MaterialController::class, 'update']);
+        Route::delete('/materials/{id}', [MaterialController::class, 'destroy']);
+
+        // Phase 5: Learning — Markdown & Linked Notes
+        Route::get('/notes', [NoteController::class, 'index']);
+        Route::post('/notes', [NoteController::class, 'store']);
+        Route::get('/notes/{id}', [NoteController::class, 'show']);
+        Route::put('/notes/{id}', [NoteController::class, 'update']);
+        Route::delete('/notes/{id}', [NoteController::class, 'destroy']);
+        Route::post('/notes/{id}/link/{target_id}', [NoteController::class, 'linkNote']);
+        Route::delete('/notes/{id}/link/{target_id}', [NoteController::class, 'unlinkNote']);
+
+        // Phase 5: Learning — Spaced Repetition Flashcards (SuperMemo SM-2)
+        Route::get('/flashcard-decks', [FlashcardController::class, 'index']);
+        Route::post('/flashcard-decks', [FlashcardController::class, 'store']);
+        Route::get('/flashcard-decks/{id}', [FlashcardController::class, 'show']);
+        Route::put('/flashcard-decks/{id}', [FlashcardController::class, 'update']);
+        Route::delete('/flashcard-decks/{id}', [FlashcardController::class, 'destroy']);
+        Route::get('/flashcard-decks/{id}/due-cards', [FlashcardController::class, 'dueCards']);
+        Route::post('/flashcard-decks/{deck_id}/cards', [FlashcardController::class, 'storeCard']);
+        Route::put('/flashcards/{id}', [FlashcardController::class, 'updateCard']);
+        Route::delete('/flashcards/{id}', [FlashcardController::class, 'destroyCard']);
+        Route::post('/flashcards/{id}/review', [FlashcardController::class, 'review']);
+
+        // Phase 5: Learning — Interactive Quizzes & Practice Tests
+        Route::get('/quizzes', [QuizController::class, 'index']);
+        Route::post('/quizzes', [QuizController::class, 'store']);
+        Route::get('/quizzes/{id}', [QuizController::class, 'show']);
+        Route::put('/quizzes/{id}', [QuizController::class, 'update']);
+        Route::delete('/quizzes/{id}', [QuizController::class, 'destroy']);
+        Route::post('/quizzes/{quiz_id}/questions', [QuizController::class, 'storeQuestion']);
+        Route::put('/quiz-questions/{id}', [QuizController::class, 'updateQuestion']);
+        Route::delete('/quiz-questions/{id}', [QuizController::class, 'destroyQuestion']);
+        Route::post('/quizzes/{id}/attempt', [QuizController::class, 'submitAttempt']);
+        Route::get('/quizzes/{id}/attempts', [QuizController::class, 'attempts']);
+        Route::get('/quizzes/{id}/attempts/{attempt_id}', [QuizController::class, 'attemptShow']);
+
+        // Phase 6: Communication — Conversations & Direct/Group Messaging
+        Route::get('/conversations', [ConversationController::class, 'index']);
+        Route::post('/conversations', [ConversationController::class, 'store']);
+        Route::get('/conversations/{id}', [ConversationController::class, 'show']);
+        Route::put('/conversations/{id}', [ConversationController::class, 'update']);
+        Route::delete('/conversations/{id}', [ConversationController::class, 'destroy']);
+        Route::post('/conversations/{id}/participants', [ConversationController::class, 'addParticipants']);
+        Route::delete('/conversations/{id}/participants/{user_id}', [ConversationController::class, 'removeParticipant']);
+        Route::post('/conversations/{id}/read', [ConversationController::class, 'markAsRead']);
+
+        // Phase 6: Communication — Messages, Reactions & Attachments
+        Route::get('/conversations/{conversation_id}/messages', [MessageController::class, 'index']);
+        Route::post('/conversations/{conversation_id}/messages', [MessageController::class, 'store']);
+        Route::get('/messages/{id}', [MessageController::class, 'show']);
+        Route::put('/messages/{id}', [MessageController::class, 'update']);
+        Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
+        Route::post('/messages/{id}/reactions', [MessageController::class, 'toggleReaction']);
+
+        // Phase 6: Communication — Course Discussion Channels
+        Route::get('/courses/{course_id}/discussions', [CourseDiscussionController::class, 'index']);
+        Route::post('/courses/{course_id}/discussions', [CourseDiscussionController::class, 'store']);
+
+        // Phase 7: Collaboration — Study Groups & Shared Resources
+        Route::get('/study-groups', [StudyGroupController::class, 'index']);
+        Route::post('/study-groups', [StudyGroupController::class, 'store']);
+        Route::post('/study-groups/join', [StudyGroupController::class, 'join']);
+        Route::get('/study-groups/{id}', [StudyGroupController::class, 'show']);
+        Route::put('/study-groups/{id}', [StudyGroupController::class, 'update']);
+        Route::delete('/study-groups/{id}', [StudyGroupController::class, 'destroy']);
+        Route::post('/study-groups/{id}/regenerate-invite', [StudyGroupController::class, 'regenerateInvite']);
+        Route::post('/study-groups/{id}/members', [StudyGroupController::class, 'addMember']);
+        Route::put('/study-groups/{id}/members/{user_id}', [StudyGroupController::class, 'updateMemberRole']);
+        Route::delete('/study-groups/{id}/members/{user_id}', [StudyGroupController::class, 'removeMember']);
+        Route::post('/study-groups/{id}/share-note', [StudyGroupController::class, 'shareNote']);
+        Route::delete('/study-groups/{id}/notes/{note_id}', [StudyGroupController::class, 'unshareNote']);
+        Route::post('/study-groups/{id}/share-material', [StudyGroupController::class, 'shareMaterial']);
+        Route::delete('/study-groups/{id}/materials/{material_id}', [StudyGroupController::class, 'unshareMaterial']);
+
+        // Phase 7: Collaboration — Project Workspaces & Members
+        Route::get('/projects', [ProjectController::class, 'index']);
+        Route::post('/projects', [ProjectController::class, 'store']);
+        Route::get('/projects/{id}', [ProjectController::class, 'show']);
+        Route::put('/projects/{id}', [ProjectController::class, 'update']);
+        Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+        Route::post('/projects/{id}/members', [ProjectController::class, 'addMember']);
+        Route::delete('/projects/{id}/members/{user_id}', [ProjectController::class, 'removeMember']);
+
+        // Phase 7: Collaboration — Project Milestones
+        Route::get('/projects/{project_id}/milestones', [ProjectMilestoneController::class, 'index']);
+        Route::post('/projects/{project_id}/milestones', [ProjectMilestoneController::class, 'store']);
+        Route::put('/milestones/{id}', [ProjectMilestoneController::class, 'update']);
+        Route::patch('/milestones/{id}/toggle-complete', [ProjectMilestoneController::class, 'toggleComplete']);
+        Route::delete('/milestones/{id}', [ProjectMilestoneController::class, 'destroy']);
+
+        // Phase 7: Collaboration — Kanban Project Tasks
+        Route::get('/projects/{project_id}/tasks', [ProjectTaskController::class, 'index']);
+        Route::post('/projects/{project_id}/tasks', [ProjectTaskController::class, 'store']);
+        Route::post('/projects/{project_id}/tasks/reorder', [ProjectTaskController::class, 'reorder']);
+        Route::put('/project-tasks/{id}', [ProjectTaskController::class, 'update']);
+        Route::patch('/project-tasks/{id}/move', [ProjectTaskController::class, 'move']);
+        Route::delete('/project-tasks/{id}', [ProjectTaskController::class, 'destroy']);
+
+        // Phase 7: Collaboration — GitHub Repository Integration
+        Route::post('/projects/{project_id}/github/connect', [ProjectGithubController::class, 'connect']);
+        Route::delete('/projects/{project_id}/github/disconnect', [ProjectGithubController::class, 'disconnect']);
+        Route::get('/projects/{project_id}/github/activities', [ProjectGithubController::class, 'activities']);
+        Route::post('/projects/{project_id}/github/sync', [ProjectGithubController::class, 'sync']);
+
+        // Backward compatibility
+        Route::get('/user', function (Request $request) {
+            return response()->json([
+                'success' => true,
+                'data' => $request->user(),
+            ]);
+        });
+    });
+};
+
+// Register directly at /api/... and /api/v1/...
+$registerApiRoutes();
+
+Route::prefix('v1')->group(function () use ($registerApiRoutes) {
+    $registerApiRoutes();
+});

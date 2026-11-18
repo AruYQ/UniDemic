@@ -1,2 +1,50 @@
-read.md
-implementation_plan.md
+# Environment and secrets
+.env
+.env.backup
+.env.production
+*.key
+
+# Composer & PHP
+composer.phar
+vendor/
+apps/api/vendor/
+apps/api/.env
+apps/api/database/*.sqlite
+apps/api/database/*.sqlite-journal
+apps/api/storage/logs/*.log
+apps/api/storage/framework/cache/*
+apps/api/storage/framework/sessions/*
+apps/api/storage/framework/views/*
+!apps/api/storage/framework/cache/.gitignore
+!apps/api/storage/framework/sessions/.gitignore
+!apps/api/storage/framework/views/.gitignore
+!apps/api/storage/logs/.gitignore
+
+# Node & JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Mobile (Expo / React Native)
+.expo/
+apps/mobile/.expo/
+apps/mobile/node_modules/
+apps/mobile/web-build/
+
+# Operating System & IDEs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+.phpunit.result.cache
+.phpunit.cache/
+
+# AI Agent instructions & temp artifacts
+AGENTS.md
+agents.md
+Image-Error/
+

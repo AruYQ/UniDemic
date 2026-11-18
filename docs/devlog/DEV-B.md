@@ -1,0 +1,666 @@
+# 📓 Dev B — Frontend Devlog (AruYQ)
+
+> Log perjalanan pengerjaan frontend/mobile UniDemic.
+> **Format wajib** diisi setiap kali menyelesaikan task atau menghadapi masalah signifikan.
+> Diisi oleh AruYQ dan/atau AI Agent Frontend.
+
+---
+
+## Cara Mengisi Log
+
+Setiap entry menggunakan format ini:
+
+```markdown
+### [YYYY-MM-DD] — [Judul singkat task]
+
+**Branch**: feature/mobile/[nama]
+**Status**: Selesai / Sedang dikerjakan / Blocked
+
+**Yang dikerjakan:**
+- [deskripsi task]
+
+**Keputusan desain/teknis:**
+- [keputusan & alasannya]
+
+**Masalah yang ditemukan:**
+- [masalah] → [solusi]
+
+**Screenshot/Preview:**
+- [path gambar atau link]
+
+**Referensi:**
+- [link PR / commit / dokumentasi]
+```
+
+---
+
+## Log Entries
+
+### [2026-09-08] — Project Initialization & Planning
+
+**Branch**: `main` / `develop`
+**Status**: Selesai (setup repo & planning)
+
+**Yang dikerjakan:**
+- Analisis Read.md — memahami seluruh fitur UniDemic yang akan dibangun
+- Dibuat implementation plan 9 phase dengan verifikasi checkpoint per fitur
+- Setup GitHub repo: [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic)
+- Ditambahkan rekis-0103 sebagai collaborator (Dev A / Backend)
+- Dibuat AI skill `unidemic-ui-ux` untuk standar UI/UX semua screen
+- Dibuat sistem dokumentasi (devlog, progress tracker, decisions)
+
+**Keputusan teknis (Frontend):**
+- Framework: **React Native + Expo** (cross-platform Android & iOS)
+- Navigation: **Expo Router** (file-based routing, mirip Next.js)
+- Server state: **TanStack Query** (caching, background sync, optimistic updates)
+- Client state: **Zustand** (auth store, UI state)
+- Validasi: **Zod + React Hook Form**
+- HTTP: **Axios** dengan interceptor untuk attach token
+- Token storage: **expo-secure-store** (encrypted, keychain/keystore)
+
+**Keputusan desain (UI/UX):**
+- Dark mode first dengan palette indigo-slate (`#0F1117` base)
+- Font: Syne Bold (display) + Space Grotesk (body) + JetBrains Mono (kode/angka)
+- Icons: Phosphor Icons Duotone (bukan Lucide/Heroicons default)
+- Animasi: react-native-reanimated v3 (bukan Animated API bawaan)
+- Loading: Skeleton/Shimmer dengan `moti` (bukan ActivityIndicator)
+- List: FlashList (bukan ScrollView atau FlatList untuk list panjang)
+- 30 Anti-Slop Rules diterapkan ketat (lihat UI-UX_Guides.md)
+
+**Tools dokumentasi yang dibuat:**
+- [`docs/PROGRESS.md`](../PROGRESS.md) — Progress tracker semua phase & checkpoint
+- [`docs/devlog/DEV-A.md`](DEV-A.md) — Dev log backend
+- [`docs/devlog/DEV-B.md`](DEV-B.md) — Dev log frontend (ini)
+- [`docs/decisions/`](../decisions/) — Architecture Decision Records
+- [`.agents/skills/unidemic-ui-ux/SKILL.md`](../../.agents/skills/unidemic-ui-ux/SKILL.md) — AI UI/UX skill
+- [`.agents/skills/unidemic-devlog/SKILL.md`](../../.agents/skills/unidemic-devlog/SKILL.md) — AI documentation skill
+- [`.agents/rules/documentation.md`](../../.agents/rules/documentation.md) — Aturan wajib dokumentasi
+
+**Referensi:**
+- [Read.md](../../Read.md) — Spesifikasi lengkap proyek
+- [Implementation Plan](../../implementation_plan.md) — Roadmap 9 phase
+- [UI-UX Guides](../../UI-UX_Guides.md) — Panduan desain original
+- Commit: `48d3011` — docs: add project documentation
+- Commit: `9095486` — feat: add unidemic-ui-ux AI agent skill
+
+---
+
+> ⬇️ Entry selanjutnya ditambahkan di bawah ini oleh Dev B / AI Agent Frontend
+
+### [2026-09-08] — Phase 1 Mobile Foundation & Authentication Setup
+
+**Branch**: `feature/mobile/auth-foundation`
+**Status**: Selesai
+
+**Yang dikerjakan:**
+- Setup Expo SDK 57 project dengan TypeScript dan Expo Router di `apps/mobile/`.
+- Instalasi dependensi: Zustand, Axios, Zod, TanStack Query, Expo Secure Store, Phosphor Icons (`phosphor-react-native`), `@shopify/flash-list`, serta font `@expo-google-fonts/syne`, `@expo-google-fonts/space-grotesk`, dan `@expo-google-fonts/jetbrains-mono`.
+- Implementasi Design System Tokens (`apps/mobile/src/constants/tokens.ts` & `theme.ts`) mengadopsi ketat warna `#0F1117`, `#171B26`, `#6B7FD7`, `#4ECDC4`, `#F7B731`, radius variatif, dan offset shadows.
+- Pembuatan Secure Storage wrapper (`apps/mobile/src/utils/secureStore.ts`) dengan `expo-secure-store` dan fallback web storage.
+- Pembuatan API client Axios (`apps/mobile/src/lib/api.ts`) dengan auto Bearer token injection dan 401 handling.
+- Pembuatan Auth Store Zustand (`apps/mobile/src/store/useAuthStore.ts`) mengelola login, register, profile refresh, dan token persistence.
+- Pembuatan komponen reusable Vibe Coding: `UniButton` (dengan spring press-down `withSpring(0.97)`), `UniInput` (dengan password toggle dan border subtle), dan `UniBadge` (status geometris).
+- Pembuatan layar Autentikasi: `apps/mobile/src/app/(auth)/_layout.tsx`, `login.tsx`, dan `register.tsx` lengkap dengan validasi Zod dan handling error.
+- Pembuatan Dashboard autentikasi di `apps/mobile/src/app/index.tsx` (Bento layout, hero upcoming class, IPK/SKS metrics).
+- Integrasi dan pengujian live ke backend Docker Laravel Sanctum API: sukses mendaftar dan login.
+
+**Screen/komponen yang dibuat/diubah:**
+- `apps/mobile/src/constants/tokens.ts` — Design system tokens
+- `apps/mobile/src/constants/theme.ts` — Theme adapter & exports
+- `apps/mobile/src/utils/secureStore.ts` — Secure token storage wrapper
+- `apps/mobile/src/lib/api.ts` — Axios instance & interceptors
+- `apps/mobile/src/store/useAuthStore.ts` — Auth state management
+- `apps/mobile/src/hooks/useUniDemicFonts.ts` — Custom font loader hook
+- `apps/mobile/src/components/ui/UniButton.tsx` — Vibe button with spring animation
+- `apps/mobile/src/components/ui/UniInput.tsx` — Secure input field
+- `apps/mobile/src/components/ui/UniBadge.tsx` — Geometric status badge
+- `apps/mobile/src/app/_layout.tsx` — Root layout with font loader and auth guard
+- `apps/mobile/src/app/(auth)/_layout.tsx` — Auth stack layout
+- `apps/mobile/src/app/(auth)/login.tsx` — Premium Login screen
+- `apps/mobile/src/app/(auth)/register.tsx` — Student Onboarding Register screen
+- `apps/mobile/src/app/index.tsx` — Bento Academic Dashboard
+
+**Vibe Check hasil:**
+- Layout: Asymmetric Bento grid, thumb-zone optimized touch targets (height 52px).
+- Animasi: Reanimated v3 FadeInDown entry with cubic easing, subtle spring 0.97 press-down.
+- Anti-slop: Tanpa `#000000`/`#FFFFFF`, tipografi Syne + Space Grotesk + JetBrains Mono, Phosphor Duotone icons, tidak ada emoji sebagai status.
+
+**API yang diintegrasikan:**
+- `POST /api/auth/register` → Register payload, issue token, update auth store
+- `POST /api/auth/login` → Credential check, issue token, update auth store
+- `GET /api/profile` → Session initialization dari SecureStore token
+
+**Keputusan desain/teknis:**
+- Menggunakan `phpredis` pada container backend API menggantikan `predis` yang tidak terinstall, menyamakan konfigurasi Dockerfile dengan `.env`.
+- Mengarahkan `DB_HOST` ke hostname container `db` di dalam `.env` container backend.
+
+**Masalah yang ditemukan:**
+- `Predis\Client not found` pada backend → solved dengan mengubah `REDIS_CLIENT=phpredis` di `.env` dan `docker-compose.yml`.
+- `DB_HOST=127.0.0.1` pada backend container menolak koneksi Postgres → solved dengan mengubah `DB_HOST=db` dan `DB_PASSWORD=secret_password`.
+
+**Referensi:**
+- Branch: `feature/mobile/auth-foundation`
+- Commit: `bf50d41`
+- PR URL: https://github.com/AruYQ/UniDemic/pull/new/feature/mobile/auth-foundation
+
+---
+
+### [2026-09-10] — Phase 2: Academic Core Mobile Frontend Implementation & UX Polish
+
+**Branch**: `feature/mobile/academic-core`
+**Status**: Selesai & Terverifikasi (Lolos strict TypeScript typecheck)
+
+**Yang dikerjakan:**
+- Re-export & integrasi TypeScript types akademik: `apps/mobile/src/types/academic.ts` (`Semester`, `Course`, `CourseSchedule`, `Assignment`, `Exam`).
+- Implementasi API service layer: `apps/mobile/src/services/academicService.ts` menghubungkan ke seluruh endpoint Laravel backend Dev A (Semesters, Courses, Schedules, Assignments, Exams).
+- Implementasi state management Zustand: `apps/mobile/src/store/useAcademicStore.ts` dengan:
+  - **Smart In-Memory Caching dengan TTL 3 Menit (180.000 ms)**: Data yang telah diambil disimpan di memori dan tidak mengulang request ke backend kecuali cache kadaluarsa, ditarik user (pull-to-refresh), atau terjadi mutasi (create/update/delete).
+  - **On-Demand (Lazy) Fetching**: Setiap tab/layar (`fetchDashboard`, `fetchSchedules`, `fetchCoursesAndSemesters`, `fetchTasksAndExams`, `fetchCourseDetail`) hanya mengambil datanya sendiri ketika layar dibuka, mencegah *data storm* ke server dan menghemat kuota user.
+  - **Optimistic UI updates** untuk perubahan progress tugas (0% -> 50% -> 100%) dengan auto-sync ke server.
+- **Komponen Input Visual Baru (No Manual Typing)**:
+  - `apps/mobile/src/components/ui/UniDatePicker.tsx` — Pemilih tanggal kalender mini visual dengan quick presets (*Hari Ini*, *Besok*, *+3 Hari*, *Minggu Depan*) dan navigasi bulan, tanpa input keyboard YYYY-MM-DD.
+  - `apps/mobile/src/components/ui/UniTimePicker.tsx` — Pemilih waktu visual dengan preset jam perkuliahan kampus (*07:00*, *08:00*, *09:40*, *10:30*, *13:00*, *15:30*) dan grid jam-menit berbasis tap.
+- **Instagram-style Skeleton Shimmer UI (Rule #21 Anti-Slop)**:
+  - `apps/mobile/src/components/ui/UniSkeleton.tsx` — Shimmer wireframe terakselerasi GPU Reanimated yang meniru persis kontur kartu: `DashboardSkeleton`, `ScheduleCardSkeleton`, `CourseCardSkeleton`, `AssignmentCardSkeleton`, dan `CourseDetailSkeleton`. Meniadakan `ActivityIndicator` biasa pada konten utama.
+- **Liquid Spring Physics (Opsi B)**:
+  - Konfigurasi pegas Reanimated: `mass: 0.6`, `damping: 18`, `stiffness: 180` pada kartu, tombol, modal sheet, dan nav bar untuk sensasi taktil elastis, stabil, dan bebas *framedrop* (tetap 60 FPS di perangkat low/mid-range).
+- **Smooth Navigation & Tab Transitions**:
+  - `apps/mobile/src/app/_layout.tsx`: Transisi tumpukan layar menggunakan `animation: 'fade'` lembut (180ms) dan `freezeOnBlur: true`.
+  - `apps/mobile/src/components/ui/BottomNav.tsx`: Menggunakan `router.replace` untuk perpindahan antar root tab, mengeliminasi efek geser ke samping yang acak dan tidak teratur.
+- Integrasi ke seluruh layar:
+  - `apps/mobile/src/app/index.tsx` (Dashboard dengan `DashboardSkeleton` & dynamic active semester)
+  - `apps/mobile/src/app/schedule.tsx` (Jadwal mingguan dengan `ScheduleCardSkeleton` & `UniTimePicker`)
+  - `apps/mobile/src/app/courses.tsx` (Manajemen matkul dengan `CourseCardSkeleton`)
+  - `apps/mobile/src/app/tasks.tsx` (Tugas & ujian dengan `AssignmentCardSkeleton`, `UniDatePicker`, `UniTimePicker`)
+  - `apps/mobile/src/app/course/[id].tsx` (Detail matkul dengan `CourseDetailSkeleton`, cached loader, `UniDatePicker`, `UniTimePicker`)
+
+**Masalah & Solusi:**
+- *Problem*: User merasa ribet mengetik tanggal `YYYY-MM-DD` dan jam `HH:mm` secara manual via keyboard.
+  *Solusi*: Membangun `UniDatePicker` & `UniTimePicker` berbasis tap dengan preset cerdas akademik.
+- *Problem*: Navigasi antar tab bawah terasa kaku dengan efek slide kiri-kanan yang tidak berurutan karena `router.push`.
+  *Solusi*: Mengganti navigasi tab ke `router.replace` dan mengatur stack transition `animation: 'fade'` (180ms).
+- *Problem*: Aplikasi memanggil semua endpoint data akademik sekaligus saat pertama dibuka, membebani server dan baterai.
+  *Solusi*: Arsitektur on-demand fetching per layar dipadu in-memory TTL cache 3 menit.
+
+**Verifikasi:**
+- `npx tsc --noEmit` di `apps/mobile`: Lolos 100% tanpa ada error type.
+
+---
+
+### [2026-09-13] — Phase 3: Academic Tracking Mobile Frontend & Interactive GPA Simulator
+
+**Branch**: `feature/mobile/academic-tracking`
+**Status**: Selesai & Terverifikasi (Lolos strict TypeScript typecheck 0 error)
+
+**Yang dikerjakan:**
+- **Types & Service Layer**:
+  - Menambahkan tipe data pelacakan akademik di `apps/mobile/src/types/tracking.ts` (`Attendance`, `AttendanceStatus`, `AttendanceSummary`, `GradeComponent`, `Grade`, `CourseGpa`, `SemesterGpa`, `CumulativeGpa`, `GpaSimulationItem`, `GpaSimulationPayload`, `GpaSimulationResult`).
+  - Membangun API service layer di `apps/mobile/src/services/trackingService.ts` untuk presensi, komponen penilaian berbobot, nilai asesmen, serta kalkulasi dan simulasi IPK.
+- **State Management (Zustand)**:
+  - Membangun `apps/mobile/src/store/useTrackingStore.ts` dengan in-memory cache TTL 3 menit (`CACHE_TTL_MS`), penanganan loading state per course, optimistic updates, dan pengelolaan hasil proyeksi simulasi IPK.
+- **Attendance Tracking UI Suite**:
+  - `AttendanceSummaryCard.tsx`: Kartu statistik kehadiran interaktif dengan bar progress visual, grid 4 pilar presensi (Hadir, Izin, Sakit, Alpa), serta peringatan kritis batas alpa (threshold warning jika kehadiran < 75% atau toleransi aman alpa habis).
+  - `AttendanceItemCard.tsx`: Kartu riwayat pertemuan dengan aksen garis warna status vertikal, tanggal terformat bahasa Indonesia, catatan, dan tombol hapus.
+  - `MarkAttendanceModal.tsx`: Dialog pencatatan presensi visual tap dengan pemilih status geometris berikon, pemilih kalender mini `UniDatePicker` (tanpa input teks manual), dan catatan pertemuan opsional.
+- **Grade & Assessment Management UI Suite**:
+  - `GradeComponentModal.tsx`: Dialog pengelolaan bobot penilaian (UTS, UAS, Tugas, Kuis, Praktikum) dengan bar akumulasi persentase hingga 100% dan validasi kelebihan alokasi bobot.
+  - `GradeItemCard.tsx`: Kartu nilai asesmen dengan tag komponen, persentase bobot teralokasi, skor numerik 0-100, dan color coding semantik.
+  - `AddGradeModal.tsx`: Dialog input nilai baru dengan pemilih chip komponen penilaian atau mode custom bobot mandiri.
+- **Layar Detail Kuliah Terintegrasi (`apps/mobile/src/app/course/[id].tsx`)**:
+  - Memperluas tab navigasi menjadi 5 segmen: **Jadwal**, **Tugas**, **Ujian**, **Presensi**, dan **Nilai** dalam horizontal scrollable tab bar.
+  - Menambahkan Hero Card Nilai Akhir Terhitung dengan huruf mutu (A, B+, dll) dan titik mutu 4.0 pada tab Nilai.
+- **Layar GPA Tracker & Simulator Baru (`apps/mobile/src/app/gpa.tsx`)**:
+  - Hero Card Bento IPK Kumulatif dengan tipografi display `Syne_700Bold`, predikat kelulusan (*Cumlaude*, *Sangat Memuaskan*, dll), total SKS lulus, dan progress bar menuju target 144 SKS.
+  - Rincian IPS per semester dengan daftar kartu riwayat semester.
+  - Interactive GPA Simulator: Tambah matkul simulasi, pilih SKS (1-6) dan target huruf mutu (A s.d. E) secara visual, kalkulasi delta proyeksi IPK real-time dengan badge dinamis (`+0.12` / `-0.05`) terhubung ke endpoint `/api/gpa-simulator`.
+- **Integrasi Beranda (`apps/mobile/src/app/index.tsx`)**:
+  - Menambahkan Bento Card ke-3 pada dashboard beranda sebagai shortcut langsung ke layar `/gpa` yang menampilkan IPK kumulatif terkini.
+  - Mendaftarkan rute `gpa` di `_layout.tsx` dengan transisi tumpukan halus `slide_from_right`.
+
+**Screen/komponen yang dibuat/diubah:**
+- `apps/mobile/src/types/tracking.ts` — Shared types & payload DTOs tracking
+- `apps/mobile/src/services/trackingService.ts` — API client service tracking
+- `apps/mobile/src/store/useTrackingStore.ts` — Zustand store tracking & simulator
+- `apps/mobile/src/components/tracking/AttendanceSummaryCard.tsx` — Visual summary card presensi
+- `apps/mobile/src/components/tracking/AttendanceItemCard.tsx` — Kartu riwayat kehadiran pertemuan
+- `apps/mobile/src/components/tracking/MarkAttendanceModal.tsx` — Modal visual tap catat kehadiran
+- `apps/mobile/src/components/tracking/GradeComponentModal.tsx` — Modal kelola komponen bobot nilai
+- `apps/mobile/src/components/tracking/GradeItemCard.tsx` — Kartu nilai asesmen
+- `apps/mobile/src/components/tracking/AddGradeModal.tsx` — Modal input nilai asesmen
+- `apps/mobile/src/app/course/[id].tsx` — Detail matkul dengan 5 tab interaktif
+- `apps/mobile/src/app/gpa.tsx` — Layar dedicated GPA tracker & simulator
+- `apps/mobile/src/app/index.tsx` — Bento dashboard shortcut ke GPA screen
+- `apps/mobile/src/app/_layout.tsx` — Registrasi screen stack gpa
+
+**Vibe Check hasil:**
+- Layout: Bento cards, segmented multi-tab horizontal bar, thumb-zone friendly touch targets.
+- Animasi: FadeInDown on mount (duration 220-300ms), tactile spring feedback pada tap status & chip.
+- Anti-slop: Tanpa `#000000`/`#FFFFFF` statis, font Syne + Space Grotesk + JetBrains Mono, Phosphor Icons Duotone, tanpa input teks manual tanggal (UniDatePicker).
+
+**API yang diintegrasikan:**
+- `GET/POST /api/courses/{id}/attendances` → Log presensi matkul
+- `GET /api/courses/{id}/attendance-summary` → Ringkasan persentase & status peringatan batas alpa
+- `DELETE /api/attendances/{id}` → Hapus log presensi
+- `GET/POST /api/courses/{id}/grade-components` → Bobot komponen penilaian
+- `DELETE /api/grade-components/{id}` → Hapus komponen penilaian
+- `GET/POST /api/courses/{id}/grades` → Nilai asesmen mahasiswa
+- `DELETE /api/grades/{id}` → Hapus nilai asesmen
+- `GET /api/courses/{id}/gpa` → Nilai akhir matkul & huruf mutu
+- `GET /api/gpa/cumulative` → IPK kumulatif & riwayat semester
+- `POST /api/gpa-simulator` → Proyeksi delta IPK simulasi
+
+**Verifikasi:**
+- `npx tsc --noEmit` di `apps/mobile`: 100% Lolos tanpa error.
+
+---
+
+### [2026-09-13] — API Integration Testing — Phase 3 Semua Endpoint
+
+**Branch**: `feature/mobile/academic-tracking`
+**Status**: Selesai ✅
+
+**Yang dikerjakan:**
+- Testing komprehensif seluruh endpoint Phase 3 menggunakan automated PowerShell test script
+- Ditemukan dan diverifikasi route yang benar antara backend vs mobile service
+- Verifikasi konsistensi tipe data (`AttendanceStatus`, `CreateGradePayload`, `GpaSimulationPayload`) antara `tracking.ts` dan backend validation
+
+**Hasil Testing — 20/20 PASSED:**
+| Section | Test | Status |
+|---|---|---|
+| Auth | Login | ✅ |
+| Attendance | Create (present/sick/absent) | ✅ ✅ ✅ |
+| Attendance | Get List + Summary | ✅ ✅ |
+| Attendance | Update + Delete | ✅ ✅ |
+| Grade Components | Create UTS/UAS/Tugas/Kuis + List | ✅ ✅ ✅ ✅ ✅ |
+| Grades | Create UTS/UAS + List + Course GPA | ✅ ✅ ✅ ✅ |
+| GPA | Cumulative GPA | ✅ |
+| GPA | Simulator (4 courses) | ✅ |
+| Cleanup | Delete Attendance + Grade | ✅ ✅ |
+
+**Temuan & Keputusan Teknis:**
+- `AttendanceStatus` enum backend: `present`, `absent`, `permission`, `sick` (English) — sudah sesuai dengan `types/tracking.ts` ✅
+- `CreateGradePayload` membutuhkan field `name` — sudah diimplementasi di `AddGradeModal` ✅
+- `AttendanceSummary` response fields: `present_count`, `absent_count`, `permission_count`, `attendance_percentage`, `minimum_percentage`, `warning`, `remaining_safe_absences` — sudah sesuai dengan types ✅
+- `GpaSimulationPayload` menggunakan key `simulations` (array of `{ course_name, credits, target_grade }`) — sudah sesuai dengan `GpaSimulationPayload` interface ✅
+- Route update/delete attendance: `PUT/DELETE /api/attendances/{id}` (tidak nested di course) — sudah benar di `trackingService.ts` ✅
+- Route GPA simulator: `POST /api/gpa-simulator` (bukan `/api/gpa/simulate`) — sudah benar ✅
+
+**Warning Alert Test:**
+- Dengan 1 `present`, 1 `sick`, 1 `absent` → attendance_percentage = 33.33% → `warning = true` ✅
+- Logic warning muncul saat: persentase < 75% OR remaining_safe_absences ≤ 1
+
+**Referensi:**
+- Test script: `C:\Users\veray\.gemini\antigravity-ide\brain\f395b9cb-7897-45bb-8e64-ae8187496570\scratch\test_phase3.ps1`
+
+### [2026-09-13] — Fix UI/UX Polish: Swipe Gesture, Record Spacing, and GPA Screen Navbar
+
+**Branch**: `feature/mobile/phase-3-tracking`
+**Status**: Selesai ✅
+
+**Yang dikerjakan:**
+- **Swipe-to-Delete Support**:
+  - Membungkus root layout (`_layout.tsx`) dengan `<GestureHandlerRootView style={{ flex: 1 }}>` agar gesture native iOS & Android aktif.
+  - Membuat reusable component `UniSwipeable` (`src/components/ui/UniSwipeable.tsx`) menggunakan `react-native-gesture-handler`.
+  - Mengintegrasikan `UniSwipeable` di seluruh card: `AttendanceItemCard`, `GradeItemCard`, `AssignmentCard`, `ScheduleCard`, `ExamCard`, dan `CourseCard`.
+- **Perbaikan Spacing Header vs Record**:
+  - Memperbaiki `sectionHeaderRow` di `course/[id].tsx` yang sebelumnya `marginBottom: -4` (terlalu dekat / menempel ke record pertama) menjadi `marginTop: spacing.sm, marginBottom: spacing.sm`.
+  - Menyelaraskan margin `AttendanceSummaryCard` dan `gpaHeroCard` ke `spacing.md` agar visual hierarchy dan padding vertikal simetris di iOS/Android.
+- **Floating BottomNav di Layar GPA**:
+  - Menambahkan `<BottomNav />` pada `src/app/gpa.tsx` agar konsisten dengan screen utama (`index`, `schedule`, `courses`, `tasks`).
+  - Mengatur `scrollContent.paddingBottom: 110` agar form simulasi IPK dan tombol CTA kalkulasi tidak tertutup bottom nav.
+
+**Keputusan Desain & Teknis:**
+- `UniSwipeable` memberikan opsi swipe ke kiri dengan background merah semantic danger dan ikon tempat sampah, sambil tetap mempertahankan tombol delete tap langsung untuk kenyamanan pengguna.
+- Spacing proporsional (8px - 16px) memastikan readability teks sub-header terhadap daftar record di bawahnya.
+
+---
+
+### [2026-09-17] — Phase 4: Productivity Mobile Frontend & Focus Timer Suite
+
+**Branch**: `feature/mobile/productivity`
+**Status**: Selesai & Terverifikasi (Lolos strict TypeScript typecheck 0 error)
+
+**Yang dikerjakan:**
+- **Types & Service Layer**:
+  - Menambahkan tipe data produktivitas lengkap di `apps/mobile/src/types/productivity.ts` (`ProductivityTask`, `TaskSubtask`, `StudySession`, `Goal`, `StudyPlanItem`, `StudyPlanSuggestion`, serta DTOs payload untuk tasks, subtasks, sessions, goals, planner).
+  - Membangun API service layer di `apps/mobile/src/services/productivityService.ts` untuk seluruh endpoint backend Phase 4 (`/api/tasks`, `/api/subtasks`, `/api/study-sessions`, `/api/goals`, `/api/study-planner/suggest`).
+- **State Management (Zustand)**:
+  - Membangun `apps/mobile/src/store/useProductivityStore.ts` dengan in-memory cache TTL 3 menit (`CACHE_TTL_MS`), penanganan loading state reaktif, optimistic updates pada checklist to-do dan subtask, serta Focus Timer / Pomodoro engine mandiri.
+- **Productivity UI Suite Components**:
+  - `TaskItemCard.tsx`: Kartu to-do produktivitas dengan checklist subtask interaktif, progress bar reaktif otomatis, inline subtask quick-add, status badges, dan gesture `UniSwipeable` untuk hapus cepat.
+  - `FocusTimerWidget.tsx`: Pomodoro 25 menit, jeda istirahat pendek (5m) & panjang (15m), mode stopwatch, pemilih mata kuliah terkait, catatan sesi, dan integrasi penyimpanan sesi belajar ke backend.
+  - `StudySessionSummaryCard.tsx`: Bento grid statistik waktu belajar (hari ini, minggu ini, rata-rata, dan alokasi per mata kuliah).
+  - `GoalCard.tsx`: Kartu pelacakan target capaian belajar (target vs realisasi), progress bar dinamis, tombol quick increment (+1), auto-complete saat target tercapai, dan swipe-to-delete.
+  - `StudyPlannerCard.tsx`: Kartu rekomendasi slot waktu belajar cerdas berbasis AI tanpa bentrok jadwal kuliah dengan tombol CTA langsung "Mulai Sesi" ke Focus Timer.
+  - `CreateTaskModal.tsx`: Dialog modal pembuatan tugas produktivitas dengan builder inline subtask awal, pemilihan tingkat prioritas (Rendah, Sedang, Tinggi, Urgent), tenggat waktu `UniDatePicker`, dan tag label.
+  - `CreateGoalModal.tsx`: Dialog modal penetapan target kuantitatif belajar (tipe mingguan, bulanan, semester, atau kustom) dengan satuan fleksibel dan batas waktu target.
+- **Integrasi Layar Terpadu (`apps/mobile/src/app/tasks.tsx`)**:
+  - Menghubungkan seluruh modul Phase 4 ke dalam 4 navigasi tab utama: **Kuliah** (Tugas & Ujian akademik), **To-Do** (Produktivitas & Subtasks), **Fokus Timer** (Pomodoro & Ringkasan sesi), dan **Target** (Goals & AI Study Planner).
+  - Menambahkan pull-to-refresh ganda yang memperbarui data akademik dan produktivitas sekaligus.
+
+**Screen/komponen yang dibuat/diubah:**
+- `apps/mobile/src/types/productivity.ts` — TypeScript interfaces & payload DTOs produktivitas
+- `apps/mobile/src/services/productivityService.ts` — Axios API service produktivitas
+- `apps/mobile/src/store/useProductivityStore.ts` — Zustand store & Focus Timer engine
+- `apps/mobile/src/components/productivity/TaskItemCard.tsx` — Kartu to-do & subtask checklist
+- `apps/mobile/src/components/productivity/FocusTimerWidget.tsx` — Pomodoro & session recorder
+- `apps/mobile/src/components/productivity/StudySessionSummaryCard.tsx` — Bento statistik belajar
+- `apps/mobile/src/components/productivity/GoalCard.tsx` — Kartu target progress tracker
+- `apps/mobile/src/components/productivity/StudyPlannerCard.tsx` — Kartu saran slot belajar AI
+- `apps/mobile/src/components/productivity/CreateTaskModal.tsx` — Modal tambah to-do & subtasks
+- `apps/mobile/src/components/productivity/CreateGoalModal.tsx` — Modal tambah target belajar
+- `apps/mobile/src/app/tasks.tsx` — Layar hub produktivitas terpadu 4 segmen
+
+**Vibe Check hasil:**
+- Layout: Bento cards, segmented scrollable pill tab bar, thumb-zone friendly touch targets.
+- Animasi: FadeInDown on mount (duration 220-260ms), liquid spring feedback pada tap status, subtask, dan timer buttons.
+- Anti-slop: Tanpa `#000000`/`#FFFFFF` mentah, font Syne + Space Grotesk + JetBrains Mono, Phosphor Icons Duotone, tanpa input teks manual tanggal (UniDatePicker).
+
+**API yang diintegrasikan:**
+- `GET/POST /api/tasks`, `PUT/DELETE /api/tasks/{id}`, `PATCH /api/tasks/{id}/toggle-complete`
+- `POST /api/tasks/{id}/subtasks`, `PUT/DELETE /api/tasks/{taskId}/subtasks/{subtaskId}`
+- `GET/POST /api/study-sessions`, `GET /api/study-sessions/summary`, `DELETE /api/study-sessions/{id}`
+- `GET/POST /api/goals`, `PUT/DELETE /api/goals/{id}`, `PATCH /api/goals/{id}/progress`
+- `GET /api/study-planner/suggest`
+
+**Verifikasi:**
+- `npx tsc --noEmit` di `apps/mobile`: 100% Lolos tanpa error (0 errors).
+
+---
+
+### [2026-09-17] — Phase 4: Root Cause Resolution, Database Migration & UI/UX Redesign
+
+**Branch**: `fix/mobile/productivity-refinements`
+**Status**: Selesai & Terverifikasi Langsung di Perangkat (E2E Test Passed)
+
+**Yang dikerjakan:**
+- **Penyelesaian Fatal Runtime Error (SQLSTATE 42P01)**:
+  - Mengidentifikasi 8 tangkapan layar error `Image-Error/` di mana container Docker PostgreSQL (`unidemic-db`) belum menjalankan tabel migrasi Phase 4.
+  - Menjalankan migrasi `php artisan migrate` di container `unidemic-api` (`productivity_tasks`, `task_subtasks`, `study_sessions`, `goals`).
+- **Penyelesaian Deadlock Algoritma AI Study Planner**:
+  - Memperbaiki `apps/api/app/Http/Controllers/Api/StudyPlannerController.php` di mana deadline lampau menyebabkan `continue` loop tanpa increment `$queueIndex`, mengunci seluruh penjadwalan hari berikutnya.
+  - Memfilter hanya deadline masa depan dan menyuntikkan review matkul aktif sebagai pelengkap antrean belajar.
+- **Redesain Total UI/UX tasks.tsx**:
+  - **Full-Width 4-Segment Bar**: Menghapus scroll horizontal yang memotong tab `Target` menjadi `Tar...`, menggantikannya dengan 4 kolom segmen responsif (`Kuliah`, `To-Do`, `Fokus`, `Target`).
+  - **Eliminasi 3-Layer Filter Stacking**: Menggabungkan deretan filter bertumpuk menjadi compact segment strip hemat 60% viewport vertikal.
+  - **Always-Visible Focus Bento**: Kartu ringkasan sesi belajar kini selalu tampil anggun dengan default `0j 0m` saat belum ada data.
+  - **AI Planner Hero Card**: Membangun hero card cerdas dengan badge AI, total jam, dan CTA eksplisit "Buat Rekomendasi Sekarang".
+- **Sanitasi Error Database**:
+  - Menambahkan fungsi `formatApiError()` di `src/lib/api.ts` dan menggunakannya di `CreateTaskModal`, `CreateGoalModal`, `FocusTimerWidget`, serta `useProductivityStore` untuk mencegah bocornya pesan query SQL mentah ke pengguna.
+
+**Screen/komponen yang dibuat/diubah:**
+- `apps/api/app/Http/Controllers/Api/StudyPlannerController.php` — Algoritma alokasi bebas deadlock
+- `apps/mobile/src/lib/api.ts` — Utilitas sanitasi error `formatApiError`
+- `apps/mobile/src/store/useProductivityStore.ts` — Error handling tersanitasi
+- `apps/mobile/src/components/productivity/CreateTaskModal.tsx` — Sanitasi modal error
+- `apps/mobile/src/components/productivity/CreateGoalModal.tsx` — Sanitasi modal error
+- `apps/mobile/src/components/productivity/FocusTimerWidget.tsx` — Sanitasi modal error
+- `apps/mobile/src/app/tasks.tsx` — Redesain UI/UX hub produktivitas & tab bar
+
+**Verifikasi:**
+- PHPUnit backend tests: 22 passed, 203 assertions (`docker exec unidemic-api php artisan test --filter Productivity`).
+- TypeScript compiler: `npx tsc --noEmit` lolos 0 errors.
+- Live device testing: Teruji dan disetujui langsung oleh user pada perangkat fisik via Expo Metro.
+
+---
+
+### [2026-09-18] — Phase 5: Mobile Learning Module (Materials, Networked Notes, Flashcards SM-2, Quizzes)
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai diimplementasikan & Siap Pengujian Perangkat (Pre-PR Verification Gate)
+
+**Yang dikerjakan:**
+- **Foundation & Services**:
+  - `apps/mobile/src/types/learning.ts`: Kontrak TypeScript lengkap untuk Materials, Notes, NoteLinks, FlashcardDecks, Flashcards, Quizzes, QuizQuestions, QuizAttempts, dan SM-2 Review payloads.
+  - `apps/mobile/src/services/learningService.ts`: Axios client service untuk semua 17 endpoint API Phase 5 (Materials CRUD & Upload, Notes CRUD & Linking, Flashcard Decks/Cards & Review SM-2, Quizzes CRUD & Attempt).
+  - `apps/mobile/src/store/useLearningStore.ts`: Zustand store dengan smart cache TTL 3 menit, study session state untuk flashcard SM-2, active quiz session state dengan timer hitung mundur, sanitasi error database via `formatApiError()`.
+- **Modul 1: Materi Kuliah (Course Materials)**:
+  - `MaterialCard.tsx`: Kartu materi dengan badge tipe berkas duotone (PDF, Slide, Dokumen, Tautan), tag mata kuliah, pembuka tautan/berkas eksternal otomatis via `Linking.openURL()`, dan swipe-to-delete.
+  - `CreateMaterialModal.tsx`: Modal tambah materi lengkap dengan pemilih matkul horizontal, grid tipe format berkas, input URL/tautan berkas, dan deskripsi opsional.
+- **Modul 2: Catatan Terhubung (Networked Markdown Notes)**:
+  - `NoteCard.tsx`: Kartu catatan dengan indikator pin, tag matkul, cuplikan ringkasan Markdown, badge jumlah tautan timbal balik (backlinks), dan badge tag horizontal.
+  - `NoteEditorModal.tsx`: Editor catatan komprehensif dua mode (Editor & Live Preview), toolbar Markdown instan (`#`, `##`, `-`, `**`, `""`), toggle pin, penambahan tag dinamis dengan chip pill, serta pemilih relasi catatan timbal balik (bidirectional networked notes).
+- **Modul 3: Spaced Repetition Flashcards (SuperMemo SM-2)**:
+  - `FlashcardDeckCard.tsx`: Kartu dek dengan penghitung total kartu, indikator jatuh tempo review (due cards), tombol kelola kartu, dan tombol aksi "Mulai Belajar".
+  - `CreateDeckModal.tsx`: Modal pembuatan dek dengan pengait mata kuliah.
+  - `ManageCardsModal.tsx`: Modal manajemen kartu dek dengan formulir tambah kartu instan (Tanya/Jawab) dan daftar kartu dengan tombol hapus.
+  - `FlashcardStudyModal.tsx`: Mode belajar interaktif dengan animasi flip 3D pada sumbu Y (Reanimated), progress bar, kartu pertanyaan depan/belakang, dan 4 tombol rating algoritma SuperMemo SM-2 (Ulangi - rating 1, Sulit - rating 2, Bagus - rating 4, Mudah - rating 5) serta perayaan penyelesaian sesi.
+- **Modul 4: Kuis Latihan Mandiri (Interactive Quizzes)**:
+  - `QuizCard.tsx`: Kartu kuis dengan metrik durasi waktu, jumlah soal, skor tertinggi pengguna, dan tombol mulai kuis.
+  - `CreateQuizModal.tsx`: Modal pembuat kuis dinamis dengan pembangun soal bertingkat: Pilihan Ganda (Multiple Choice), Benar/Salah (True/False), dan Isian Singkat (Short Answer) beserta kunci jawaban dan pembahasan.
+  - `QuizPlayModal.tsx`: Mode pengerjaan kuis interaktif dengan timer hitung mundur kritis otomatis, stepper soal responsif, seleksi jawaban intuitif, auto-submit saat waktu habis, dan tombol navigasi Soal Berikutnya/Selesai.
+  - `QuizResultModal.tsx`: Layar hasil pengerjaan kuis dengan kalkulasi skor (0-100), headline apresiatif, rincian jawaban pengguna vs kunci jawaban yang benar, dan box penjelasan kunci jawaban.
+- **Layar Utama & Navigasi**:
+  - `apps/mobile/src/app/learning.tsx`: Hub komprehensif pembelajaran dengan filter mata kuliah horizontal, Full-Width 4-Segment responsive bar (`Materi`, `Catatan`, `Flashcard`, `Kuis`), contextual Floating Action Button, EmptyState estetik berikon duotone Phosphor, dan bottom sheet modals.
+  - `apps/mobile/src/components/ui/BottomNav.tsx`: Menambahkan tab kelima "Belajar" (`/learning`) dengan ikon `BookOpen` duotone.
+  - `apps/mobile/src/app/index.tsx`: Menambahkan kartu bento pintasan cepat "Pusat Belajar".
+
+**Keputusan UI/UX & Desain**:
+- Selaras dengan `unidemic-ui-ux` Design System & 30 Anti-Slop Rules:
+  - Warna token `useUniTheme()` dinamis (Dark mode deep navy-slate `#0F1117`/`#171B26`/`#1E2333` dan Light mode warm slate `#F4F5F9`/`#FFFFFF`).
+  - Tipografi: Syne_700Bold untuk judul hero display, SpaceGrotesk untuk headings & body, JetBrainsMono untuk timer, skor, dan angka metrik.
+  - Ikonografi: Phosphor Icons berbobot `duotone` tanpa icon mismatch.
+  - Animasi: `FadeInRight` dan `FadeInDown` terukur 220-240ms, rotasi 3D Reanimated card flip 300ms tanpa jank.
+  - Sentuhan: Minimum 44x44 dp touch targets, spring tap feedback.
+
+**Verifikasi Teknis**:
+- `npx tsc --noEmit` di `apps/mobile`: **100% Lolos tanpa error (0 errors)**.
+- PHPUnit backend tests: **15 tests passed, 73 assertions (100% Pass)** (`docker exec unidemic-api php artisan test --filter Learning`).
+- Docker containers: `unidemic-api`, `unidemic-db`, `unidemic-redis`, `unidemic-minio` seluruhnya berstatus UP & Healthy.
+
+---
+
+### [2026-09-18] — Comprehensive Full-Stack Database Seeding
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai di-seed & Terverifikasi
+
+**Yang dikerjakan:**
+- Membuat seeder universal komprehensif di `apps/api/database/seeders/DatabaseSeeder.php` yang mengisi seluruh data aplikasi secara otomatis untuk pengujian mobile tanpa repot input manual.
+- Data yang di-seed mencakup:
+  - **Akun Demo**: `test@example.com` / `password` dan `budi@unidemic.id` / `password123`.
+  - **Akademik**: Semester Ganjil 2026/2027, 4 Mata Kuliah (Algoritma, OS, Basis Data, Jaringan Komputer), Jadwal Kuliah lengkap, Catatan Kehadiran, Komponen Nilai & Nilai (UTS, UAS, Tugas), Ujian UTS, dan Tugas Kuliah (Assignments).
+  - **Produktivitas**: Tasks dengan Subtasks bertingkat, Target Nilai & Jam Belajar Mingguan (Goals), dan Riwayat Sesi Belajar (Pomodoro & Stopwatch).
+  - **Phase 5 Pembelajaran**: 5 Berkas Materi Kuliah multi-format (Slide, PDF, Doc, Link), 3 Catatan Terhubung Markdown dengan relasi timbal balik (Note Links), 2 Dek Flashcard dengan 8 Kartu siap review (SM-2 spaced repetition), dan 2 Kuis Latihan Interaktif (Pilihan Ganda, Benar/Salah, Isian Singkat) beserta riwayat attempt skor 100%.
+
+**Verifikasi:**
+- Eksekusi `docker exec unidemic-api php artisan db:seed`: Exit code 0 (Berhasil).
+- Verifikasi tabel PostgreSQL via Tinker:
+  - Users: 2
+  - Semesters: 2
+  - Courses: 8
+  - Schedules: 8
+  - Attendances: 10
+  - Grades: 6
+  - Exams: 4
+  - Assignments: 6
+  - Tasks: 6
+  - Subtasks: 6
+  - Goals: 4
+  - Sessions: 6
+  - Materials: 10
+  - Notes: 6
+  - Decks: 4
+  - Cards: 16
+  - Quizzes: 4
+  - Questions: 12
+  - Attempts: 2
+
+---
+
+### [2026-09-18] — Bugfix: Quiz Play Payload Format & Auto-Submit Stabilization
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai Diperbaiki & Terverifikasi
+
+**Masalah yang Ditemukan:**
+1. **Ghost Click pada Mulai Kuis**: `QuizController@index` tidak mengeager load `questions`, menyebabkan `QuizPlayModal` me-return `null` karena `quiz.questions` undefined.
+2. **Prematur Auto-Submit Timer**: `useEffect([timeRemaining, visible])` di `QuizPlayModal` mengeksekusi saat `timeRemaining === 0` pada initial render sebelum batas waktu kuis diset, memunculkan alert *"Waktu Habis!"* dan *"Gagal"*.
+3. **Payload Mismatch pada Pengumpulan Kuis**: Saat submit kuis, mobile mengirim dictionary `{ [questionId]: answer }`, sedangkan FormRequest Laravel `SubmitQuizAttemptRequest` mewajibkan array of objects `[ { question_id, user_answer } ]`. Menimbulkan error `the answers.4.question_id field is required`.
+
+**Solusi & Perbaikan:**
+- Backend: Eager load `with(['course', 'questions'])` pada `QuizController@index`.
+- Frontend:
+  - `handleOpenQuizPlay` di `learning.tsx` memastikan data pertanyaan termuat lengkap via `learningService.getQuiz(quiz.id)`.
+  - Menghapus pemantau `timeRemaining === 0` prematur di `QuizPlayModal`, hitung mundur murni ditangani interval `setInterval` saat mencapai 0.
+  - Memetakan jawaban kuis menjadi array `QuizAnswerSubmission[]` (`[ { question_id, user_answer } ]`) sebelum dikirim via `onSubmit`.
+  - Memperbarui `QuizResultModal` untuk membaca struktur ulasan jawaban array dari backend (`answerDetail.is_correct`, `user_answer`, `explanation`).
+- Verifikasi: `npx tsc --noEmit` lolos 0 error.
+
+---
+
+### [2026-09-18] — Bugfix: Answer Normalization, Nested Quiz Creation & Test DB Isolation
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai Diperbaiki & Terverifikasi (Unit Test & TypeScript 100% Pass)
+
+**Masalah yang Ditemukan:**
+1. **Penyalahan Jawaban Kuis (Script Issue)**:
+   - User memilih opsi pilihan ganda "C" ("Merge Sort"), tetapi script lama membandingkan string mentah teks `"merge sort"` dengan kunci huruf `"c"`.
+   - Pada soal True/False, mobile mengirim `"true"`, sementara seeder menyimpan `"Benar"`. Script lama membandingkan `"true" === "benar"`. Keduanya disalahkan oleh backend.
+2. **Kuis Baru Memiliki "Jumlah Soal 0"**:
+   - `StoreQuizRequest` menerima array `questions`, namun `QuizController@store` hanya menjalankan `Quiz::create($validated)` yang mengabaikan relasi `questions`. Butir soal tidak pernah disimpan ke tabel `quiz_questions`.
+3. **Database Test Reset Side-Effect**:
+   - Menjalankan `php artisan test` di Docker mengeksekusi `RefreshDatabase` ke database utama PostgreSQL karena env OS Docker mendahului `phpunit.xml`, mereset tabel `users`.
+
+**Solusi & Perbaikan:**
+- **Answer Normalization Engine (`QuizController.php`)**:
+  - Mengimplementasikan `checkAnswerCorrectness()` dengan pemetaan dua arah antara huruf opsi (`A, B, C, D`) dan teks opsi, serta pemetaan seragam truthy/falsy (`true/benar/ya/1` vs `false/salah/tidak/0`).
+  - Memperbarui `QuizResultModal.tsx` dengan helper `formatAnswerDisplay()` agar menampilkan `C. Merge Sort` dan label seragam `BENAR / SALAH`.
+- **Nested Quiz Creation (`QuizController.php` & `CreateQuizModal.tsx`)**:
+  - Memperbarui `QuizController@store` dengan `DB::transaction` untuk menyimpan seluruh butir soal (`$quiz->questions()->create($qData)`) dan eager load `questions_count`.
+  - Menambahkan automated test `test_user_can_create_quiz_with_nested_questions()` di `QuizTest.php`.
+  - Mereset form state di `CreateQuizModal.tsx` saat kuis berhasil dibuat.
+- **Isolasi Database Testing (`TestCase.php` & `phpunit.xml`)**:
+  - Mengoverride `createApplication()` di `tests/TestCase.php` untuk memaksakan SQLite in-memory (`:memory:`) sehingga test runner tidak pernah menyentuh PostgreSQL.
+- **Verifikasi**:
+  - `QuizTest`: 4 passed (21 assertions) — 100% Pass.
+  - `npx tsc --noEmit`: 0 errors — 100% Clean.
+
+---
+
+### [2026-09-18] — Feature: Dynamic Fisher-Yates Shuffle on Quiz Session Start
+
+**Branch**: `feature/mobile/learning`
+**Status**: Selesai Diimplementasikan & Terverifikasi (TypeScript 0 error)
+
+**Fitur & Implementasi:**
+1. **True Fisher-Yates (Knuth) Shuffle Algorithm**:
+   - Menambahkan algoritma pengacakan `shuffleArray<T>()` berbasis Fisher-Yates dengan probabilitas seragam dan kompleksitas efisien $O(n)$.
+2. **Pengacakan Dinamis Setiap Kuis Dimulai (Bukan Saat Dibuat)**:
+   - Data master di database tetap tersimpan rapi dan tidak dimutasi secara permanen.
+   - Setiap kali `QuizPlayModal` dibuka (`visible === true`), sistem secara otomatis:
+     - Mengacak **urutan butir soal** (`shuffleArray(quiz.questions)`).
+     - Mengacak **urutan pilihan ganda** (opsi A, B, C, D diacak posisinya untuk setiap butir soal pilihan ganda).
+   - Pengacakan berlangsung per sesi pengerjaan kuis (saat kuis ditutup dan dimulai kembali, permutasi baru akan otomatis terbentuk).
+3. **Integritas Penilaian Backend**:
+   - Pemilihan jawaban tetap mengacu pada isi teks opsi (`user_answer: opt`), sehingga meskipun posisi opsi teracak (misal opsi C bergeser ke posisi A), mesin penilaian backend tetap mencocokkan jawaban dengan 100% akurat.
+4. **UI & Vibe**:
+   - Menambahkan visual badge dinamis `<Shuffle /> ACAK` di stepper indicator header kuis untuk memberikan kepastian visual kepada pengguna bahwa soal dan opsi sedang dalam mode acak.
+- **Verifikasi**: `npx tsc --noEmit` lolos 0 error.
+- **Referensi**:
+  - Pull Request: [#7](https://github.com/AruYQ/UniDemic/pull/7) (Merged to `develop`)
+  - ADR: [ADR-0009](../decisions/ADR.md#adr-0009--dynamic-fisher-yates-quiz-randomization--dual-layer-answer-normalization), [ADR-0010](../decisions/ADR.md#adr-0010--backend-automated-testing-environment-isolation-sqlite-in-memory)
+
+---
+
+### [2026-09-23] — Phase 6: Academic Communication & Discussion Channels Mobile Implementation
+
+**Branch**: `feature/mobile/communication`
+**Status**: Selesai Diimplementasikan & Terverifikasi (TypeScript 0 Error, Siap Testing Device)
+
+**Yang dikerjakan:**
+1. **Shared Types & API Service Layer**:
+   - `types/communication.ts`: Kontrak TypeScript lengkap untuk `Conversation`, `Message`, `MessageReaction`, `MessageAttachment`, `AcademicReference`, dan payload request DTOs.
+   - `services/communicationService.ts`: Axios client wrapper untuk 16 endpoint komunikasi (DMs, group chats, course discussion channels, replies, reactions, dan academic references).
+2. **State Management (Zustand)**:
+   - `store/useCommunicationStore.ts`: Central state untuk cache percakapan, channel per mata kuliah, unread count global, live message updates, reply thread composer, dan optimistic message sending dengan auto-rollback on error.
+3. **Komponen Desain Premium (`components/communication/`)**:
+   - `AcademicRefPreview.tsx`: Interactive preview card untuk referensi tugas, ujian, materi kuliah, catatan, dan kuis yang disematkan dalam pesan obrolan.
+   - `MessageBubble.tsx`: Asymmetrical chat layout (pengirim di kanan dengan indigo tint, lawan bicara di kiri dengan surface card & initial avatar real), strip quote reply, badge reaksi emoji dinamis, status soft-delete, dan timestamp JetBrains Mono.
+   - `ChatInputBar.tsx`: Auto-growing composer input dengan safe keyboard avoidance, quick emoji reaction selector, banner reply yang dapat dibatalkan, dan tombol kirim tactile spring.
+   - `ConversationCard.tsx`: Inbox card dengan inisial avatar real, snippet pesan terakhir cerdas (mendeteksi lampiran & referensi), timestamp adaptif (jam / kemarin / tanggal), unread count pill badge, dan gesture swipe-to-delete.
+   - `CourseChannelCard.tsx`: Kartu saluran kuliah bernomor tag `#` tematik (`#general`, `#tugas`, `#ujian`, `#resources`) dengan unread badge.
+   - `NewChatModal.tsx`: Modal sheet untuk memulai pesan langsung dengan kontak teman/dosen terverifikasi atau membuat grup belajar baru dengan multi-selection anggota.
+   - `AcademicAttachmentPickerModal.tsx`: Bottom sheet picker untuk menyematkan tugas, ujian, materi, catatan, atau kuis langsung ke composer obrolan.
+4. **Halaman & Integrasi Aplikasi**:
+   - `app/chat/index.tsx`: Inbox screen dengan header title Syne Bold, search bar real-time, category filter pills (Semua, Pesan Langsung, Grup Belajar, Saluran Kuliah), skeleton shimmer loading, empty state ilustratif, dan natural-zone FAB.
+   - `app/chat/[id].tsx`: Interactive chat room dengan inverted message flow, auto-scroll to bottom, date badges, long-press action menu (balas, reaksi, hapus), live polling sync (4s), dan safe keyboard vertical offset.
+   - `app/_layout.tsx`: Registrasi stack screens `chat/index` dan `chat/[id]` dengan smooth slide animations.
+   - `app/index.tsx`: Shortcut tombol obrolan di top header bar dengan live dynamic unread badge (`ChatCircleDots`).
+   - `app/course/[id].tsx`: Penambahan tab ke-6 "Diskusi" pada detail mata kuliah yang terhubung langsung ke saluran diskusi `#general`, `#tugas`, `#ujian`, `#resources`.
+5. **Database Seeding (`DatabaseSeeder.php`)**:
+   - Seeding data komunikasi realistis antara akun demo Budi Mahasiswa dan Aru Mahasiswa (Direct message seputar algoritma graf & pohon AVL, Group project chat, serta saluran diskusi matkul IF3101).
+
+**Vibe Check & Anti-Slop Compliance**:
+- **Design Tokens**: Menggunakan ketat palette `#0F1117`, `#171B26`, `#1E2333`, `#6B7FD7`, `#4ECDC4`, `#F7B731` tanpa hardcoded hex arbitrary.
+- **Typography**: Space Grotesk (headings & body), Syne Bold (display), JetBrains Mono (timestamps, channel tags `#`, NIM).
+- **Icons**: Phosphor Icons Duotone (`phosphor-react-native`).
+- **Loading State**: Shimmer skeleton cards (`ShimmerBox`) alih-alih ActivityIndicator spinner generik.
+- **Thumb Zone**: FAB obrolan dan tombol kirim diposisikan di 40% area bawah layar (Natural Zone).
+
+**Verifikasi & Quality Gate**:
+- `npx tsc --noEmit`: 0 error (100% clean build).
+- Testing lokal dan device live siap diverifikasi pengguna sebelum merge/PR.
+
+---
+
+### [2026-10-04] — Phase 6: Refinement & Attachment Feature Postponement
+
+**Branch**: `feature/mobile/communication`
+**Status**: Selesai, Teruji di Device, & PR Siap Merge
+
+**Yang diperbarui:**
+- **Penonaktifan Fitur Lampiran (Attachment) Sementara**:
+  - Tombol lampiran (`+`) di `ChatInputBar.tsx` dan chip lampiran di `MessageBubble.tsx` kini memicu dialog informasi `Alert.alert('Fitur Belum Tersedia', 'Fitur lampiran dan berkas akademik saat ini belum tersedia dan akan hadir pada pembaruan mendatang.')`.
+  - Pipa berkas lampiran dan modal pemilih disederhanakan dan dijadwalkan ulang ke akhir roadmap (Phase 9 — Web Companion & Advanced Integration).
+- **Perbaikan Konektivitas Fisik & Metro Bundler**:
+  - Menghapus `"reactCompiler": true` dari `app.json` dan membatasi worker Metro `maxWorkers = 2` di `metro.config.js` untuk mencegah crash V8 Out-Of-Memory di Windows.
+  - Memperbarui `api.ts` agar otomatis mendeteksi IP Wi-Fi host (`Constants.expoConfig?.hostUri`) sehingga Expo Go di smartphone fisik langsung terhubung ke backend tanpa konfigurasi manual.
+  - Mengonfigurasi `php artisan serve --host=0.0.0.0 --port=8000`.
+- **Verifikasi**:
+  - `npx tsc --noEmit`: 0 errors (100% Clean).
+  - `php artisan test`: 124 passed (570 assertions) — 100% Pass.
+- **Referensi**:
+  - Pull Request: [#11](https://github.com/AruYQ/UniDemic/pull/11) (Base: `develop`)
+
+---
+
+### [2026-11-19] — Phase 7: Mobile Collaboration Hub (Study Groups, Kanban Projects, Milestones & GitHub Integration)
+
+**Branch**: working tree lokal (belum di-commit sesuai instruksi)
+**Status**: Selesai Diimplementasikan & Terverifikasi Statis/Kontrak (Menunggu UAT Perangkat)
+
+**Yang dikerjakan:**
+1. **Types, Validation & API Service Layer**:
+   - `apps/mobile/src/types/collaboration.ts`: Kontrak TypeScript lengkap untuk `StudyGroup`, `StudyGroupMember`, `Project`, `ProjectMember`, `ProjectMilestone`, `ProjectTask`, `ProjectGithubRepo`, `ProjectGithubActivity`, beserta Zod validation schemas (`createStudyGroupSchema`, `joinStudyGroupSchema`, `createProjectSchema`, `createMilestoneSchema`, `createProjectTaskSchema`, `connectGithubSchema`).
+   - `apps/mobile/src/services/collaborationService.ts`: Client wrapper untuk seluruh endpoint Phase 7 (`/study-groups`, `/projects`, `/milestones`, `/project-tasks`, `/github/*`).
+   - `apps/mobile/src/store/useCollaborationStore.ts`: Zustand store dengan smart cache 2 menit, optimistic Kanban `moveProjectTask` dengan re-indexing kolom & rollback otomatis, optimistic milestone toggle, serta sanitasi error via `formatApiError()`.
+2. **Komponen Kolaborasi (`apps/mobile/src/components/collaboration/`)**:
+   - `StudyGroupCard.tsx`, `CreateStudyGroupModal.tsx`, `JoinStudyGroupModal.tsx`: Manajemen daftar grup belajar, pencarian grup publik, gabung via kode undangan, dan tautan mata kuliah.
+   - `ProjectCard.tsx`, `CreateProjectModal.tsx`: Kartu proyek tim dan modal pembuatan workspace proyek dengan `UniDatePicker`.
+   - `KanbanBoard.tsx`, `ProjectTaskModal.tsx`: Papan Kanban 3 kolom (`TODO`, `PROSES`, `SELESAI`) dengan gestur geser `Gesture.Pan()` + tombol pindah kolom & reorder posisi, prioritas `UniBadge`, labels, assignee avatar, dan milestone tag.
+   - `MilestoneListPanel.tsx`: Pelacakan target milestone dengan progress bar teranimasi (`withTiming`), toggle selesai, `UniSwipeable` delete, dan modal tambah milestone dengan `UniDatePicker`.
+   - `GithubActivityPanel.tsx`: Koneksi repo GitHub (`secureTextEntry` untuk token & webhook secret), tombol sinkronisasi, filter tipe (`Commit`, `Pull Request`, `Issue`), dan `FlashList` feed aktivitas yang dapat dibuka ke browser.
+3. **Layar & Navigasi (`apps/mobile/src/app/`)**:
+   - `collaboration.tsx`: Hub utama kolaborasi dengan segment bar `Grup Belajar` | `Proyek Tim`, filter & pencarian debounced 300ms, `ShimmerBox` skeleton, dan FAB Natural Thumb Zone.
+   - `collaboration/groups/[id].tsx`: Detail grup belajar lengkap dengan kode undangan & acak ulang kode, shortcut langsung "Buka Obrolan Grup" (`/chat/[conversation_id]`), manajemen anggota & peran, proyek grup, dan berbagi catatan/materi.
+   - `collaboration/projects/[id].tsx`: Ruang kerja proyek 4 segmen (`Kanban`, `Milestone`, `GitHub`, `Tim`).
+   - `_layout.tsx` & `index.tsx`: Registrasi stack screen baru dan kartu Bento pintasan "Kolaborasi Tim" + ikon pintasan bar atas di Beranda.
+
+**Vibe Check & Anti-Slop Compliance:**
+- Mengikuti `unidemic-ui-ux/SKILL.md`: `useUniTheme()` tokens, Syne + Space Grotesk + JetBrains Mono, Phosphor Icons `duotone`, `ShimmerBox` skeleton loading (tanpa `ActivityIndicator` konten), `UniDatePicker` untuk semua tanggal, `FlashList` virtualisasi list, `secureTextEntry` untuk field token/secret, serta spring feedback `withSpring(0.97)`.
+
+**API yang diintegrasikan:**
+- `GET/POST/PUT/DELETE /study-groups`, `POST /study-groups/join`, `POST /study-groups/{id}/regenerate-invite`, `POST/PUT/DELETE /study-groups/{id}/members`, `POST/DELETE /study-groups/{id}/share-note|material`
+- `GET/POST/PUT/DELETE /projects`, `POST/DELETE /projects/{id}/members`
+- `GET/POST /projects/{id}/milestones`, `PUT/PATCH/DELETE /milestones/{id}`
+- `GET/POST /projects/{id}/tasks`, `PUT/PATCH/DELETE /project-tasks/{id}`, `POST /projects/{id}/tasks/reorder`
+- `POST/DELETE /projects/{id}/github/connect|disconnect`, `GET /projects/{id}/github/activities`, `POST /projects/{id}/github/sync`
+
+**Verifikasi:**
+- `npx tsc --noEmit` di `apps/mobile`: **0 errors** (100% Clean).
+- `npx tsx scripts/verify-collaboration.ts` di `apps/mobile`: **20/20 passed** (Zod validation, API contract alignment, optimistic Kanban move + rollback, GitHub sanitized flags).
+- `php artisan test` di `apps/api`: **137 passed (647 assertions)** — 100% Pass.
+
+

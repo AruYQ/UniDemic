@@ -1,0 +1,339 @@
+# 🏛️ Architecture Decision Records (ADR)
+
+> Dokumen keputusan arsitektur penting UniDemic.
+> Setiap keputusan besar yang berdampak pada struktur proyek WAJIB dicatat di sini.
+> Format: ADR-XXXX
+
+---
+
+## ADR-0001 — Tech Stack Selection
+
+**Tanggal**: 2026-09-08
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+UniDemic membutuhkan platform cross-platform (Android + iOS) dengan backend yang
+bisa handle real-time communication, file storage, dan AI inference.
+
+### Keputusan
+
+| Layer | Teknologi | Alasan |
+|-------|-----------|--------|
+| Mobile | React Native + Expo | Cross-platform, TypeScript, ekosistem besar, OTA updates |
+| Navigation | Expo Router | File-based routing (mirip Next.js), deep linking built-in |
+| Backend | Laravel 11 | Mature PHP framework, Sanctum auth, Queue, Broadcasting |
+| Database | PostgreSQL | Relational, future pgvector support untuk AI |
+| Cache/Queue | Redis | Job queues, rate limit counters, semantic query cache |
+| Storage | S3-compatible | Object storage untuk file, skalabel, CDN-ready |
+| Auth | Laravel Sanctum | Token-based, cocok untuk mobile SPA |
+| Real-time | Pluggable (Pusher/Reverb) | Hindari vendor lock-in |
+| AI | Gemini Flash 2.5 (+ BYOK) | Cost-efficient, rate-limited, semantic cached |
+| Web (Phase 9) | Next.js | SSR, TypeScript, shared types dengan mobile |
+
+### Konsekuensi
+- ✅ TypeScript end-to-end (mobile + web)
+- ✅ Shared `packages/types` dan `packages/validation`
+- ⚠️ Dev A perlu familiar dengan Laravel, Dev B dengan Expo
+- ⚠️ Docker diperlukan untuk local dev
+
+---
+
+## ADR-0002 — Authentication Strategy
+
+**Tanggal**: 2026-09-08
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+Mobile app membutuhkan auth yang aman, bisa offline-aware, dan support multi-device.
+
+### Keputusan
+- **Laravel Sanctum** dengan token-based auth (bukan JWT, bukan OAuth session)
+- Token disimpan di **expo-secure-store** (Keychain iOS, Keystore Android)
+- Token dikirim via `Authorization: Bearer {token}` header
+- **Refresh token** tidak digunakan di fase awal — token long-lived dengan revoke manual
+- Token per-device (bisa revoke device tertentu)
+
+### Konsekuensi
+- ✅ Aman — token encrypted di secure storage
+- ✅ Sederhana — tidak perlu refresh token flow awal
+- ⚠️ Token long-lived membutuhkan monitoring jika dicuri
+- ⚠️ Perlu endpoint `GET /auth/tokens` dan `DELETE /auth/tokens/{id}` untuk device management
+
+---
+
+## ADR-0003 — UI/UX Design System
+
+**Tanggal**: 2026-09-08
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+Diperlukan design system yang konsisten untuk mencegah UI generik/slop dan
+memastikan kualitas premium di semua screen.
+
+### Keputusan
+- **Dark mode first** dengan palette indigo-slate
+- **Font stack**: Syne (display) + Space Grotesk (body) + JetBrains Mono (angka/kode)
+- **Icon system**: Phosphor Icons Duotone (bukan Lucide/Heroicons default)
+- **30 Anti-Slop Rules** diterapkan wajib (lihat `UI-UX_Guides.md`)
+- **Vibe Coding** dengan mandatory `<vibe_check>` sebelum coding
+- **Design tokens** di `tokens/colors.ts`, `tokens/typography.ts`, `tokens/spacing.ts`
+- Animasi via **react-native-reanimated v3**
+- Loading state: **Skeleton/Shimmer** via `moti` (bukan spinner)
+- List: **FlashList** untuk semua list > 5 item
+
+### Konsekuensi
+- ✅ UI konsisten dan premium di semua screen
+- ✅ AI agent punya panduan jelas (skill tersedia)
+- ⚠️ Font custom perlu preload di `_layout.tsx`
+- ⚠️ Phosphor icons perlu di-install manual
+
+---
+
+## ADR-0004 — AI Rate Limiting & Cost Management
+
+**Tanggal**: 2026-09-08
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+AI features (RAG, quiz generation) bisa sangat mahal jika tidak dikontrol.
+Server community tidak bisa menanggung biaya tak terbatas.
+
+### Keputusan
+- **Tiered rate limiting**: max 20 RAG queries/hari untuk standard tier
+- **Token budgeting**: strict truncation saat indexing dokumen & assembly prompt
+- **Semantic query caching**: Redis cache untuk pertanyaan identik dari materi sama
+- **Document upload quota**: batas parsing PDF + vector embedding per user/minggu
+- **BYOK (Bring Your Own Key)**: user bisa supply API key sendiri (Gemini/OpenAI/Anthropic)
+  untuk akses unlimited tanpa beban server community
+- Rate limit enforced di **Laravel middleware** sebelum AI Gateway
+
+### Konsekuensi
+- ✅ Server cost terlindungi
+- ✅ Fairness — semua user mendapat kuota yang sama
+- ✅ Power users bisa pakai BYOK untuk unlimited access
+- ⚠️ Implementasi rate limiting harus sebelum Phase 8 (jangan setelah)
+
+---
+
+## ADR-0005 — Monorepo Structure
+
+**Tanggal**: 2026-09-08
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Keputusan
+
+```
+unidemic/
+├── apps/
+│   ├── mobile/    ← React Native + Expo (Dev B)
+│   ├── api/       ← Laravel (Dev A)
+│   └── web/       ← Next.js (Phase 9)
+├── packages/
+│   ├── types/     ← Shared TypeScript types
+│   ├── validation/ ← Shared Zod schemas
+│   ├── api-client/ ← HTTP client wrapper
+│   └── config/    ← Constants & env config
+└── docs/          ← Dokumentasi
+```
+
+- **Branch strategy**: `main` (stable) → `develop` (integration) → `feature/*` (work)
+- **Naming convention feature branch**:
+  - Backend: `feature/backend/[nama-fitur]`
+  - Frontend: `feature/mobile/[nama-fitur]`
+  - Docs: `docs/[nama]`
+
+### Konsekuensi
+- ✅ Shared types mencegah mismatch antara mobile dan API
+- ✅ Satu repo, satu PR review process
+- ⚠️ Perlu setup workspace/turborepo jika monorepo makin besar
+
+---
+
+## ADR-0006 — Cybersecurity & Data Privacy Standards
+
+**Tanggal**: 2026-09-08
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+UniDemic menyimpan data akademik, tugas, nilai, dan file personal mahasiswa yang bersifat sensitif. Keamanan siber (cybersecurity) dan privasi data harus diterapkan secara default (secure-by-design) di semua layer: Frontend, Backend, dan AI.
+
+### Keputusan
+1. **Data in Transit**: Wajib menggunakan HTTPS (TLS 1.2+) di semua endpoint komunikasi API.
+2. **Data at Rest**:
+   - Password di-hash menggunakan **Bcrypt/Argon2** (default Laravel).
+   - Token auth dan data sensitif di mobile WAJIB disimpan di **expo-secure-store** (menggunakan Keychain di iOS & Keystore di Android), dilarang menggunakan `AsyncStorage`.
+3. **API Security**:
+   - Rate limiting wajib aktif di semua endpoint publik, terutama `/auth` untuk mencegah Brute Force.
+   - Wajib validasi request masuk (Input Validation) untuk mencegah SQL Injection & XSS menggunakan **Zod** (Frontend) dan **FormRequests** (Laravel).
+4. **AI Privacy**:
+   - Prompt ke AI Model (Gemini) *tidak boleh* menyertakan PII (Personally Identifiable Information) yang tidak relevan dengan konteks.
+5. **Secret Management**:
+   - API Keys, DB credentials, dan secret lainnya HANYA boleh ada di `.env`. Dilarang keras menaruh (hardcode) secret key di dalam source code.
+
+### Konsekuensi
+- ✅ Data pengguna dan kredensial aman dari akses tidak sah.
+- ✅ Meminimalisir celah keamanan umum (OWASP Top 10).
+- ⚠️ Developer harus ekstra disiplin (misal: tidak boleh `console.log` data token).
+- ⚠️ Sedikit overhead performa karena enkripsi/dekripsi token di sisi mobile.
+
+---
+
+## ADR-0007 — Mobile On-Demand Fetching, Smart In-Memory Caching & Visual Input Architecture
+
+**Tanggal**: 2026-09-10
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent (Dev B)
+
+### Konteks
+Pada Phase 2 (Academic Core), aplikasi mengelola banyak entitas relasional: Semester, Mata Kuliah, Jadwal Mingguan, Tugas (Assignments), dan Ujian (Exams). Jika seluruh data diambil sekaligus saat aplikasi dibuka, timbul *request storm* ke backend server, pemborosan baterai, serta penggunaan kuota data yang tidak perlu pada perangkat user. Selain itu, input manual format string tanggal (`YYYY-MM-DD`) dan waktu (`HH:mm`) rawan kesalahan pengguna (*fat-finger error*) dan menurunkan kepuasan UX.
+
+### Keputusan
+1. **On-Demand (Lazy) Data Fetching**:
+   - Setiap modul layar (Dashboard, Jadwal, Kuliah, Tugas/Ujian, Detail Kuliah) hanya meminta data miliknya sendiri saat pertama kali dibuka oleh user.
+2. **Smart In-Memory Caching dengan TTL 3 Menit (180.000 ms)**:
+   - State store Zustand menyimpan timestamp fetch per modul (`lastFetched`).
+   - Navigasi antar tab tidak melakukan hit ulang ke jaringan backend jika rentang waktu masih berada dalam masa TTL.
+   - Cache otomatis diperbarui (invalidated) jika user melakukan pull-to-refresh atau mengeksekusi mutasi (create/update/delete).
+3. **Visual Tap-Based Date & Time Pickers**:
+   - Menggantikan textbox biasa dengan komponen visual `UniDatePicker` (kalender mini + quick preset: *Hari Ini*, *Besok*, *+3 Hari*, *Minggu Depan*) dan `UniTimePicker` (preset jam kuliah kampus + grid interaktif).
+4. **Instagram-style Skeleton Shimmer (Rule #21 Anti-Slop)**:
+   - Menghilangkan `ActivityIndicator` biasa pada konten utama. Menggunakan wireframe `UniSkeleton` terakselerasi GPU Reanimated yang memetakan kontur kartu secara presisi.
+5. **Liquid Spring Physics (Opsi B)**:
+   - Konfigurasi pegas `mass: 0.6`, `damping: 18`, `stiffness: 180` untuk sentuhan taktil elastis, stabil, dan bebas *framedrop* (terkunci 60 FPS).
+
+### Konsekuensi
+- ✅ Mencegah kebanjiran request ke backend Laravel (zero-waste data flow).
+- ✅ Navigasi antar tab terasa instan (*perceived performance* tinggi) karena mengambil dari cache memori.
+- ✅ Pengalaman input data bebas typo format tanggal/waktu.
+- ⚠️ Data di cache memori bersifat sementara dan ter-reset saat aplikasi di-restart sepenuhnya (desain yang diinginkan untuk kesegaran data akademik).
+
+---
+
+## ADR-0008 — Mandatory Pull Request & Integration Branch Protection Policy
+
+**Tanggal**: 2026-09-17
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+Sebelumnya, penggabungan kode ke branch integrasi (`develop`) terkadang dilakukan via merge lokal langsung dan direct push oleh developer/AI agent. Pola ini rawan risiko keamanan (bypass audit trail, potensi menimpa commit collaborator tanpa review, dan hilangnya riwayat PR context di GitHub).
+
+### Keputusan
+1. **Zero Direct Push to `develop` & `main`**:
+   - Dilarang keras melakukan `git push origin develop` atau `git push origin main` secara langsung dari branch lokal.
+   - Branch `develop` dan `main` diperlakukan sebagai protected integration branches.
+2. **Mandatory GitHub Pull Request (PR)**:
+   - Setiap fitur atau perbaikan (backend maupun mobile) wajib dikerjakan di branch terpisah (`feature/...`, `fix/...`).
+   - Setelah pekerjaan selesai dan lulus pengujian lokal (tests + typecheck + devlog), branch di-push ke remote GitHub.
+   - Wajib membuka Pull Request ke `develop` menggunakan GitHub CLI (`gh pr create`) atau UI GitHub.
+   - Penggabungan ke `develop` WAJIB dilakukan melalui merge Pull Request di GitHub (`gh pr merge --merge`).
+3. **Audit Trail & CI Quality Gate**:
+   - Semua perubahan memiliki nomor PR, deskripsi, dan riwayat checks yang jelas di repositori GitHub.
+
+### Konsekuensi
+- ✅ Mencegah konflik dan kerusakan tidak sengaja pada branch `develop`.
+- ✅ Kolaborator (Dev A & Dev B) dapat mereview dan melacak setiap integrasi dengan transparan.
+- ✅ Menyelaraskan alur kerja tim dengan best practice open-source modern.
+- ⚠️ Membutuhkan langkah tambahan untuk membuat dan me-merge PR via CLI/GitHub sebelum mengupdate branch lokal.
+
+---
+
+## ADR-0009 — Dynamic Fisher-Yates Quiz Randomization & Dual-Layer Answer Normalization
+
+**Tanggal**: 2026-09-18
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent (Dev B)
+
+### Konteks
+Pada modul pembelajaran (Phase 5 - Learning), fitur kuis latihan membutuhkan variabilitas tinggi agar mahasiswa dapat berlatih berulang kali tanpa menghafal pola urutan opsi atau urutan soal. Pengacakan tidak boleh memutasi data master di database (karena kuis bersifat reusable). Selain itu, pengacakan opsi (A, B, C, D) berpotensi merusak validasi penilaian jika sistem lama hanya membandingkan indeks huruf abjad atau raw string yang kaku terhadap database.
+
+### Keputusan
+1. **Client-Side Dynamic Fisher-Yates (Knuth) Shuffle**:
+   - Pengacakan dijalankan pada sisi mobile client di `QuizPlayModal.tsx` menggunakan algoritma Fisher-Yates $O(n)$ dengan probabilitas permutasi seragam.
+   - Dilakukan setiap kali sesi kuis dimulai (`visible === true` & `!hasInitializedRef.current`).
+   - Mengacak **urutan butir soal** dan mengacak **posisi opsi pilihan ganda** secara dinamis per sesi pengerjaan.
+2. **Text-Decoupled Answer Selection**:
+   - State jawaban pengguna merekam isi teks opsi yang dipilih (`user_answer: optText`), bukan huruf visual (`A, B, C, D`) yang teracak.
+3. **Backend Answer Normalization Engine (`QuizController.php`)**:
+   - Menambahkan method `checkAnswerCorrectness()` yang memetakan secara dua arah format huruf (A-D) terhadap teks opsi array, serta menormalisasi format kebenaran (`true/benar/ya/1` vs `false/salah/tidak/0`).
+4. **Nested Batch Question Transaction**:
+   - Pembuatan kuis dengan daftar pertanyaan bersarang (`StoreQuizRequest`) disimpan dalam `DB::transaction` sehingga seluruh butir soal terjamin tersimpan bersamaan dengan kuis induknya.
+
+### Konsekuensi
+- ✅ Replayability kuis tinggi — mahasiswa selalu mendapat tantangan baru setiap kali mengulang latihan.
+- ✅ Akurasi penilaian 100% — tidak terpengaruh oleh perpindahan posisi opsi visual.
+- ✅ Data master kuis di database tetap bersih dan konsisten.
+- ⚠️ Membutuhkan state terpisah `sessionQuestions` di mobile agar pengacakan tidak terulang di tengah-tengah pengerjaan jika komponen re-render.
+
+---
+
+## ADR-0010 — Backend Automated Testing Environment Isolation (SQLite In-Memory)
+
+**Tanggal**: 2026-09-18
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent
+
+### Konteks
+Di lingkungan Docker Compose, variabel environment sistem operasi seperti `DB_CONNECTION=pgsql` dan `DB_DATABASE=unidemic` diinjeksi ke dalam container `unidemic-api`. Ketika developer menjalankan `php artisan test`, trait `RefreshDatabase` Laravel secara default membaca variabel environment container tersebut dan mengeksekusi `migrate:fresh` terhadap database PostgreSQL utama (database development), menyebabkan seluruh data pengguna dan seeding terhapus.
+
+### Keputusan
+1. **Paksa SQLite In-Memory pada Base Test Case**:
+   - Mengoverride `createApplication()` pada `apps/api/tests/TestCase.php`:
+     ```php
+     putenv('DB_CONNECTION=sqlite');
+     putenv('DB_DATABASE=:memory:');
+     $_ENV['DB_CONNECTION'] = 'sqlite';
+     $_ENV['DB_DATABASE'] = ':memory:';
+     $_SERVER['DB_CONNECTION'] = 'sqlite';
+     $_SERVER['DB_DATABASE'] = ':memory:';
+     ```
+2. **Konfigurasi `phpunit.xml`**:
+   - Menambahkan atribut `force="true"` pada `<env name="DB_CONNECTION" value="sqlite" force="true"/>` dan `<env name="DB_DATABASE" value=":memory:" force="true"/>`.
+
+### Konsekuensi
+- ✅ Zero Database Pollution: Eksekusi automated test tidak akan pernah menyentuh, merusak, atau mereset database PostgreSQL pengembangan.
+- ✅ Eksekusi test jauh lebih cepat karena seluruh transaksi dan migrasi berjalan di memori RAM (SQLite `:memory:`).
+- ⚠️ Fitur SQL yang sangat spesifik untuk PostgreSQL (seperti `pgvector` atau custom Postgres syntax) harus disimulasikan atau menggunakan koneksi testing terpisah jika diperlukan di masa mendatang.
+
+---
+
+## ADR-0011 — Unified Communication Architecture & Academic Reference System for Mobile
+
+**Tanggal**: 2026-09-23
+**Status**: Accepted
+**Dibuat oleh**: AruYQ + AI Agent (Dev B)
+
+### Konteks
+Platform UniDemic membutuhkan modul komunikasi (Phase 6) yang tidak sekadar berfungsi sebagai instant messaging biasa (seperti WhatsApp/Telegram klon), melainkan terintegrasi mendalam dengan siklus akademik mahasiswa:
+1. Mahasiswa perlu berdiskusi seputar mata kuliah spesifik dalam saluran tematik (`#general`, `#tugas`, `#ujian`, `#resources`).
+2. Pesan sering kali membahas tugas, ujian, catatan, kuis, atau materi perkuliahan tertentu. Menuliskan link manual atau teks statis rentan membingungkan dan tidak efisien.
+3. Desain harus memfasilitasi komunikasi pesan langsung (1-on-1 DM) dan kelompok belajar (Grup Proyek) dengan pengelolaan unread status yang akurat.
+
+### Keputusan
+1. **Unified Polymorphic Conversation Entity**:
+   - Baik percakapan langsung (`direct`), grup belajar (`group`), maupun saluran kuliah (`course`) diperlakukan sebagai instance dari model `Conversation` tunggal.
+   - Hal ini memungkinkan satu set komponen UI (`MessageBubble`, `ChatInputBar`, `useCommunicationStore`) melayani seluruh jenis interaksi pesan tanpa duplikasi logika.
+2. **Contextual Academic Reference System**:
+   - Pesan mendukung sematan entitas akademik polimorfik melalui field `reference_type` (`course`, `assignment`, `exam`, `material`, `note`, `quiz`) dan `reference_id`.
+   - Di sisi mobile, komponen `AcademicRefPreview` me-render kartu preview interaktif lengkap dengan icon duotone, judul entitas, dan kemampuan navigasi langsung (deep-link) ke layar terkait.
+   - Komponen `AcademicAttachmentPickerModal` memungkinkan mahasiswa melampirkan entitas akademik langsung dari composer tanpa perlu keluar dari ruang obrolan.
+3. **Optimistic Message Sending & Resilience**:
+   - Saat pengguna mengirim pesan, `useCommunicationStore` segera menghasilkan ID negatif temporer (`-Date.now()`) dan menyisipkannya ke stream pesan lokal.
+   - Indikator inbox dan ordering percakapan langsung diperbarui seketika. Jika transmisi server berhasil, ID temporer digantikan oleh data asli dari backend; jika gagal, pesan temporer dibatalkan secara otomatis dengan notifikasi kesalahan.
+4. **Adaptive Mobile Ergonomics & Keyboard Pinning**:
+   - Menggunakan `KeyboardAvoidingView` adaptif (`Platform.OS === 'ios' ? 'padding' : undefined`) dengan offset yang dikalibrasi agar composer input tetap melayang persis di atas keyboard virtual di zona jangkauan ibu jari (Natural Thumb Zone).
+
+### Konsekuensi
+- ✅ Interaksi obrolan terasa sangat responsif dan kontekstual secara akademis.
+- ✅ Komponen UI obrolan dapat dipakai ulang untuk diskusi mata kuliah maupun pesan pribadi.
+- ✅ Mengurangi visual clutter dengan preview badge terstandar alih-alih tautan teks sembarangan.
+- ⚠️ Memerlukan polling live interval ringan (4 detik) di layar obrolan aktif untuk mensimulasikan real-time feed sebelum koneksi WebSocket/Pusher resmi dipasang di production.
+
+
+

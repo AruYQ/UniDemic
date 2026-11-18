@@ -23,6 +23,7 @@ import {
   Medal,
   BookOpen,
   ChatCircleDots,
+  UsersThree,
 } from 'phosphor-react-native';
 import { radius, spacing, typography, ThemeColors, ThemeShadows } from '@/constants/tokens';
 import { UniBadge } from '@/components/ui/UniBadge';
@@ -155,6 +156,14 @@ export default function DashboardScreen() {
           </View>
 
           <View style={styles.topActions}>
+            <Pressable
+              onPress={() => router.push('/collaboration' as any)}
+              style={styles.iconButton}
+              hitSlop={8}
+            >
+              <UsersThree size={20} color={themeColors.brand.secondary} weight="duotone" />
+            </Pressable>
+
             <Pressable
               onPress={() => router.push('/chat' as any)}
               style={styles.iconButton}
@@ -354,6 +363,35 @@ export default function DashboardScreen() {
                   </View>
                   <View style={styles.gpaBentoArrow}>
                     <ArrowRight size={18} color={themeColors.brand.secondary} weight="bold" />
+                  </View>
+                </Pressable>
+              </Animated.View>
+
+              {/* Card 5: Collaboration Hub (Study Groups & Kanban Projects) */}
+              <Animated.View
+                entering={FadeInDown.delay(275)
+                  .duration(300)
+                  .easing(Easing.out(Easing.cubic))}
+                style={[styles.bentoCard, styles.bentoCardFull]}
+              >
+                <Pressable
+                  onPress={() => router.push('/collaboration' as any)}
+                  style={styles.gpaBentoPressable}
+                >
+                  <View style={styles.gpaBentoLeft}>
+                    <View style={styles.bentoHeader}>
+                      <UsersThree size={20} color={themeColors.brand.primary} weight="duotone" />
+                      <UniBadge label="KOLABORASI TIM" variant="primary" size="sm" />
+                    </View>
+                    <Text style={styles.gpaBentoTitle}>
+                      Grup Belajar, Kanban & GitHub
+                    </Text>
+                    <Text style={styles.bentoLabel}>
+                      Kelola grup belajar lintas kampus, proyek Kanban tim, milestone, dan aktivitas repositori GitHub
+                    </Text>
+                  </View>
+                  <View style={styles.gpaBentoArrow}>
+                    <ArrowRight size={18} color={themeColors.brand.primary} weight="bold" />
                   </View>
                 </Pressable>
               </Animated.View>

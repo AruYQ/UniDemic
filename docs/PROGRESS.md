@@ -10,7 +10,7 @@
 | Info | Detail |
 |------|--------|
 | **Repo** | [AruYQ/UniDemic](https://github.com/AruYQ/UniDemic) |
-| **Phase aktif** | Phase 7 — Collaboration (Backend Complete, Mobile Queued) |
+| **Phase aktif** | Phase 7 — Collaboration (Backend & Mobile Implemented — Menunggu Verifikasi Device) |
 | **Dev A (Backend)** | rekis-0103 |
 | **Dev B (Frontend)** | AruYQ |
 | **Mulai** | 2026-09-08 |
@@ -29,7 +29,7 @@
 | 4 | Productivity | `[x]` | `[x]` | `[x]` | `[x]` |
 | 5 | Learning | `[x]` | `[x]` | `[x]` | `[x]` |
 | 6 | Communication | `[x]` | `[x]` | `[x]` | `[x]` |
-| 7 | Collaboration | `[/]` | `[x]` | `[ ]` | `[ ]` |
+| 7 | Collaboration | `[/]` | `[x]` | `[/]` | `[ ]` |
 | 8 | Intelligence (AI) | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 | 9 | Web Companion | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
 
@@ -296,10 +296,11 @@
 
 | Task | Status | Catatan |
 |------|--------|---------|
-| Study Group list, detail & member management UI | `[ ]` | - |
-| Project Workspace & Milestone tracker UI | `[ ]` | - |
-| Kanban Board (drag & drop tasks) UI | `[ ]` | - |
-| GitHub Activity feed UI | `[ ]` | - |
+| Shared types, API service & Zustand store | `[x]` | `types/collaboration.ts` (Zod schemas), `services/collaborationService.ts`, `store/useCollaborationStore.ts` |
+| Study Group list, create, join & member management UI | `[x]` | `collaboration.tsx`, `collaboration/groups/[id].tsx`, `StudyGroupCard`, `CreateStudyGroupModal`, `JoinStudyGroupModal`, shared notes/materials |
+| Project Workspace & Milestone tracker UI | `[x]` | `collaboration/projects/[id].tsx`, `ProjectCard`, `CreateProjectModal`, `MilestoneListPanel` |
+| Kanban Board (drag & drop / tactile move tasks) UI | `[x]` | `KanbanBoard`, `ProjectTaskModal`, horizontal `Gesture.Pan()` swipe move + optimistic column re-indexing |
+| GitHub Activity feed UI | `[x]` | `GithubActivityPanel` (`secureTextEntry` tokens, sync, type filters, `FlashList`) |
 
 ### ⏳ Checkpoint 7 Verification
 
@@ -309,7 +310,7 @@
 | Study Group Invite Join & Shared Notes/Materials | `[x]` | Dev A (`StudyGroupTest` verified) | 2026-11-17 |
 | Kanban Move & Batch Reorder Indexing | `[x]` | Dev A (`KanbanAndMilestoneTest` verified) | 2026-11-17 |
 | GitHub API Sync & Webhook HMAC-SHA256 Verification | `[x]` | Dev A (`GithubIntegrationTest` verified) | 2026-11-17 |
-| Mobile Collaboration Screens & Kanban Drag-and-Drop | `[ ]` | Dev B (React Native + Expo) | - |
+| Mobile Collaboration Screens & Kanban Drag-and-Drop | `[x]` | Dev B (`npx tsc --noEmit` 0 errors, `verify-collaboration.ts` 20/20 pass) | 2026-11-19 |
 | User Acceptance & E2E Validation | `[ ]` | User & Dev B | - |
 
 ---
@@ -326,4 +327,4 @@
 
 ---
 
-*Terakhir diupdate: 2026-11-17 | Updated by: Dev A (rekis-0103)*
+*Terakhir diupdate: 2026-11-19 | Updated by: Dev B (Mobile Collaboration Implemented)*

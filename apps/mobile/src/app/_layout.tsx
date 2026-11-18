@@ -109,6 +109,30 @@ export default function RootLayout() {
             animationDuration: 240,
           }}
         />
+        <Stack.Screen
+          name="collaboration"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 240,
+          }}
+        />
+        <Stack.Screen
+          name="collaboration/groups/[id]"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 240,
+          }}
+        />
+        <Stack.Screen
+          name="collaboration/projects/[id]"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 240,
+          }}
+        />
         <Stack.Screen name="explore" options={{ headerShown: false }} />
       </Stack>
     </GestureHandlerRootView>
